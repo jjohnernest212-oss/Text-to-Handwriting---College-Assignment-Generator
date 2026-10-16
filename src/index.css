@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #111113;
+  --ink: #e4e4e7;
+  --ink-dim: rgba(228, 228, 231, 0.5);
+  --ink-faint: rgba(228, 228, 231, 0.1);
+  --accent: #6366f1;
+  --panel-bg: #18181b;
+}
+
+@layer utilities {
+  /* Design system fonts */
+  .font-syne { font-family: 'Syne', sans-serif; }
+  .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+  /* Monospace label class from design */
+  .label-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink-dim);
+  }
+
+  /* Handwriting fonts */
+  .font-kalam { font-family: 'Kalam', cursive; }
+  .font-caveat { font-family: 'Caveat', cursive; }
+  .font-indie { font-family: 'Indie Flower', cursive; }
+  .font-shadows { font-family: 'Shadows Into Light', cursive; }
+  .font-apple { font-family: 'Homemade Apple', cursive; }
+  .font-patrick { font-family: 'Patrick Hand', cursive; }
+  .font-reenie { font-family: 'Reenie Beanie', cursive; }
+  .font-mansalva { font-family: 'Mansalva', cursive; }
+  .font-nanum { font-family: 'Nanum Pen Script', cursive; }
+  .font-another { font-family: 'Just Another Hand', cursive; }
+  .font-gloria { font-family: 'Gloria Hallelujah', cursive; }
+  .font-architects { font-family: 'Architects Daughter', cursive; }
+}
+
+/* Paper textures and shadows */
+.paper-shadow-realistic {
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.paper-scanner-lighting {
+  background: radial-gradient(circle at 35% 20%, rgba(255,255,255,0.4) 0%, rgba(240,238,230,0) 70%),
+              linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.06) 100%);
+  pointer-events: none;
+}
+
+.desk-shadow-overlay {
+  background: linear-gradient(120deg, rgba(255,255,255,0.3) 0%, rgba(0,0,0,0.03) 60%, rgba(0,0,0,0.08) 100%);
+  pointer-events: none;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #111113;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(228, 228, 231, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+

@@ -1,0 +1,6 @@
+{
+  "name": "Text to Handwriting - College Assignment Generator",
+  "description": "Convert typed assignment text to authentic handwriting on ruled, plain, or graph paper with realistic ink colors, diagram sketches, custom fonts, scanner effects, and multi-page PDF export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
