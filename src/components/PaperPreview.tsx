@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Eye,
   Sparkles,
+  Plus,
 } from 'lucide-react';
 import {
   PageSettings,
@@ -30,6 +31,9 @@ interface PaperPreviewProps {
   onUpdateDiagram: (updated: DiagramElement) => void;
   onDeleteDiagram: (id: string) => void;
   paperRef: React.RefObject<HTMLDivElement | null>;
+  onAddPage?: () => void;
+  onDeletePage?: () => void;
+  onUpdateFontSize?: (size: number) => void;
 }
 
 export default function PaperPreview({
@@ -44,6 +48,9 @@ export default function PaperPreview({
   onUpdateDiagram,
   onDeleteDiagram,
   paperRef,
+  onAddPage,
+  onDeletePage,
+  onUpdateFontSize,
 }: PaperPreviewProps) {
   const [zoomLevel, setZoomLevel] = useState<number>(0.85);
   const [activeDiagramId, setActiveDiagramId] = useState<string | null>(null);
@@ -219,6 +226,29 @@ export default function PaperPreview({
           >
             <ChevronRight className="w-4 h-4" />
           </button>
+
+          {/* Direct + Add Page Button */}
+          {onAddPage && (
+            <button
+              onClick={onAddPage}
+              className="cursor-pointer ml-1 px-2.5 py-1 rounded bg-[#6366f1] hover:bg-[#4f46e5] text-white text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs uppercase tracking-wider"
+              title="Add another handwritten assignment page (unlimited)"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Add Page</span>
+            </button>
+          )}
+
+          {/* Delete current page button (only if > 1 page) */}
+          {totalPages > 1 && onDeletePage && (
+            <button
+              onClick={onDeletePage}
+              className="cursor-pointer p-1 rounded text-[#e4e4e7]/50 hover:text-rose-400 hover:bg-[#18181b] transition-colors ml-0.5"
+              title={`Delete Page ${pageIndex + 1}`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* Paper title / prompt info */}
@@ -227,8 +257,48 @@ export default function PaperPreview({
           <span>REAL-TIME A4 SIMULATION // 300 DPI EQUIV</span>
         </div>
 
-        {/* Zoom controls */}
-        <div className="flex items-center gap-1 bg-[#18181b] border border-[#27272a] p-0.5 rounded font-mono-code">
+        <div className="flex items-center gap-2">
+          {/* Real-time Font Size Quick Tuning */}
+          {onUpdateFontSize && (
+            <div className="flex items-center gap-1.5 bg-[#18181b] border border-[#27272a] px-2 py-1 rounded font-mono-code text-[11px]">
+              <span className="text-[#e4e4e7]/60 text-[10px] hidden md:inline">Font:</span>
+              <button
+                type="button"
+                onClick={() => onUpdateFontSize(Math.max(11, settings.fontSize - 1))}
+                disabled={settings.fontSize <= 11}
+                className="cursor-pointer text-[10px] text-[#e4e4e7] hover:text-white disabled:opacity-30 px-1 py-0.5 rounded hover:bg-[#27272a] transition-colors"
+                title="Decrease font size (A-)"
+              >
+                A-
+              </button>
+              <input
+                type="range"
+                min="11"
+                max="32"
+                step="1"
+                value={settings.fontSize}
+                onChange={(e) => onUpdateFontSize(Number(e.target.value))}
+                className="w-14 sm:w-20 accent-[#6366f1] cursor-pointer h-1.5 hidden sm:inline-block"
+                title={`Font Size: ${settings.fontSize}px`}
+                aria-label="Font size slider"
+              />
+              <span className="text-[#6366f1] font-bold min-w-[28px] text-center text-[10px] sm:text-[11px]">
+                {settings.fontSize}px
+              </span>
+              <button
+                type="button"
+                onClick={() => onUpdateFontSize(Math.min(32, settings.fontSize + 1))}
+                disabled={settings.fontSize >= 32}
+                className="cursor-pointer text-[10px] text-[#e4e4e7] hover:text-white disabled:opacity-30 px-1 py-0.5 rounded hover:bg-[#27272a] transition-colors"
+                title="Increase font size (A+)"
+              >
+                A+
+              </button>
+            </div>
+          )}
+
+          {/* Zoom controls */}
+          <div className="flex items-center gap-1 bg-[#18181b] border border-[#27272a] p-0.5 rounded font-mono-code">
           <button
             onClick={() => setZoomLevel((z) => Math.max(0.4, Number((z - 0.1).toFixed(2))))}
             className="cursor-pointer px-1.5 py-0.5 rounded text-[11px] hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white transition-colors"
@@ -255,6 +325,7 @@ export default function PaperPreview({
           </button>
         </div>
       </div>
+    </div>
 
       {/* Main Paper Scrollport */}
       <div

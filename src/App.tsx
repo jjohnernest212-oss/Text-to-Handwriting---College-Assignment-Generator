@@ -13,6 +13,11 @@ import HowItWorksModal from './components/HowItWorksModal';
 import BuyCoffeeModal from './components/BuyCoffeeModal';
 import ExportModal from './components/ExportModal';
 import InkBlotsOverlay from './components/InkBlotsOverlay';
+import MobileScanModal from './components/MobileScanModal';
+import ContributorsModal from './components/ContributorsModal';
+import ModernPathBar from './components/ModernPathBar';
+import FloatingActions from './components/FloatingActions';
+import FrontPageMarquee from './components/FrontPageMarquee';
 
 import {
   DEFAULT_PAGE_SETTINGS,
@@ -27,7 +32,13 @@ import {
   DiagramElement,
   AssignmentPreset,
 } from './types';
-import { parsePagesFromText } from './utils/paginationUtils';
+import {
+  parsePagesFromText,
+  addNewPageToEnd,
+  addNewPageAfter,
+  deletePageAtIndex,
+  autoSplitLongText,
+} from './utils/paginationUtils';
 import { loadCustomFontFile } from './utils/fontLoader';
 import {
   BookOpen,
@@ -37,6 +48,7 @@ import {
   ChevronRight,
   Eye,
   Plus,
+  QrCode,
 } from 'lucide-react';
 
 export default function App() {
@@ -56,6 +68,8 @@ export default function App() {
   const [isBuyCoffeeOpen, setIsBuyCoffeeOpen] = useState<boolean>(false);
   const [isDiagramModalOpen, setIsDiagramModalOpen] = useState<boolean>(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
+  const [isMobileScanOpen, setIsMobileScanOpen] = useState<boolean>(false);
+  const [isContributorsOpen, setIsContributorsOpen] = useState<boolean>(false);
 
   // Paper DOM reference
   const paperRef = useRef<HTMLDivElement | null>(null);
@@ -80,6 +94,16 @@ export default function App() {
     return builtInMatch ? builtInMatch.fontFamily : "'Kalam', cursive";
   }, [settings.fontId, customFonts]);
 
+  // Toast notification state
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast((prev) => (prev?.message === message ? null : prev));
+    }, 3200);
+  };
+
   // Handle custom font file upload
   const handleCustomFontUpload = async (file: File) => {
     try {
@@ -97,9 +121,10 @@ export default function App() {
         fontId: loaded.fontId,
         customFontFamily: loaded.fontFamily,
       }));
+      showToast(`Font "${file.name}" loaded successfully!`, 'success');
     } catch (err) {
       console.error('Failed to load custom font:', err);
-      alert('Could not parse font file. Please ensure it is a valid .ttf, .otf, or .woff file.');
+      showToast('Could not parse font file. Please upload a valid .ttf, .otf, or .woff file.', 'error');
     }
   };
 
@@ -117,20 +142,49 @@ export default function App() {
       ...prev,
       subject: preset.subject,
     }));
+    showToast(`Loaded preset: ${preset.title}`, 'info');
   };
 
-  // Handle insert page break
+  // Handle adding a new page to the assignment (unlimited pages support)
+  const handleAddPage = () => {
+    const res = addNewPageToEnd(rawText);
+    setRawText(res.newRawText);
+    setCurrentPageIndex(res.newPageIndex);
+    showToast(`Added Page ${res.newPageIndex + 1} (Total: ${res.newPageIndex + 1})`, 'success');
+  };
+
+  // Handle deleting current page (if more than 1 page)
+  const handleDeleteCurrentPage = () => {
+    if (pages.length <= 1) {
+      showToast('Assignment must have at least 1 page.', 'info');
+      return;
+    }
+    const targetIdx = safePageIndex;
+    const res = deletePageAtIndex(rawText, targetIdx);
+    setRawText(res.newRawText);
+    setCurrentPageIndex(res.newPageIndex);
+    showToast(`Deleted page. Active page: ${res.newPageIndex + 1}`, 'info');
+  };
+
+  // Handle auto-paginating long continuous text across pages
+  const handleAutoSplitPages = () => {
+    const splitted = autoSplitLongText(rawText);
+    const newPages = parsePagesFromText(splitted);
+    setRawText(splitted);
+    setCurrentPageIndex(0);
+    showToast(`Auto-paginated into ${newPages.length} ${newPages.length === 1 ? 'page' : 'pages'}!`, 'success');
+  };
+
+  // Handle insert page break delimiter at end
   const handleInsertPageBreak = () => {
-    setRawText((prev) => prev + '\n\n---page---\n\n');
-    setCurrentPageIndex(pages.length);
+    handleAddPage();
   };
 
   // Clear text
   const handleClearText = () => {
-    if (window.confirm('Are you sure you want to clear all text?')) {
-      setRawText('');
-      setCurrentPageIndex(0);
-    }
+    setRawText('');
+    setCurrentPageIndex(0);
+    showToast('Assignment buffer cleared.', 'info');
   };
 
   // Add diagram
@@ -148,56 +202,101 @@ export default function App() {
     setDiagrams((prev) => prev.filter((d) => d.id !== id));
   };
 
-  // Prepare all page elements for PDF export
+  // Prepare all page elements for PDF/PNG export by bringing them into active coordinate space
   const prepareAllPagesForExport = async (): Promise<HTMLElement[]> => {
     const container = multiPageExportContainerRef.current;
     if (!container) return [];
+
+    // Bring container to visible coordinate space (left: 0, top: 0) directly under ExportModal backdrop (z-40)
+    container.style.left = '0px';
+    container.style.top = '0px';
+    container.style.zIndex = '40';
+    container.style.pointerEvents = 'none';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+
+    // Wait a brief tick for layout to calculate and fonts to load
+    await new Promise((r) => setTimeout(r, 80));
+    try {
+      await document.fonts.ready;
+    } catch {
+      // ignore
+    }
+
     const pageNodes = container.querySelectorAll<HTMLElement>('.export-paper-page');
     return Array.from(pageNodes);
   };
 
+  // Cleanup after export completes
+  const cleanupAfterExport = () => {
+    const container = multiPageExportContainerRef.current;
+    if (container) {
+      container.style.left = '-9999px';
+      container.style.top = '0px';
+      container.style.zIndex = '-1';
+      const pageNodes = container.querySelectorAll<HTMLElement>('.export-paper-page');
+      pageNodes.forEach((p) => {
+        p.style.display = 'block';
+      });
+    }
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-[#0c0c0e] text-[#e4e4e7] overflow-hidden font-sans">
+    <div className="h-[100dvh] min-h-[100dvh] flex flex-col bg-[#0c0c0e] text-[#e4e4e7] overflow-hidden font-sans">
       {/* Header */}
       <Header
         onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
         onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
         onOpenExport={() => setIsExportModalOpen(true)}
+        onOpenMobileScan={() => setIsMobileScanOpen(true)}
+        onOpenContributors={() => setIsContributorsOpen(true)}
       />
 
-      {/* Mobile Navigation Tabs (visible only on small screens < lg) */}
-      <div className="flex lg:hidden bg-[#121214] p-1 border-b border-[#27272a] gap-1">
+      {/* Modern Workflow Path & Pipeline Telemetry */}
+      <ModernPathBar
+        activeTab={mobileTab}
+        onSelectTab={setMobileTab}
+        totalPages={pages.length}
+        currentPageIndex={safePageIndex}
+        fontSize={settings.fontSize}
+        paperType={settings.paperType}
+        onOpenExport={() => setIsExportModalOpen(true)}
+        onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
+      />
+
+      {/* Mobile Navigation Tabs (Engineered for Android & iPhone thumb reachability) */}
+      <div className="flex lg:hidden bg-[#121214] p-1.5 border-b border-[#27272a] gap-1.5 shrink-0 z-20">
         <button
           onClick={() => setMobileTab('editor')}
-          className={`flex-1 py-1.5 font-mono-code text-[11px] uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-1.5 transition-colors ${
+          className={`flex-1 min-h-[44px] py-2 px-3 font-mono-code text-xs uppercase tracking-wider font-semibold rounded-md flex items-center justify-center gap-2 transition-all ${
             mobileTab === 'editor'
-              ? 'bg-[#6366f1] text-white shadow-xs'
-              : 'text-[#e4e4e7]/60 hover:text-white'
+              ? 'bg-[#6366f1] text-white shadow-md shadow-indigo-950/40 ring-1 ring-indigo-400/30'
+              : 'text-[#e4e4e7]/70 hover:text-white hover:bg-[#18181b]'
           }`}
         >
-          <Edit3 className="w-3.5 h-3.5" />
+          <Edit3 className="w-4 h-4" />
           <span>01 // Input</span>
         </button>
         <button
           onClick={() => setMobileTab('preview')}
-          className={`flex-1 py-1.5 font-mono-code text-[11px] uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-1.5 transition-colors ${
+          className={`flex-1 min-h-[44px] py-2 px-3 font-mono-code text-xs uppercase tracking-wider font-semibold rounded-md flex items-center justify-center gap-2 transition-all ${
             mobileTab === 'preview'
-              ? 'bg-[#6366f1] text-white shadow-xs'
-              : 'text-[#e4e4e7]/60 hover:text-white'
+              ? 'bg-[#6366f1] text-white shadow-md shadow-indigo-950/40 ring-1 ring-indigo-400/30'
+              : 'text-[#e4e4e7]/70 hover:text-white hover:bg-[#18181b]'
           }`}
         >
-          <Eye className="w-3.5 h-3.5" />
+          <Eye className="w-4 h-4" />
           <span>Preview ({pages.length})</span>
         </button>
         <button
           onClick={() => setMobileTab('settings')}
-          className={`flex-1 py-1.5 font-mono-code text-[11px] uppercase tracking-wider font-semibold rounded flex items-center justify-center gap-1.5 transition-colors ${
+          className={`flex-1 min-h-[44px] py-2 px-3 font-mono-code text-xs uppercase tracking-wider font-semibold rounded-md flex items-center justify-center gap-2 transition-all ${
             mobileTab === 'settings'
-              ? 'bg-[#6366f1] text-white shadow-xs'
-              : 'text-[#e4e4e7]/60 hover:text-white'
+              ? 'bg-[#6366f1] text-white shadow-md shadow-indigo-950/40 ring-1 ring-indigo-400/30'
+              : 'text-[#e4e4e7]/70 hover:text-white hover:bg-[#18181b]'
           }`}
         >
-          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <SlidersHorizontal className="w-4 h-4" />
           <span>02 // Style</span>
         </button>
       </div>
@@ -216,8 +315,15 @@ export default function App() {
             totalPages={pages.length}
             onChangeText={setRawText}
             onApplyPreset={handleApplyPreset}
-            onInsertPageBreak={handleInsertPageBreak}
+            onInsertPageBreak={handleAddPage}
+            onAutoSplitPages={handleAutoSplitPages}
+            fontSize={settings.fontSize}
+            onUpdateFontSize={(newFontSize) =>
+              setSettings((prev) => ({ ...prev, fontSize: newFontSize }))
+            }
             onClearText={handleClearText}
+            onCustomFontUpload={handleCustomFontUpload}
+            onNotify={showToast}
           />
         </section>
 
@@ -237,44 +343,50 @@ export default function App() {
               diagrams={diagrams}
               fontFamilyCss={activeFontFamilyCss}
               onPageChange={setCurrentPageIndex}
+              onAddPage={handleAddPage}
+              onDeletePage={handleDeleteCurrentPage}
               onUpdateDiagram={handleUpdateDiagram}
               onDeleteDiagram={handleDeleteDiagram}
               paperRef={paperRef}
+              onUpdateFontSize={(newFontSize) =>
+                setSettings((prev) => ({ ...prev, fontSize: newFontSize }))
+              }
             />
           </div>
 
-          {/* Multi-page Thumbnail strip when more than 1 page */}
-          {pages.length > 1 && (
-            <div className="bg-[#0c0c0e] rounded-md border border-[#27272a] p-2 flex items-center justify-between gap-3 shadow-xs">
-              <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 font-mono-code">
-                {pages.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentPageIndex(idx)}
-                    className={`cursor-pointer px-3 py-1 rounded text-[11px] font-bold flex items-center gap-1.5 transition-all ${
-                      idx === safePageIndex
-                        ? 'bg-[#6366f1] text-white shadow-xs'
-                        : 'bg-[#18181b] text-[#e4e4e7]/70 hover:bg-[#222226]'
-                    }`}
-                  >
-                    <span>PAGE {idx + 1}</span>
-                    {diagrams.some((d) => d.pageIndex === idx) && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                    )}
-                  </button>
-                ))}
-              </div>
+          {/* Multi-page Navigation & Management Strip - Always visible for unlimited pages */}
+          <div className="bg-[#0c0c0e] rounded-md border border-[#27272a] p-2 flex items-center justify-between gap-3 shadow-xs select-none">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 font-mono-code scrollbar-thin">
+              {pages.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentPageIndex(idx)}
+                  className={`cursor-pointer px-3 py-1 rounded text-[11px] font-bold flex items-center gap-1.5 transition-all flex-shrink-0 ${
+                    idx === safePageIndex
+                      ? 'bg-[#6366f1] text-white shadow-xs ring-1 ring-[#6366f1]'
+                      : 'bg-[#18181b] text-[#e4e4e7]/70 hover:bg-[#222226] border border-[#27272a]'
+                  }`}
+                  title={`Go to Page ${idx + 1}`}
+                >
+                  <span>PAGE {idx + 1}</span>
+                  {diagrams.some((d) => d.pageIndex === idx) && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  )}
+                </button>
+              ))}
+            </div>
 
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
-                onClick={handleInsertPageBreak}
-                className="cursor-pointer flex-shrink-0 px-2.5 py-1 text-[11px] font-mono-code text-[#6366f1] hover:bg-[#6366f1]/10 border border-[#6366f1]/30 rounded flex items-center gap-1 transition-colors"
-                title="Add new assignment page"
+                onClick={handleAddPage}
+                className="cursor-pointer px-3 py-1 text-[11px] font-mono-code font-bold bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded flex items-center gap-1.5 transition-all shadow-xs uppercase tracking-wider"
+                title="Add unlimited assignment pages"
               >
-                <Plus className="w-3 h-3" />
-                <span>+ Page</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ Add Page</span>
               </button>
             </div>
-          )}
+          </div>
         </section>
 
         {/* Right Column: 02 // STYLE SYSTEM (w: ~340px) */}
@@ -302,29 +414,61 @@ export default function App() {
         </section>
       </main>
 
-      {/* Technical Status Footer Bar (Variation 2) */}
-      <footer className="h-12 bg-[#18181b] border-t border-[rgba(228,228,231,0.1)] px-6 flex items-center justify-between font-mono-code text-[0.65rem] uppercase tracking-[0.15em] text-[#e4e4e7]/60 select-none flex-shrink-0">
+      {/* Front Page Near Footer: 
+          Row 1: Contributors moving Left to Right with lightning speed toggle
+          Row 2: Student FAQs moving Right to Left */}
+      <FrontPageMarquee
+        onOpenContributors={() => setIsContributorsOpen(true)}
+        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
+      />
+
+      {/* Technical Status & Student Credits Footer Bar */}
+      <footer className="h-auto sm:h-12 py-2 sm:py-0 bg-[#18181b] border-t border-[rgba(228,228,231,0.1)] px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono-code text-[0.65rem] uppercase tracking-[0.12em] text-[#e4e4e7]/70 select-none flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>SYS_STATUS: READY // {pages.length} {pages.length === 1 ? 'PAGE' : 'PAGES'} RENDERED</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+          <span>SYS_STATUS: READY // {pages.length} {pages.length === 1 ? 'PAGE' : 'PAGES'}</span>
         </div>
-        <div className="hidden md:block text-[#e4e4e7]/40">
-          VER. 4.3 // DESIGNED FOR AUTHENTICITY
+
+        {/* Student names: rhema, shivu sah, akchey, traore, yao */}
+        <div className="flex items-center gap-1.5 text-zinc-400 text-center flex-wrap justify-center">
+          <span className="text-zinc-500 font-semibold">STUDENTS:</span>
+          <span className="text-zinc-200 font-semibold tracking-normal lowercase">
+            rhema · shivu sah · akchey · traore · yao
+          </span>
         </div>
+
+        {/* Made with love by PLENTY */}
         <div className="flex items-center gap-3">
-          <span className="text-[#6366f1] font-semibold">85% VIEWPORT SCALE</span>
+          <span className="text-rose-400 font-bold flex items-center gap-1 shadow-xs">
+            <span>Made with love by PLENTY</span>
+            <span className="text-rose-500 animate-pulse">❤️</span>
+          </span>
+
+          <button
+            onClick={() => setIsContributorsOpen(true)}
+            className="cursor-pointer text-[#e4e4e7]/70 hover:text-white transition-colors py-1 px-2 rounded hover:bg-[#27272a] hidden md:flex items-center gap-1"
+            title="View GitHub Contributors"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+            <span className="text-orange-400 font-bold">@plenty</span>
+          </button>
         </div>
       </footer>
 
-      {/* Hidden Offscreen Container for Multi-Page PDF Export Generation */}
+      {/* Container for Multi-Page PDF Export Generation */}
       <div
         ref={multiPageExportContainerRef}
         style={{
           position: 'fixed',
           left: '-9999px',
-          top: '-9999px',
+          top: '0px',
           width: '794px',
-          visibility: 'hidden',
+          height: '1123px',
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          zIndex: -1,
+          opacity: 1,
+          backgroundColor: '#ffffff',
         }}
       >
         {pages.map((pText, pIdx) => {
@@ -483,6 +627,20 @@ export default function App() {
         })}
       </div>
 
+      {/* Modern Floating Action Buttons Cluster */}
+      <FloatingActions
+        totalPages={pages.length}
+        currentPageIndex={safePageIndex}
+        fontSize={settings.fontSize}
+        onOpenExport={() => setIsExportModalOpen(true)}
+        onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
+        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
+        onAddPage={handleAddPage}
+        onUpdateFontSize={(sz) =>
+          setSettings((prev) => ({ ...prev, fontSize: sz }))
+        }
+      />
+
       {/* Modals */}
       <DiagramModal
         isOpen={isDiagramModalOpen}
@@ -508,7 +666,34 @@ export default function App() {
         totalPages={pages.length}
         paperRef={paperRef}
         onPrepareAllPages={prepareAllPagesForExport}
+        onCleanupExport={cleanupAfterExport}
       />
+
+      <MobileScanModal
+        isOpen={isMobileScanOpen}
+        onClose={() => setIsMobileScanOpen(false)}
+      />
+
+      <ContributorsModal
+        isOpen={isContributorsOpen}
+        onClose={() => setIsContributorsOpen(false)}
+      />
+
+      {/* Floating System Toast */}
+      {toast && (
+        <div className="fixed bottom-14 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-md font-mono-code text-xs shadow-2xl border animate-in slide-in-from-bottom-3 duration-200 bg-[#18181b] border-[#27272a] text-white">
+          <span
+            className={`w-2 h-2 rounded-full ${
+              toast.type === 'success'
+                ? 'bg-emerald-400'
+                : toast.type === 'error'
+                ? 'bg-rose-400'
+                : 'bg-[#6366f1]'
+            }`}
+          />
+          <span>{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 }

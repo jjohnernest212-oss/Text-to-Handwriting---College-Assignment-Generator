@@ -22,6 +22,7 @@ interface ExportModalProps {
   totalPages: number;
   paperRef: React.RefObject<HTMLDivElement | null>;
   onPrepareAllPages: () => Promise<HTMLElement[]>;
+  onCleanupExport?: () => void;
 }
 
 export default function ExportModal({
@@ -31,6 +32,7 @@ export default function ExportModal({
   totalPages,
   paperRef,
   onPrepareAllPages,
+  onCleanupExport,
 }: ExportModalProps) {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
@@ -39,11 +41,17 @@ export default function ExportModal({
   if (!isOpen) return null;
 
   const handleDownloadSingleImage = async () => {
-    if (!paperRef.current) return;
     try {
       setIsExporting(true);
+      const elements = await onPrepareAllPages();
+      const targetElement = elements[currentPageIndex] || paperRef.current;
+      if (!targetElement) return;
+
+      // Small delay for reflow
+      await new Promise((r) => setTimeout(r, 60));
+
       await downloadPageAsImage(
-        paperRef.current,
+        targetElement,
         `Assignment_Page_${currentPageIndex + 1}.png`,
         2.5
       );
@@ -55,6 +63,7 @@ export default function ExportModal({
     } catch (err) {
       console.error(err);
     } finally {
+      onCleanupExport?.();
       setIsExporting(false);
     }
   };
@@ -83,6 +92,7 @@ export default function ExportModal({
     } catch (err) {
       console.error(err);
     } finally {
+      onCleanupExport?.();
       setIsExporting(false);
       setProgress(null);
     }

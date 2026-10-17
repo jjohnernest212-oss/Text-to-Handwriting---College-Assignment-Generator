@@ -173,21 +173,34 @@ export default function EditorControls({
                 })}
               </div>
 
-              {/* Upload Custom Font Button */}
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="cursor-pointer w-full mt-2.5 py-2 px-3 border border-[#27272a] hover:border-[#6366f1] bg-[#18181b] hover:bg-[#222226] text-[#e4e4e7] rounded font-mono-code text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+              {/* Upload Custom Font Button with Drag & Drop */}
+              <div
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) {
+                    onCustomFontUpload(file);
+                  }
+                }}
+                className="mt-2.5"
               >
-                <Upload className="w-3.5 h-3.5 text-[#6366f1]" />
-                <span>Upload Custom Font (.TTF / .OTF / .WOFF)</span>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".ttf,.otf,.woff,.woff2"
-                onChange={handleFontFileChange}
-                className="hidden"
-              />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="cursor-pointer w-full py-2 px-3 border border-[#27272a] hover:border-[#6366f1] bg-[#18181b] hover:bg-[#222226] text-[#e4e4e7] rounded font-mono-code text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                  title="Upload or drop font file (.ttf, .otf, .woff, .woff2)"
+                >
+                  <Upload className="w-3.5 h-3.5 text-[#6366f1]" />
+                  <span>Upload / Drop Custom Font</span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".ttf,.otf,.woff,.woff2"
+                  onChange={handleFontFileChange}
+                  className="hidden"
+                />
+              </div>
             </div>
 
             {/* Pen Chemistry (Variation 2 ink picker) */}
@@ -355,21 +368,40 @@ export default function EditorControls({
             </div>
 
             {/* Font Size & Pen Nib Thickness */}
-            <div className="grid grid-cols-2 gap-3 pt-1">
-              <div className="p-2.5 bg-[#18181b] border border-[#27272a] rounded-md">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="p-3 bg-[#18181b] border border-[#27272a] rounded-md">
                 <div className="flex justify-between font-mono-code text-[11px] text-[#e4e4e7]/70 mb-1.5">
                   <span>Font Size:</span>
-                  <span className="text-[#6366f1] font-bold">{settings.fontSize}px</span>
+                  <span className="text-[#6366f1] font-bold bg-[#6366f1]/15 px-1.5 py-0.5 rounded border border-[#6366f1]/30">
+                    {settings.fontSize}px
+                  </span>
                 </div>
                 <input
                   type="range"
-                  min="13"
-                  max="26"
+                  min="11"
+                  max="32"
                   step="1"
                   value={settings.fontSize}
                   onChange={(e) => onUpdateSettings({ fontSize: Number(e.target.value) })}
                   className="w-full accent-[#6366f1] cursor-pointer"
+                  aria-label="Font size"
                 />
+                <div className="flex items-center justify-between gap-1 mt-2 font-mono-code text-[10px]">
+                  {[14, 18, 22, 26].map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => onUpdateSettings({ fontSize: sz })}
+                      className={`cursor-pointer px-1.5 py-0.5 rounded border transition-colors ${
+                        settings.fontSize === sz
+                          ? 'border-[#6366f1] bg-[#6366f1]/20 text-white font-bold'
+                          : 'border-[#27272a] hover:border-[#3f3f46] text-[#e4e4e7]/60 hover:text-white'
+                      }`}
+                    >
+                      {sz}px
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="p-2.5 bg-[#18181b] border border-[#27272a] rounded-md">

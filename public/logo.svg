@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%" fill="none">
+  <!-- Book and Quill Logo -->
+  <g fill="currentColor">
+    <!-- Center Quill Feather (Angled ~32 degrees) -->
+    <!-- Feather Nib & Ferrule -->
+    <!-- Lower Nib pointing into book center -->
+    <path d="M256 360 L242 292 C240 282 246 274 256 274 C266 274 272 282 270 292 Z" />
+    <circle cx="256" cy="326" r="3" fill="#0c0c0e" />
+    <line x1="256" y1="326" x2="256" y2="360" stroke="#0c0c0e" stroke-width="2" />
+    
+    <!-- Feather Collar / Ring -->
+    <path d="M239 270 C239 266 246 263 256 263 C266 263 273 266 273 270 C273 274 266 277 256 277 C246 277 239 274 239 270 Z" />
+
+    <!-- Main Feather Body with Aerodynamic Barbs & Notches -->
+    <!-- Central Spine / Shaft -->
+    <path d="M256 263 Q295 180 405 52 Q300 170 256 263 Z" opacity="0.3" />
+    
+    <!-- Feather Left & Right Vanes -->
+    <path d="M256 263 C252 235 258 198 274 165 C264 168 253 174 246 182 C255 158 272 136 292 118 C280 123 270 131 262 140 C275 110 300 86 332 68 C318 73 306 82 296 92 C318 64 350 44 388 32 C395 30 402 33 404 40 C406 48 402 55 396 59 C375 75 358 96 345 120 C356 114 368 110 380 108 C358 132 342 160 332 192 C342 186 354 182 366 180 C340 208 322 242 312 280 C306 275 298 271 290 268 C278 285 268 275 256 263 Z" />
+
+    <!-- Left Book Pages Spread -->
+    <!-- Main Left Open Page -->
+    <path d="M246 220 L136 172 C125 168 113 176 115 188 L146 360 C182 376 218 378 246 352 Z" fill="none" stroke="currentColor" stroke-width="15" stroke-linejoin="round" />
+    
+    <!-- Right Book Pages Spread -->
+    <!-- Main Right Open Page -->
+    <path d="M266 220 L376 172 C387 168 399 176 397 188 L366 360 C330 376 294 378 266 352 Z" fill="none" stroke="currentColor" stroke-width="15" stroke-linejoin="round" />
+
+    <!-- Left Fanned Outer Leaf 1 -->
+    <path d="M106 230 L66 246 C56 250 50 260 52 271 L86 384 C134 416 190 424 246 410" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Left Fanned Outer Leaf 2 -->
+    <path d="M72 300 L26 318 C16 322 10 333 13 344 L48 424 C104 468 174 484 246 470" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Right Fanned Outer Leaf 1 -->
+    <path d="M406 230 L446 246 C456 250 462 260 460 271 L426 384 C378 416 322 424 266 410" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Right Fanned Outer Leaf 2 -->
+    <path d="M440 300 L486 318 C496 322 502 333 499 344 L464 424 C408 468 338 484 266 470" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Bottom Page Layers Under Spine -->
+    <path d="M120 426 C162 458 208 472 256 472 C304 472 350 458 392 426" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" />
+    <path d="M160 454 C190 476 222 486 256 486 C290 486 322 476 352 454" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
+  </g>
+</svg>
