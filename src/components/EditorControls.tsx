@@ -66,10 +66,10 @@ export default function EditorControls({
       <div className="px-4 py-3 border-b border-[#27272a] bg-[#121214] flex items-center justify-between">
         <div>
           <span className="font-mono-code text-[11px] text-[#6366f1] tracking-widest uppercase font-bold block">
-            02 // Style System
+            Style &amp; Handwriting Controls
           </span>
-          <span className="font-mono-code text-[10px] text-[#e4e4e7]/50 tracking-wider">
-            SCRIBE MATRIX &amp; PROFILE
+          <span className="font-mono-code text-[10px] text-[#e4e4e7]/60 tracking-wider">
+            FONTS, INK, PAPER &amp; MARGINS
           </span>
         </div>
       </div>
@@ -174,6 +174,7 @@ export default function EditorControls({
               </div>
 
               {/* Upload Custom Font Button with Drag & Drop */}
+              {/* Upload Custom Font Button with Drag & Drop & Helpful Note */}
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
@@ -183,16 +184,19 @@ export default function EditorControls({
                     onCustomFontUpload(file);
                   }
                 }}
-                className="mt-2.5"
+                className="mt-2.5 space-y-1.5"
               >
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="cursor-pointer w-full py-2 px-3 border border-[#27272a] hover:border-[#6366f1] bg-[#18181b] hover:bg-[#222226] text-[#e4e4e7] rounded font-mono-code text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
-                  title="Upload or drop font file (.ttf, .otf, .woff, .woff2)"
+                  className="cursor-pointer w-full py-2.5 px-3 border border-indigo-500/40 hover:border-indigo-400 bg-indigo-950/20 hover:bg-indigo-950/40 text-white rounded-lg font-mono-code text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs"
+                  title="Upload font file (.ttf, .otf, .woff)"
                 >
-                  <Upload className="w-3.5 h-3.5 text-[#6366f1]" />
-                  <span>Upload / Drop Custom Font</span>
+                  <Upload className="w-4 h-4 text-indigo-400" />
+                  <span className="font-bold">Upload Custom Handwriting Font</span>
                 </button>
+                <p className="text-[10px] text-zinc-400 font-sans leading-tight">
+                  💡 Tip: Create a font of your handwriting on <strong className="text-zinc-200">Calligraphr</strong> or other online tools and upload the .ttf/.otf file to write in your own handwriting!
+                </p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -200,6 +204,16 @@ export default function EditorControls({
                   onChange={handleFontFileChange}
                   className="hidden"
                 />
+
+                {/* Draw Diagrams Quick Action */}
+                <button
+                  onClick={onOpenDiagramModal}
+                  className="cursor-pointer w-full py-2 px-3 border border-[#27272a] hover:border-emerald-500/50 bg-[#18181b] hover:bg-[#222226] text-emerald-300 rounded-lg font-mono-code text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                  title="Draw diagrams, flowcharts, circuits on paper"
+                >
+                  <PenTool className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Draw / Add Diagrams to Paper</span>
+                </button>
               </div>
             </div>
 
