@@ -20,6 +20,7 @@ import {
 import InkBlotsOverlay from './InkBlotsOverlay';
 
 interface PaperPreviewProps {
+  theme?: 'dark' | 'light';
   pageIndex: number;
   totalPages: number;
   pageText: string;
@@ -37,6 +38,7 @@ interface PaperPreviewProps {
 }
 
 export default function PaperPreview({
+  theme = 'dark',
   pageIndex,
   totalPages,
   pageText,
@@ -52,6 +54,7 @@ export default function PaperPreview({
   onDeletePage,
   onUpdateFontSize,
 }: PaperPreviewProps) {
+  const isLight = theme === 'light';
   const [zoomLevel, setZoomLevel] = useState<number>(0.85);
   const [activeDiagramId, setActiveDiagramId] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -200,28 +203,52 @@ export default function PaperPreview({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#121214] rounded-lg border border-[#27272a] overflow-hidden shadow-2xl">
+    <div
+      className={`flex flex-col h-full rounded-lg border overflow-hidden shadow-2xl transition-colors ${
+        isLight
+          ? 'bg-slate-100 border-slate-300 text-slate-800'
+          : 'bg-[#121214] border-[#27272a] text-[#e4e4e7]'
+      }`}
+    >
       {/* Top Bar: Zoom Controls & Pagination */}
-      <div className="px-4 py-2.5 bg-[#0c0c0e] border-b border-[#27272a] flex items-center justify-between gap-3 flex-wrap select-none">
+      <div
+        className={`px-4 py-2.5 border-b flex items-center justify-between gap-3 flex-wrap select-none ${
+          isLight ? 'bg-slate-50 border-slate-300' : 'bg-[#0c0c0e] border-[#27272a]'
+        }`}
+      >
         {/* Pagination navigator */}
         <div className="flex items-center gap-1.5 font-mono-code">
           <button
             onClick={() => onPageChange(Math.max(0, pageIndex - 1))}
             disabled={pageIndex === 0}
-            className="cursor-pointer p-1 rounded text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b] disabled:opacity-20 disabled:hover:bg-transparent transition-colors"
+            className={`cursor-pointer p-1 rounded disabled:opacity-20 disabled:hover:bg-transparent transition-colors ${
+              isLight
+                ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]'
+            }`}
             title="Previous Page"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
-          <span className="text-[11px] font-bold text-[#e4e4e7] bg-[#18181b] border border-[#27272a] px-2.5 py-0.5 rounded tracking-wider">
+          <span
+            className={`text-[11px] font-bold px-2.5 py-0.5 rounded tracking-wider border ${
+              isLight
+                ? 'text-slate-900 bg-white border-slate-300 shadow-2xs'
+                : 'text-[#e4e4e7] bg-[#18181b] border-[#27272a]'
+            }`}
+          >
             PAGE {String(pageIndex + 1).padStart(2, '0')} / {String(totalPages).padStart(2, '0')}
           </span>
 
           <button
             onClick={() => onPageChange(Math.min(totalPages - 1, pageIndex + 1))}
             disabled={pageIndex >= totalPages - 1}
-            className="cursor-pointer p-1 rounded text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b] disabled:opacity-20 disabled:hover:bg-transparent transition-colors"
+            className={`cursor-pointer p-1 rounded disabled:opacity-20 disabled:hover:bg-transparent transition-colors ${
+              isLight
+                ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]'
+            }`}
             title="Next Page"
           >
             <ChevronRight className="w-4 h-4" />
@@ -231,7 +258,7 @@ export default function PaperPreview({
           {onAddPage && (
             <button
               onClick={onAddPage}
-              className="cursor-pointer ml-1 px-2.5 py-1 rounded bg-[#6366f1] hover:bg-[#4f46e5] text-white text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs uppercase tracking-wider"
+              className="cursor-pointer ml-1 px-2.5 py-1 rounded bg-[#6366f1] hover:bg-[#4f46e5] text-white text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs uppercase tracking-wider active:scale-95"
               title="Add another handwritten assignment page (unlimited)"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -243,7 +270,11 @@ export default function PaperPreview({
           {totalPages > 1 && onDeletePage && (
             <button
               onClick={onDeletePage}
-              className="cursor-pointer p-1 rounded text-[#e4e4e7]/50 hover:text-rose-400 hover:bg-[#18181b] transition-colors ml-0.5"
+              className={`cursor-pointer p-1 rounded transition-colors ml-0.5 ${
+                isLight
+                  ? 'text-slate-400 hover:text-rose-600 hover:bg-slate-200'
+                  : 'text-[#e4e4e7]/50 hover:text-rose-400 hover:bg-[#18181b]'
+              }`}
               title={`Delete Page ${pageIndex + 1}`}
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -252,7 +283,11 @@ export default function PaperPreview({
         </div>
 
         {/* Paper title / prompt info */}
-        <div className="hidden sm:flex items-center gap-2 font-mono-code text-[10px] text-[#e4e4e7]/50 uppercase tracking-widest">
+        <div
+          className={`hidden sm:flex items-center gap-2 font-mono-code text-[10px] uppercase tracking-widest ${
+            isLight ? 'text-slate-500' : 'text-[#e4e4e7]/50'
+          }`}
+        >
           <Eye className="w-3.5 h-3.5 text-[#6366f1]" />
           <span>REAL-TIME A4 SIMULATION // 300 DPI EQUIV</span>
         </div>
@@ -260,13 +295,25 @@ export default function PaperPreview({
         <div className="flex items-center gap-2">
           {/* Real-time Font Size Quick Tuning */}
           {onUpdateFontSize && (
-            <div className="flex items-center gap-1.5 bg-[#18181b] border border-[#27272a] px-2 py-1 rounded font-mono-code text-[11px]">
-              <span className="text-[#e4e4e7]/60 text-[10px] hidden md:inline">Font:</span>
+            <div
+              className={`flex items-center gap-1.5 px-2 py-1 rounded font-mono-code text-[11px] border ${
+                isLight
+                  ? 'bg-white border-slate-300 text-slate-800'
+                  : 'bg-[#18181b] border-[#27272a] text-[#e4e4e7]'
+              }`}
+            >
+              <span className={`text-[10px] hidden md:inline ${isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'}`}>
+                Font:
+              </span>
               <button
                 type="button"
                 onClick={() => onUpdateFontSize(Math.max(11, settings.fontSize - 1))}
                 disabled={settings.fontSize <= 11}
-                className="cursor-pointer text-[10px] text-[#e4e4e7] hover:text-white disabled:opacity-30 px-1 py-0.5 rounded hover:bg-[#27272a] transition-colors"
+                className={`cursor-pointer text-[10px] disabled:opacity-30 px-1 py-0.5 rounded transition-colors ${
+                  isLight
+                    ? 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                    : 'text-[#e4e4e7] hover:text-white hover:bg-[#27272a]'
+                }`}
                 title="Decrease font size (A-)"
               >
                 A-
@@ -289,7 +336,11 @@ export default function PaperPreview({
                 type="button"
                 onClick={() => onUpdateFontSize(Math.min(32, settings.fontSize + 1))}
                 disabled={settings.fontSize >= 32}
-                className="cursor-pointer text-[10px] text-[#e4e4e7] hover:text-white disabled:opacity-30 px-1 py-0.5 rounded hover:bg-[#27272a] transition-colors"
+                className={`cursor-pointer text-[10px] disabled:opacity-30 px-1 py-0.5 rounded transition-colors ${
+                  isLight
+                    ? 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
+                    : 'text-[#e4e4e7] hover:text-white hover:bg-[#27272a]'
+                }`}
                 title="Increase font size (A+)"
               >
                 A+
@@ -298,38 +349,52 @@ export default function PaperPreview({
           )}
 
           {/* Zoom controls */}
-          <div className="flex items-center gap-1 bg-[#18181b] border border-[#27272a] p-0.5 rounded font-mono-code">
-          <button
-            onClick={() => setZoomLevel((z) => Math.max(0.4, Number((z - 0.1).toFixed(2))))}
-            className="cursor-pointer px-1.5 py-0.5 rounded text-[11px] hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white transition-colors"
-            title="Zoom Out"
+          <div
+            className={`flex items-center gap-1 p-0.5 rounded font-mono-code border ${
+              isLight
+                ? 'bg-white border-slate-300'
+                : 'bg-[#18181b] border-[#27272a]'
+            }`}
           >
-            <ZoomOut className="w-3 h-3" />
-          </button>
-          <span className="text-[11px] text-[#6366f1] font-bold px-1.5">
-            {Math.round(zoomLevel * 100)}%
-          </span>
-          <button
-            onClick={() => setZoomLevel((z) => Math.min(1.3, Number((z + 0.1).toFixed(2))))}
-            className="cursor-pointer px-1.5 py-0.5 rounded text-[11px] hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white transition-colors"
-            title="Zoom In"
-          >
-            <ZoomIn className="w-3 h-3" />
-          </button>
-          <button
-            onClick={() => setZoomLevel(0.85)}
-            className="cursor-pointer px-1.5 py-0.5 rounded text-[11px] hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white transition-colors"
-            title="Fit View"
-          >
-            <Maximize2 className="w-3 h-3" />
-          </button>
+            <button
+              onClick={() => setZoomLevel((z) => Math.max(0.4, Number((z - 0.1).toFixed(2))))}
+              className={`cursor-pointer px-1.5 py-0.5 rounded text-[11px] transition-colors ${
+                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white'
+              }`}
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-3 h-3" />
+            </button>
+            <span className="text-[11px] text-[#6366f1] font-bold px-1.5">
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            <button
+              onClick={() => setZoomLevel((z) => Math.min(1.3, Number((z + 0.1).toFixed(2))))}
+              className={`cursor-pointer px-1.5 py-0.5 rounded text-[11px] transition-colors ${
+                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white'
+              }`}
+              title="Zoom In"
+            >
+              <ZoomIn className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => setZoomLevel(0.85)}
+              className={`cursor-pointer px-1.5 py-0.5 rounded text-[11px] transition-colors ${
+                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white'
+              }`}
+              title="Fit View"
+            >
+              <Maximize2 className="w-3 h-3" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-      {/* Main Paper Scrollport */}
+      {/* Main Paper Scrollport (Desk background) */}
       <div
-        className="flex-1 overflow-auto p-4 sm:p-8 flex items-start justify-center"
+        className={`flex-1 overflow-auto p-4 sm:p-8 flex items-start justify-center transition-colors ${
+          isLight ? 'bg-slate-200/90' : 'bg-[#121216]'
+        }`}
         onMouseMove={handlePaperMouseMove}
         onMouseUp={handlePaperMouseUp}
         onClick={() => setActiveDiagramId(null)}

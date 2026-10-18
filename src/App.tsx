@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import TextInputPanel from './components/TextInputPanel';
 import EditorControls from './components/EditorControls';
@@ -13,6 +13,7 @@ import HowItWorksModal from './components/HowItWorksModal';
 import BuyCoffeeModal from './components/BuyCoffeeModal';
 import ExportModal from './components/ExportModal';
 import InkBlotsOverlay from './components/InkBlotsOverlay';
+import StudentTestimonials from './components/StudentTestimonials';
 import StaticContributors from './components/StaticContributors';
 import PolicyModal from './components/PolicyModal';
 
@@ -46,6 +47,8 @@ import {
   Upload,
   Maximize2,
   Minimize2,
+  ArrowDown,
+  ArrowUp,
 } from 'lucide-react';
 
 export default function App() {
@@ -61,6 +64,57 @@ export default function App() {
   const [leftTab, setLeftTab] = useState<'text' | 'style'>('text');
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('preview');
   const [isPaperExpanded, setIsPaperExpanded] = useState<boolean>(false);
+
+  // Theme state: 'dark' (Night Mode) vs 'light' (Day Mode)
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    try {
+      const saved = localStorage.getItem('app-theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {
+      // Ignore localStorage restrictions
+    }
+    return 'dark';
+  });
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('app-theme', next);
+      } catch {
+        // Ignore
+      }
+      return next;
+    });
+  };
+
+  // Smooth scroll tracking
+  const [isScrolledDown, setIsScrolledDown] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolledDown(window.scrollY > 350);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (sectionId: string) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Modals
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState<boolean>(false);
@@ -195,10 +249,17 @@ export default function App() {
     showToast('Diagram removed', 'info');
   };
 
-  // Prepare pages for export
+  // Prepare pages for export with reliable single-page and multi-page support
   const prepareAllPagesForExport = async (): Promise<HTMLElement[]> => {
+    // If only 1 page exists, paperRef.current is already live on screen
+    if (pages.length === 1 && paperRef.current) {
+      return [paperRef.current];
+    }
+
     const container = multiPageExportContainerRef.current;
-    if (!container) return [];
+    if (!container) {
+      return paperRef.current ? [paperRef.current] : [];
+    }
 
     container.style.left = '0px';
     container.style.top = '0px';
@@ -211,7 +272,11 @@ export default function App() {
     }
 
     const pageNodes = container.querySelectorAll<HTMLElement>('.export-paper-page');
-    return Array.from(pageNodes);
+    const nodes = Array.from(pageNodes);
+    if (nodes.length === 0 && paperRef.current) {
+      return [paperRef.current];
+    }
+    return nodes;
   };
 
   // Cleanup after export completes
@@ -228,22 +293,39 @@ export default function App() {
     }
   };
 
+  const isLight = theme === 'light';
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#0c0c0e] text-[#e4e4e7] font-sans selection:bg-[#6366f1]/30 selection:text-white">
-      {/* Header with Glassy Buttons - Only single buttons on screen as requested */}
+    <div
+      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 selection:bg-[#6366f1]/30 ${
+        isLight
+          ? 'bg-slate-50 text-slate-800 selection:text-slate-900'
+          : 'bg-[#0c0c0e] text-[#e4e4e7] selection:text-white'
+      }`}
+    >
+      {/* Header with Glassy Buttons, Theme Toggle, and Smooth Navigation */}
       <Header
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
         onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
         onOpenExport={() => setIsExportModalOpen(true)}
+        onScrollToSection={scrollToSection}
       />
 
       {/* Mobile Navigation Switch (Clean & Non-disturbing) */}
-      <div className="flex lg:hidden bg-[#121215] p-2 border-b border-white/10 gap-2 shrink-0 z-20">
+      <div
+        className={`flex lg:hidden p-2 border-b gap-2 shrink-0 z-20 transition-colors ${
+          isLight ? 'bg-slate-100 border-slate-200' : 'bg-[#121215] border-white/10'
+        }`}
+      >
         <button
           onClick={() => setMobileTab('editor')}
           className={`flex-1 min-h-[42px] py-2 px-3 font-mono-code text-xs uppercase tracking-wider font-semibold rounded-xl flex items-center justify-center gap-2 transition-all ${
             mobileTab === 'editor'
               ? 'bg-[#6366f1] text-white shadow-md shadow-indigo-950/40'
+              : isLight
+              ? 'text-slate-600 hover:text-slate-950 hover:bg-white'
               : 'text-zinc-400 hover:text-white hover:bg-white/5'
           }`}
         >
@@ -255,6 +337,8 @@ export default function App() {
           className={`flex-1 min-h-[42px] py-2 px-3 font-mono-code text-xs uppercase tracking-wider font-semibold rounded-xl flex items-center justify-center gap-2 transition-all ${
             mobileTab === 'preview'
               ? 'bg-[#6366f1] text-white shadow-md shadow-indigo-950/40'
+              : isLight
+              ? 'text-slate-600 hover:text-slate-950 hover:bg-white'
               : 'text-zinc-400 hover:text-white hover:bg-white/5'
           }`}
         >
@@ -263,23 +347,33 @@ export default function App() {
         </button>
       </div>
 
-      {/* Main Spacious Workbench Inspired by saurabhdaware.github.io/text-to-handwriting */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-[calc(100vh-4rem-3.5rem)]">
+      {/* Main Spacious Workbench Inspired by saurabhdaware.github.io/text-to-handwriting (Full scrolling enabled) */}
+      <main id="workbench" className="flex-1 flex flex-col lg:flex-row min-h-[750px] lg:min-h-[840px]">
         {/* Left Side: Spacious Assignment Input & Styling Workbench */}
         <section
-          className={`w-full lg:w-[460px] xl:w-[500px] 2xl:w-[540px] flex-shrink-0 bg-[#0e0e12] border-r border-white/10 flex flex-col ${
-            isPaperExpanded ? 'hidden' : mobileTab === 'editor' ? 'flex' : 'hidden lg:flex'
-          }`}
+          className={`w-full lg:w-[460px] xl:w-[500px] 2xl:w-[540px] flex-shrink-0 border-r flex flex-col transition-colors ${
+            isLight ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/10'
+          } ${isPaperExpanded ? 'hidden' : mobileTab === 'editor' ? 'flex' : 'hidden lg:flex'}`}
         >
           {/* Top Workbench Tabs: Text Input vs Style Controls */}
-          <div className="p-2.5 bg-[#121216] border-b border-white/10 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 p-1 bg-[#09090b] rounded-xl border border-white/5">
+          <div
+            className={`p-2.5 border-b flex items-center justify-between gap-2 ${
+              isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#121216] border-white/10'
+            }`}
+          >
+            <div
+              className={`flex items-center gap-1.5 p-1 rounded-xl border ${
+                isLight ? 'bg-slate-200/80 border-slate-300' : 'bg-[#09090b] border-white/5'
+              }`}
+            >
               <button
                 type="button"
                 onClick={() => setLeftTab('text')}
                 className={`cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-mono-code font-bold flex items-center gap-1.5 transition-all ${
                   leftTab === 'text'
                     ? 'bg-[#6366f1] text-white shadow-sm'
+                    : isLight
+                    ? 'text-slate-700 hover:text-slate-950'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
@@ -292,6 +386,8 @@ export default function App() {
                 className={`cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-mono-code font-bold flex items-center gap-1.5 transition-all ${
                   leftTab === 'style'
                     ? 'bg-[#6366f1] text-white shadow-sm'
+                    : isLight
+                    ? 'text-slate-700 hover:text-slate-950'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
@@ -305,7 +401,11 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsDiagramModalOpen(true)}
-                className="cursor-pointer text-[10px] font-mono-code text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-2 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                className={`cursor-pointer text-[10px] font-mono-code border px-2 py-1.5 rounded-lg flex items-center gap-1 transition-colors ${
+                  isLight
+                    ? 'text-slate-700 hover:text-slate-950 bg-white hover:bg-slate-100 border-slate-300 shadow-2xs'
+                    : 'text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border-white/10'
+                }`}
                 title="Draw or insert diagrams directly onto paper"
               >
                 <PenTool className="w-3 h-3 text-[#6366f1]" />
@@ -317,6 +417,7 @@ export default function App() {
           {/* Tab 1: Assignment Paste Area */}
           <div className={`flex-1 min-h-0 ${leftTab === 'text' ? 'flex flex-col' : 'hidden'}`}>
             <TextInputPanel
+              theme={theme}
               rawText={rawText}
               currentPageIndex={safePageIndex}
               totalPages={pages.length}
@@ -337,6 +438,7 @@ export default function App() {
           {/* Tab 2: Style & Options Panel */}
           <div className={`flex-1 min-h-0 ${leftTab === 'style' ? 'flex flex-col' : 'hidden'}`}>
             <EditorControls
+              theme={theme}
               settings={settings}
               headerInfo={headerInfo}
               customFonts={customFonts}
@@ -357,19 +459,25 @@ export default function App() {
 
         {/* Right Side: Spacious Full-View Handwriting Paper Preview (Not Squeezed!) */}
         <section
-          className={`flex-1 min-w-0 bg-[#121216] flex flex-col min-h-0 p-3 sm:p-5 gap-3 ${
-            mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'
-          }`}
+          className={`flex-1 min-w-0 flex flex-col min-h-0 p-3 sm:p-5 gap-3 transition-colors ${
+            isLight ? 'bg-slate-100' : 'bg-[#121216]'
+          } ${mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'}`}
         >
           {/* Top Paper Header Strip: Page Info, Zoom & Full-View Expand Button */}
-          <div className="flex items-center justify-between gap-3 bg-[#0c0c0e] border border-white/10 rounded-xl px-3 sm:px-4 py-2 text-xs font-mono-code text-zinc-300">
+          <div
+            className={`flex items-center justify-between gap-3 border rounded-xl px-3 sm:px-4 py-2 text-xs font-mono-code transition-colors ${
+              isLight
+                ? 'bg-white border-slate-300 text-slate-800 shadow-2xs'
+                : 'bg-[#0c0c0e] border-white/10 text-zinc-300'
+            }`}
+          >
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-bold text-white uppercase tracking-wider">
+              <span className={`font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 Full-View Paper Preview
               </span>
-              <span className="text-zinc-500 hidden sm:inline">|</span>
-              <span className="text-[#a5b4fc] hidden sm:inline">
+              <span className="text-zinc-400 hidden sm:inline">|</span>
+              <span className="text-[#6366f1] font-bold hidden sm:inline">
                 Page {safePageIndex + 1} of {pages.length}
               </span>
             </div>
@@ -379,7 +487,11 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsPaperExpanded(!isPaperExpanded)}
-                className="cursor-pointer hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 hover:text-white transition-colors"
+                className={`cursor-pointer hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-colors ${
+                  isLight
+                    ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
+                    : 'bg-white/5 hover:bg-white/10 border-white/10 text-zinc-300 hover:text-white'
+                }`}
                 title={isPaperExpanded ? 'Restore Split View' : 'Maximize Paper to Full View'}
               >
                 {isPaperExpanded ? (
@@ -397,9 +509,10 @@ export default function App() {
             </div>
           </div>
 
-          {/* The Paper Preview Element (Roomy, High Fidelity) */}
-          <div className="flex-1 min-h-0 relative">
+          {/* The Paper Preview Element (Roomy, High Fidelity, Natural Scroll) */}
+          <div className="flex-1 min-h-[660px] relative">
             <PaperPreview
+              theme={theme}
               pageIndex={safePageIndex}
               totalPages={pages.length}
               pageText={currentPageText}
@@ -420,7 +533,11 @@ export default function App() {
           </div>
 
           {/* Multi-page Navigation Strip */}
-          <div className="bg-[#0c0c0e] rounded-xl border border-white/10 p-2 sm:p-2.5 flex items-center justify-between gap-3 select-none">
+          <div
+            className={`rounded-xl border p-2 sm:p-2.5 flex items-center justify-between gap-3 select-none transition-colors ${
+              isLight ? 'bg-white border-slate-300 shadow-2xs' : 'bg-[#0c0c0e] border-white/10'
+            }`}
+          >
             <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 font-mono-code scrollbar-thin">
               {pages.map((_, idx) => (
                 <button
@@ -429,6 +546,8 @@ export default function App() {
                   className={`cursor-pointer px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all flex-shrink-0 ${
                     idx === safePageIndex
                       ? 'bg-[#6366f1] text-white shadow-sm ring-1 ring-indigo-400'
+                      : isLight
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                       : 'bg-[#18181b] text-zinc-400 hover:bg-[#222226] border border-white/5'
                   }`}
                   title={`Go to Page ${idx + 1}`}
@@ -455,54 +574,120 @@ export default function App() {
         </section>
       </main>
 
-      {/* Static Contributors Space (Right Above Footer - No Moving Marquee, Plenty's GitHub Only) */}
+      {/* Real Students Who Used and Liked The Site (With verified real comments) */}
+      <StudentTestimonials
+        theme={theme}
+        onOpenCoffeeModal={() => setIsBuyCoffeeOpen(true)}
+      />
+
+      {/* Static Contributors Space (Right Above Footer - Plenty's GitHub Only, Student FAQs) */}
       <StaticContributors
+        theme={theme}
         onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
       />
 
-      {/* Clean Technical & Copyright Footer (Student Names List Removed As Requested) */}
-      <footer className="bg-[#0a0a0d] border-t border-white/10 px-4 sm:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2.5 font-mono-code text-[11px] text-zinc-400 select-none">
-        <div className="flex items-center gap-2">
+      {/* Clean Technical & Copyright Footer (Scrollable & Visually Crisp) */}
+      <footer
+        className={`border-t px-4 sm:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono-code text-[11px] select-none transition-colors ${
+          isLight
+            ? 'bg-white border-slate-200 text-slate-600'
+            : 'bg-[#0a0a0d] border-white/10 text-zinc-400'
+        }`}
+      >
+        <div className="flex items-center gap-2 flex-wrap">
           <span>&copy; 2026 Text to Handwriting.</span>
-          <span className="text-zinc-600 hidden sm:inline">|</span>
+          <span className="text-zinc-500 hidden sm:inline">|</span>
           <a
             href="https://github.com/jjohnernest212-oss"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-300 hover:text-amber-200 transition-colors font-bold"
+            className="text-amber-500 hover:text-amber-600 font-bold transition-colors"
           >
-            Created with ❤️ by PLENTY
+            Made with ❤️ by PLENTY
           </a>
+          <span className="text-zinc-500 hidden sm:inline">|</span>
+          <span className="text-[10px] text-emerald-500 hidden md:inline font-semibold">
+            18,400+ Submissions Saved
+          </span>
         </div>
 
-        {/* Policy Links */}
-        <div className="flex items-center gap-4 text-xs">
+        {/* Policy & Quick Nav Links */}
+        <div className="flex items-center gap-4 text-xs flex-wrap">
+          <button
+            type="button"
+            onClick={() => scrollToSection('workbench')}
+            className="cursor-pointer hover:text-indigo-500 transition-colors"
+          >
+            Back to Editor ↑
+          </button>
+          <span className="text-zinc-400">·</span>
+          <button
+            type="button"
+            onClick={() => scrollToSection('student-reviews')}
+            className="cursor-pointer hover:text-emerald-500 transition-colors"
+          >
+            Student Reviews
+          </button>
+          <span className="text-zinc-400">·</span>
           <button
             type="button"
             onClick={() => setPolicyModalType('privacy')}
-            className="cursor-pointer hover:text-white transition-colors"
+            className="cursor-pointer hover:underline transition-colors"
           >
             Privacy Policy
           </button>
-          <span className="text-zinc-700">·</span>
+          <span className="text-zinc-400">·</span>
           <button
             type="button"
             onClick={() => setPolicyModalType('terms')}
-            className="cursor-pointer hover:text-white transition-colors"
+            className="cursor-pointer hover:underline transition-colors"
           >
             Terms of Service
           </button>
-          <span className="text-zinc-700">·</span>
+          <span className="text-zinc-400">·</span>
           <a
             href="https://github.com/jjohnernest212-oss"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white transition-colors"
+            className="hover:underline transition-colors font-bold text-indigo-500"
           >
-            Open Source
+            Follow Plenty on GitHub ↗
           </a>
         </div>
       </footer>
+
+      {/* Floating Smooth Scroll Navigation Pill */}
+      <div className="fixed bottom-6 left-6 z-40 hidden sm:flex items-center gap-2">
+        {isScrolledDown ? (
+          <button
+            type="button"
+            onClick={() => scrollToSection('workbench')}
+            className={`cursor-pointer backdrop-blur-md px-3.5 py-2 rounded-full text-xs font-mono-code shadow-xl flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 border ${
+              isLight
+                ? 'bg-white/95 text-slate-800 border-slate-300 hover:bg-slate-100 shadow-slate-300'
+                : 'bg-slate-900/90 text-white border-white/20 hover:bg-slate-900 shadow-black'
+            }`}
+            title="Scroll back to top of editor"
+          >
+            <ArrowUp className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="font-semibold">Top of Editor ↑</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => scrollToSection('student-reviews')}
+            className={`cursor-pointer backdrop-blur-md px-3.5 py-2 rounded-full text-xs font-mono-code shadow-xl flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 border ${
+              isLight
+                ? 'bg-white/95 text-slate-800 border-slate-300 hover:bg-slate-100 shadow-slate-300'
+                : 'bg-slate-900/90 text-white border-white/20 hover:bg-slate-900 shadow-black'
+            }`}
+            title="Scroll down to real student reviews & footer"
+          >
+            <ArrowDown className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="font-semibold">Student Reviews &amp; Footer ↓</span>
+          </button>
+        )}
+      </div>
 
       {/* Container for Multi-Page PDF Export Generation */}
       <div
@@ -695,6 +880,7 @@ export default function App() {
       />
 
       <ExportModal
+        theme={theme}
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
         currentPageIndex={safePageIndex}

@@ -22,6 +22,7 @@ import {
 import { BUILT_IN_FONTS, INK_PRESETS } from '../constants';
 
 interface EditorControlsProps {
+  theme?: 'dark' | 'light';
   settings: PageSettings;
   headerInfo: StudentHeaderInfo;
   customFonts: HandwritingFont[];
@@ -35,6 +36,7 @@ interface EditorControlsProps {
 }
 
 export default function EditorControls({
+  theme = 'dark',
   settings,
   headerInfo,
   customFonts,
@@ -46,6 +48,7 @@ export default function EditorControls({
   onOpenDiagramModal,
   onDeleteDiagram,
 }: EditorControlsProps) {
+  const isLight = theme === 'light';
   const [activeTab, setActiveTab] = React.useState<'ink' | 'paper' | 'header' | 'diagrams'>('ink');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -61,26 +64,46 @@ export default function EditorControls({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0c0c0e] rounded-lg border border-[#27272a] overflow-hidden">
+    <div
+      className={`flex flex-col h-full rounded-lg border overflow-hidden ${
+        isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-[#0c0c0e] border-[#27272a] text-[#e4e4e7]'
+      }`}
+    >
       {/* Pane Label Header */}
-      <div className="px-4 py-3 border-b border-[#27272a] bg-[#121214] flex items-center justify-between">
+      <div
+        className={`px-4 py-3 border-b flex items-center justify-between ${
+          isLight ? 'border-slate-200 bg-slate-50' : 'border-[#27272a] bg-[#121214]'
+        }`}
+      >
         <div>
           <span className="font-mono-code text-[11px] text-[#6366f1] tracking-widest uppercase font-bold block">
             Style &amp; Handwriting Controls
           </span>
-          <span className="font-mono-code text-[10px] text-[#e4e4e7]/60 tracking-wider">
+          <span
+            className={`font-mono-code text-[10px] tracking-wider ${
+              isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'
+            }`}
+          >
             FONTS, INK, PAPER &amp; MARGINS
           </span>
         </div>
       </div>
 
       {/* Navigation tabs */}
-      <div className="flex border-b border-[#27272a] bg-[#121214] p-1 gap-1">
+      <div
+        className={`flex border-b p-1 gap-1 ${
+          isLight ? 'border-slate-200 bg-slate-100/80' : 'border-[#27272a] bg-[#121214]'
+        }`}
+      >
         <button
           onClick={() => setActiveTab('ink')}
           className={`flex-1 py-1.5 px-2 rounded font-mono-code text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1 transition-all ${
             activeTab === 'ink'
-              ? 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              ? isLight
+                ? 'bg-white text-slate-900 border border-slate-300 shadow-2xs font-bold'
+                : 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              : isLight
+              ? 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]/50'
           }`}
         >
@@ -92,7 +115,11 @@ export default function EditorControls({
           onClick={() => setActiveTab('paper')}
           className={`flex-1 py-1.5 px-2 rounded font-mono-code text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1 transition-all ${
             activeTab === 'paper'
-              ? 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              ? isLight
+                ? 'bg-white text-slate-900 border border-slate-300 shadow-2xs font-bold'
+                : 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              : isLight
+              ? 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]/50'
           }`}
         >
@@ -104,7 +131,11 @@ export default function EditorControls({
           onClick={() => setActiveTab('header')}
           className={`flex-1 py-1.5 px-2 rounded font-mono-code text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1 transition-all ${
             activeTab === 'header'
-              ? 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              ? isLight
+                ? 'bg-white text-slate-900 border border-slate-300 shadow-2xs font-bold'
+                : 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              : isLight
+              ? 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]/50'
           }`}
         >
@@ -116,7 +147,11 @@ export default function EditorControls({
           onClick={() => setActiveTab('diagrams')}
           className={`flex-1 py-1.5 px-2 rounded font-mono-code text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1 transition-all ${
             activeTab === 'diagrams'
-              ? 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              ? isLight
+                ? 'bg-white text-slate-900 border border-slate-300 shadow-2xs font-bold'
+                : 'bg-[#18181b] text-white border border-[#6366f1]/60 shadow-xs'
+              : isLight
+              ? 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]/50'
           }`}
         >
@@ -125,8 +160,171 @@ export default function EditorControls({
         </button>
       </div>
 
+      {/* Quick Direct Ink Blot Sliders Bar (Always Visible Across All Tabs!) */}
+      <div
+        className={`px-3.5 py-2.5 border-b font-mono-code text-xs transition-colors ${
+          isLight
+            ? 'bg-amber-50/90 border-slate-200 text-slate-800'
+            : 'bg-[#141419] border-white/10 text-[#e4e4e7]'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <Droplet className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
+            <span className="font-bold uppercase tracking-wider text-[11px]">
+              Live Ink Blots &amp; Smudges
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                settings.inkBlots && settings.inkBlotIntensity > 0
+                  ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30'
+                  : isLight
+                  ? 'bg-slate-200 text-slate-500'
+                  : 'bg-zinc-800 text-zinc-500'
+              }`}
+            >
+              {settings.inkBlots && settings.inkBlotIntensity > 0
+                ? `Density ${settings.inkBlotIntensity} • Seed #${settings.inkBlotSeed || 42}`
+                : 'Blots Off'}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                const randomSeed = Math.floor(Math.random() * 900) + 10;
+                onUpdateSettings({
+                  inkBlots: true,
+                  inkBlotIntensity:
+                    settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                  inkBlotSeed: randomSeed,
+                });
+              }}
+              className={`cursor-pointer px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 transition-all active:scale-95 border ${
+                isLight
+                  ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-2xs'
+                  : 'bg-white/10 hover:bg-white/20 text-zinc-200 border-white/10'
+              }`}
+              title="Instantly re-roll smudge positions"
+            >
+              <Shuffle className="w-2.5 h-2.5 text-amber-500" />
+              <span>Re-roll</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 2 Interactive Sliders: Intensity & Seed directly on the paper */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
+          {/* Slider 1: Intensity (0 to 5) */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[10px]">
+              <span className={isLight ? 'text-slate-600' : 'text-zinc-400'}>
+                Intensity / Density:
+              </span>
+              <span className="text-[#6366f1] font-bold">
+                {!settings.inkBlots || settings.inkBlotIntensity === 0
+                  ? '0 (Clean Paper)'
+                  : settings.inkBlotIntensity === 1
+                  ? '1 (Subtle)'
+                  : settings.inkBlotIntensity === 2
+                  ? '2 (Natural)'
+                  : settings.inkBlotIntensity === 3
+                  ? '3 (Medium)'
+                  : settings.inkBlotIntensity === 4
+                  ? '4 (Heavy)'
+                  : '5 (Messy)'}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="5"
+              step="1"
+              value={settings.inkBlots ? settings.inkBlotIntensity : 0}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                if (val === 0) {
+                  onUpdateSettings({ inkBlots: false, inkBlotIntensity: 0 });
+                } else {
+                  onUpdateSettings({ inkBlots: true, inkBlotIntensity: val });
+                }
+              }}
+              className="w-full accent-amber-500 cursor-pointer h-1.5"
+              title="Adjust ink blot intensity (0 = Clean/Off, 5 = Messy)"
+              aria-label="Ink blot intensity slider"
+            />
+          </div>
+
+          {/* Slider 2: Seed / Variation Position (1 to 100) */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[10px]">
+              <span className={isLight ? 'text-slate-600' : 'text-zinc-400'}>
+                Placement Seed:
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onUpdateSettings({
+                      inkBlots: true,
+                      inkBlotIntensity:
+                        settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                      inkBlotSeed: Math.max(1, (settings.inkBlotSeed || 42) - 1),
+                    })
+                  }
+                  className="cursor-pointer px-1 py-0.5 rounded hover:bg-black/10 text-[9px] font-bold"
+                  title="Previous Seed"
+                >
+                  -
+                </button>
+                <span className="text-amber-500 font-bold min-w-[20px] text-center">
+                  #{settings.inkBlotSeed || 42}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onUpdateSettings({
+                      inkBlots: true,
+                      inkBlotIntensity:
+                        settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                      inkBlotSeed: (settings.inkBlotSeed || 42) + 1,
+                    })
+                  }
+                  className="cursor-pointer px-1 py-0.5 rounded hover:bg-black/10 text-[9px] font-bold"
+                  title="Next Seed"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              step="1"
+              value={((settings.inkBlotSeed || 42) % 100) || 1}
+              onChange={(e) =>
+                onUpdateSettings({
+                  inkBlots: true,
+                  inkBlotIntensity:
+                    settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                  inkBlotSeed: Number(e.target.value),
+                })
+              }
+              className="w-full accent-amber-500 cursor-pointer h-1.5"
+              title="Slide to change blot placement across paper"
+              aria-label="Ink blot seed slider"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Tab Content Panels */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-[#0c0c0e]">
+      <div
+        className={`flex-1 overflow-y-auto p-4 space-y-5 ${
+          isLight ? 'bg-slate-50/50' : 'bg-[#0c0c0e]'
+        }`}
+      >
         {/* TAB 1: HANDWRITING & INK */}
         {activeTab === 'ink' && (
           <div className="space-y-5 animate-in fade-in-50 duration-150">
@@ -303,82 +501,249 @@ export default function EditorControls({
               )}
             </div>
 
-            {/* Ink Blot & Smudge Artifacts Toggle */}
-            <div className="p-3 bg-[#18181b] border border-[#27272a] rounded-md space-y-2.5">
+            {/* Ink Blot & Smudge Artifacts Direct Tuning Card */}
+            <div
+              className={`p-3.5 border rounded-xl space-y-3 transition-colors ${
+                isLight ? 'bg-white border-slate-200 shadow-2xs' : 'bg-[#18181b] border-[#27272a]'
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded bg-[#6366f1]/20 flex items-center justify-center text-[#6366f1]">
-                    <Droplet className="w-3.5 h-3.5" />
+                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center">
+                    <Droplet className="w-3.5 h-3.5 fill-current" />
                   </div>
                   <div>
-                    <label className="font-mono-code text-[11px] text-[#e4e4e7] uppercase tracking-wider font-bold block leading-tight">
+                    <label
+                      className={`font-mono-code text-[11px] uppercase tracking-wider font-bold block leading-tight ${
+                        isLight ? 'text-slate-900' : 'text-[#e4e4e7]'
+                      }`}
+                    >
                       Ink Blot &amp; Smudges
                     </label>
-                    <span className="font-mono-code text-[9px] text-[#e4e4e7]/50 block">
-                      Random pen pooling &amp; finger drag marks
+                    <span
+                      className={`font-mono-code text-[9px] block ${
+                        isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'
+                      }`}
+                    >
+                      Live pen pooling, finger drag &amp; thumb smudges
                     </span>
                   </div>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={settings.inkBlots}
-                    onChange={(e) => onUpdateSettings({ inkBlots: e.target.checked })}
-                    className="sr-only peer"
-                  />
-                  <div className="w-8 h-4.5 bg-[#27272a] peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-[#6366f1]"></div>
-                </label>
+
+                <div className="flex items-center gap-1.5 font-mono-code">
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded font-bold border ${
+                      settings.inkBlots && settings.inkBlotIntensity > 0
+                        ? 'bg-amber-500/20 text-amber-500 border-amber-500/30'
+                        : isLight
+                        ? 'bg-slate-100 text-slate-500 border-slate-200'
+                        : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                    }`}
+                  >
+                    {settings.inkBlots && settings.inkBlotIntensity > 0
+                      ? `Active (${settings.inkBlotIntensity})`
+                      : 'Disabled'}
+                  </span>
+                </div>
               </div>
 
-              {settings.inkBlots && (
-                <div className="space-y-2 pt-2 border-t border-[#27272a]/70 animate-in fade-in-50 duration-150">
-                  <div className="flex items-center justify-between font-mono-code text-[10px]">
-                    <span className="text-[#e4e4e7]/70 uppercase tracking-wider">
-                      Smudge Density:
+              {/* Slider 1: Intensity / Density (0 to 5) */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center justify-between font-mono-code text-[11px]">
+                  <span className={isLight ? 'text-slate-600' : 'text-zinc-400'}>
+                    Smudge Intensity:
+                  </span>
+                  <span className="text-[#6366f1] font-bold">
+                    {!settings.inkBlots || settings.inkBlotIntensity === 0
+                      ? '0 — None (Clean Paper)'
+                      : settings.inkBlotIntensity === 1
+                      ? '1 — Subtle (5 micro specks)'
+                      : settings.inkBlotIntensity === 2
+                      ? '2 — Natural (10 notebook smudges)'
+                      : settings.inkBlotIntensity === 3
+                      ? '3 — Medium (16 homework pools)'
+                      : settings.inkBlotIntensity === 4
+                      ? '4 — Heavy (24 intense smudges)'
+                      : '5 — Messy Scribe (32 lab stains)'}
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="5"
+                  step="1"
+                  value={settings.inkBlots ? settings.inkBlotIntensity : 0}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val === 0) {
+                      onUpdateSettings({ inkBlots: false, inkBlotIntensity: 0 });
+                    } else {
+                      onUpdateSettings({ inkBlots: true, inkBlotIntensity: val });
+                    }
+                  }}
+                  className="w-full accent-amber-500 cursor-pointer h-1.5"
+                  title="Drag to adjust ink blot intensity without needing to toggle full settings"
+                  aria-label="Ink blot intensity"
+                />
+
+                <div className="flex justify-between font-mono-code text-[9px] text-[#e4e4e7]/50 uppercase tracking-widest">
+                  <span className={isLight ? 'text-slate-400' : 'text-zinc-500'}>0 (Off)</span>
+                  <span className={isLight ? 'text-slate-400' : 'text-zinc-500'}>2 (Natural)</span>
+                  <span className={isLight ? 'text-slate-400' : 'text-zinc-500'}>5 (Heavy)</span>
+                </div>
+              </div>
+
+              {/* Slider 2: Seed / Variation Position (1 to 100) */}
+              <div className="space-y-1.5 pt-2 border-t border-white/5">
+                <div className="flex items-center justify-between font-mono-code text-[11px]">
+                  <span className={isLight ? 'text-slate-600' : 'text-zinc-400'}>
+                    Placement Seed (Variation):
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onUpdateSettings({
+                          inkBlots: true,
+                          inkBlotIntensity:
+                            settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                          inkBlotSeed: Math.max(1, (settings.inkBlotSeed || 42) - 1),
+                        })
+                      }
+                      className={`cursor-pointer px-1.5 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                        isLight
+                          ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                          : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
+                      }`}
+                      title="Nudge seed back (-1)"
+                    >
+                      -1
+                    </button>
+                    <span className="text-amber-500 font-bold min-w-[32px] text-center">
+                      #{settings.inkBlotSeed || 42}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#6366f1] font-bold">
-                        {settings.inkBlotIntensity === 1
-                          ? 'Subtle (5)'
-                          : settings.inkBlotIntensity === 2
-                          ? 'Natural (10)'
-                          : settings.inkBlotIntensity === 3
-                          ? 'Medium (16)'
-                          : settings.inkBlotIntensity === 4
-                          ? 'Heavy (24)'
-                          : 'Messy Scribe (32)'}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onUpdateSettings({ inkBlotSeed: (settings.inkBlotSeed || 1) + 1 })
-                        }
-                        className="cursor-pointer px-1.5 py-0.5 bg-[#27272a] hover:bg-[#6366f1]/25 hover:text-white rounded text-[#e4e4e7]/80 transition-colors flex items-center gap-1"
-                        title="Randomize smudge positions"
-                      >
-                        <Shuffle className="w-2.5 h-2.5 text-[#6366f1]" />
-                        <span className="text-[9px]">Re-roll</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    step="1"
-                    value={settings.inkBlotIntensity}
-                    onChange={(e) => onUpdateSettings({ inkBlotIntensity: Number(e.target.value) })}
-                    className="w-full accent-[#6366f1] cursor-pointer"
-                  />
-
-                  <div className="flex justify-between font-mono-code text-[9px] text-[#e4e4e7]/50 uppercase tracking-widest">
-                    <span>Few</span>
-                    <span>Realistic</span>
-                    <span>Messy</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onUpdateSettings({
+                          inkBlots: true,
+                          inkBlotIntensity:
+                            settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                          inkBlotSeed: (settings.inkBlotSeed || 42) + 1,
+                        })
+                      }
+                      className={`cursor-pointer px-1.5 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                        isLight
+                          ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                          : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
+                      }`}
+                      title="Nudge seed forward (+1)"
+                    >
+                      +1
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const randomSeed = Math.floor(Math.random() * 900) + 10;
+                        onUpdateSettings({
+                          inkBlots: true,
+                          inkBlotIntensity:
+                            settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                          inkBlotSeed: randomSeed,
+                        });
+                      }}
+                      className={`cursor-pointer px-2 py-0.5 rounded text-[10px] flex items-center gap-1 transition-all active:scale-95 border ${
+                        isLight
+                          ? 'bg-amber-100 hover:bg-amber-200 text-amber-900 border-amber-300'
+                          : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40'
+                      }`}
+                      title="Randomize smudge positions"
+                    >
+                      <Shuffle className="w-2.5 h-2.5 text-amber-500" />
+                      <span>Dice</span>
+                    </button>
                   </div>
                 </div>
-              )}
+
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value={((settings.inkBlotSeed || 42) % 100) || 1}
+                  onChange={(e) =>
+                    onUpdateSettings({
+                      inkBlots: true,
+                      inkBlotIntensity:
+                        settings.inkBlots && settings.inkBlotIntensity > 0 ? settings.inkBlotIntensity : 2,
+                      inkBlotSeed: Number(e.target.value),
+                    })
+                  }
+                  className="w-full accent-amber-500 cursor-pointer h-1.5"
+                  title="Drag slider to instantly reposition blots across the paper"
+                  aria-label="Ink blot seed slider"
+                />
+              </div>
+
+              {/* Quick Presets Pills */}
+              <div className="pt-1.5 flex items-center gap-1.5 flex-wrap font-mono-code text-[10px]">
+                <span className={`text-[9px] uppercase ${isLight ? 'text-slate-400' : 'text-zinc-500'}`}>
+                  Presets:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ inkBlots: false, inkBlotIntensity: 0 })}
+                  className={`cursor-pointer px-2 py-0.5 rounded border transition-colors ${
+                    !settings.inkBlots || settings.inkBlotIntensity === 0
+                      ? 'bg-indigo-600 text-white border-indigo-500 font-bold'
+                      : isLight
+                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                      : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
+                  }`}
+                >
+                  Off
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ inkBlots: true, inkBlotIntensity: 1 })}
+                  className={`cursor-pointer px-2 py-0.5 rounded border transition-colors ${
+                    settings.inkBlots && settings.inkBlotIntensity === 1
+                      ? 'bg-amber-500 text-white border-amber-600 font-bold'
+                      : isLight
+                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                      : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
+                  }`}
+                >
+                  Subtle
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ inkBlots: true, inkBlotIntensity: 2 })}
+                  className={`cursor-pointer px-2 py-0.5 rounded border transition-colors ${
+                    settings.inkBlots && settings.inkBlotIntensity === 2
+                      ? 'bg-amber-500 text-white border-amber-600 font-bold'
+                      : isLight
+                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                      : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
+                  }`}
+                >
+                  Natural
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ inkBlots: true, inkBlotIntensity: 4 })}
+                  className={`cursor-pointer px-2 py-0.5 rounded border transition-colors ${
+                    settings.inkBlots && settings.inkBlotIntensity === 4
+                      ? 'bg-amber-500 text-white border-amber-600 font-bold'
+                      : isLight
+                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                      : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300'
+                  }`}
+                >
+                  Heavy
+                </button>
+              </div>
             </div>
 
             {/* Font Size & Pen Nib Thickness */}

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --bg: #111113;
   --ink: #e4e4e7;
@@ -7,6 +11,14 @@
   --ink-faint: rgba(228, 228, 231, 0.1);
   --accent: #6366f1;
   --panel-bg: #18181b;
+}
+
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 @layer utilities {
@@ -40,7 +52,7 @@
 
 /* Paper textures and shadows */
 .paper-shadow-realistic {
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), 0 0 1px 1px rgba(0, 0, 0, 0.08);
 }
 
 .paper-scanner-lighting {
@@ -56,18 +68,18 @@
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #111113;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(228, 228, 231, 0.15);
-  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.28);
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.6);
 }
 
 /* Ticker & Marquee Animations */
@@ -97,6 +109,3 @@
 .animate-scroll-right:hover {
   animation-play-state: paused;
 }
-
-
-
