@@ -12,6 +12,8 @@ import {
 import {
   downloadPageAsImage,
   downloadPagesAsPdf,
+  downloadAssignmentAsPdf,
+  downloadAssignmentSinglePage,
   ExportProgress,
 } from '../utils/exportUtils';
 import {
@@ -187,21 +189,29 @@ export default function ExportModal({
     setErrorMessage(null);
     try {
       setIsExporting(true);
-      const elements = await getPageElements();
-      const targetElement = elements[currentPageIndex] || elements[0] || paperRef?.current;
+      const safePages = pages && pages.length > 0 ? pages : [''];
+      const targetIndex = Math.max(0, Math.min(currentPageIndex, safePages.length - 1));
 
-      if (!targetElement) {
-        throw new Error('No page element found to render as image.');
+      if (settings) {
+        await downloadAssignmentSinglePage({
+          pages: safePages,
+          pageIndex: targetIndex,
+          settings,
+          fontFamilyCss,
+          diagrams,
+          headerInfo,
+          filename: `Assignment_Page_${targetIndex + 1}.png`,
+        });
+      } else {
+        const elements = await getPageElements();
+        const targetElement = elements[targetIndex] || elements[0] || paperRef?.current;
+        if (!targetElement) {
+          throw new Error('No page element found to render as image.');
+        }
+        await downloadPageAsImage(targetElement, `Assignment_Page_${targetIndex + 1}.png`);
       }
 
-      await new Promise((r) => setTimeout(r, 60));
-
-      await downloadPageAsImage(
-        targetElement,
-        `Assignment_Page_${currentPageIndex + 1}.png`,
-        2.5
-      );
-      setExportSuccess(`Page ${currentPageIndex + 1} PNG downloaded successfully!`);
+      setExportSuccess(`Page ${targetIndex + 1} PNG downloaded successfully!`);
       setTimeout(() => {
         setExportSuccess(null);
         onClose();
@@ -220,20 +230,34 @@ export default function ExportModal({
     setErrorMessage(null);
     try {
       setIsExporting(true);
+      const safePages = pages && pages.length > 0 ? pages : [''];
+      const total = safePages.length;
+
       setProgress({
         currentPage: 1,
-        totalPages: Math.max(1, pages.length || totalPages),
-        status: 'Preparing assignment pages for PDF...',
+        totalPages: total,
+        status: 'Starting authentic handwritten PDF export...',
       });
 
-      const elements = await getPageElements();
-
-      await downloadPagesAsPdf(elements, 'Handwritten_Assignment.pdf', (p) => {
-        setProgress(p);
-      });
+      if (settings) {
+        await downloadAssignmentAsPdf({
+          pages: safePages,
+          settings,
+          fontFamilyCss,
+          diagrams,
+          headerInfo,
+          filename: 'Handwritten_Assignment.pdf',
+          onProgress: (p) => setProgress(p),
+        });
+      } else {
+        const elements = await getPageElements();
+        await downloadPagesAsPdf(elements, 'Handwritten_Assignment.pdf', (p) => {
+          setProgress(p);
+        });
+      }
 
       setExportSuccess(
-        `All ${elements.length} ${elements.length === 1 ? 'page' : 'pages'} compiled and downloaded successfully!`
+        `All ${total} ${total === 1 ? 'page' : 'pages'} compiled and downloaded successfully!`
       );
       setTimeout(() => {
         setExportSuccess(null);
