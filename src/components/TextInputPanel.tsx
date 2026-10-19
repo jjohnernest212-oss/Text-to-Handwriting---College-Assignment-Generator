@@ -8,15 +8,18 @@ import {
   Undo2,
   Redo2,
   ClipboardPaste,
+  BookOpen,
 } from 'lucide-react';
 import { ASSIGNMENT_PRESETS } from '../constants';
-import { AssignmentPreset } from '../types';
+import { AssignmentPreset, PageSettings } from '../types';
+import { calculateAssignmentStats, autoSplitLongText } from '../utils/paginationUtils';
 
 interface TextInputPanelProps {
   theme?: 'dark' | 'light';
   rawText: string;
   currentPageIndex: number;
   totalPages: number;
+  settings?: PageSettings;
   fontSize?: number;
   onUpdateFontSize?: (size: number) => void;
   onChangeText: (text: string) => void;
@@ -33,6 +36,7 @@ export default function TextInputPanel({
   rawText,
   currentPageIndex: _currentPageIndex,
   totalPages,
+  settings,
   fontSize,
   onUpdateFontSize,
   onChangeText,
@@ -49,14 +53,19 @@ export default function TextInputPanel({
   const [showClearConfirm, setShowClearConfirm] = useState<boolean>(false);
   const [isDraggingFile, setIsDraggingFile] = useState<boolean>(false);
 
+  // Automatic multi-page allocation mode (defaults to enabled for seamless student experience)
+  const [autoPaginateEnabled, setAutoPaginateEnabled] = useState<boolean>(true);
+
   // Undo / Redo History State Management
   const [history, setHistory] = useState<string[]>([rawText]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
   const isUndoRedoActionRef = useRef<boolean>(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const wordCount = rawText.trim() ? rawText.trim().split(/\s+/).length : 0;
-  const charCount = rawText.length;
+  // Assignment text statistics & dynamic page requirements
+  const stats = calculateAssignmentStats(rawText, settings);
+  const wordCount = stats.totalWords;
+  const charCount = stats.totalChars;
 
   // Sync external text changes into history
   useEffect(() => {
@@ -142,15 +151,31 @@ export default function TextInputPanel({
     });
   };
 
+  /**
+   * Quick Paste from Clipboard with automatic page calculation
+   */
   const handlePasteClipboard = async () => {
     try {
       if (navigator.clipboard && navigator.clipboard.readText) {
         const text = await navigator.clipboard.readText();
         if (text && text.trim()) {
           const nextText = rawText ? rawText + '\n\n' + text : text;
-          pushImmediateSnapshot(nextText);
-          onChangeText(nextText);
-          onNotify?.('Assignment text pasted successfully!', 'success');
+          const newStats = calculateAssignmentStats(nextText, settings);
+
+          if (autoPaginateEnabled && newStats.needsMorePages) {
+            const splitText = autoSplitLongText(nextText, settings);
+            const splitStats = calculateAssignmentStats(splitText, settings);
+            pushImmediateSnapshot(splitText);
+            onChangeText(splitText);
+            onNotify?.(
+              `Assignment (${splitStats.totalWords} words) pasted & auto-divided across ${splitStats.currentPagesCount} pages!`,
+              'success'
+            );
+          } else {
+            pushImmediateSnapshot(nextText);
+            onChangeText(nextText);
+            onNotify?.('Assignment text pasted successfully!', 'success');
+          }
           return;
         }
       }
@@ -159,6 +184,34 @@ export default function TextInputPanel({
     }
     textareaRef.current?.focus();
     onNotify?.('Tap inside the rectangle below and paste your assignment (Ctrl+V / Cmd+V)', 'info');
+  };
+
+  /**
+   * Handle native Ctrl+V paste event in textarea
+   */
+  const handleTextareaPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    if (!autoPaginateEnabled) return;
+    const pasted = e.clipboardData.getData('text');
+    if (!pasted || !pasted.trim()) return;
+
+    const target = e.currentTarget;
+    const start = target.selectionStart;
+    const end = target.selectionEnd;
+    const nextText = rawText.substring(0, start) + pasted + rawText.substring(end);
+
+    const newStats = calculateAssignmentStats(nextText, settings);
+    // If the combined text requires more than 1 page, automatically distribute it
+    if (newStats.needsMorePages) {
+      e.preventDefault();
+      const splitText = autoSplitLongText(nextText, settings);
+      const splitStats = calculateAssignmentStats(splitText, settings);
+      pushImmediateSnapshot(splitText);
+      onChangeText(splitText);
+      onNotify?.(
+        `Assignment (${splitStats.totalWords} words) automatically divided across ${splitStats.currentPagesCount} pages!`,
+        'success'
+      );
+    }
   };
 
   const handleInsertDelimiter = () => {
@@ -193,13 +246,21 @@ export default function TextInputPanel({
     reader.onload = (event) => {
       const content = event.target?.result;
       if (typeof content === 'string') {
-        pushImmediateSnapshot(content);
-        onChangeText(content);
-        onNotify?.(`File "${file.name}" loaded successfully (${content.length} characters)!`, 'success');
-        if (content.length > 2000 && onAutoSplitPages) {
-          setTimeout(() => {
-            onAutoSplitPages();
-          }, 300);
+        const fileStats = calculateAssignmentStats(content, settings);
+
+        if (autoPaginateEnabled && fileStats.needsMorePages) {
+          const splitText = autoSplitLongText(content, settings);
+          const splitStats = calculateAssignmentStats(splitText, settings);
+          pushImmediateSnapshot(splitText);
+          onChangeText(splitText);
+          onNotify?.(
+            `File "${file.name}" loaded (${splitStats.totalWords} words) and auto-split into ${splitStats.currentPagesCount} pages!`,
+            'success'
+          );
+        } else {
+          pushImmediateSnapshot(content);
+          onChangeText(content);
+          onNotify?.(`File "${file.name}" loaded successfully (${content.length} characters)!`, 'success');
         }
       }
     };
@@ -273,6 +334,39 @@ export default function TextInputPanel({
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Auto-Pagination Mode Switch */}
+          <button
+            type="button"
+            onClick={() => {
+              const next = !autoPaginateEnabled;
+              setAutoPaginateEnabled(next);
+              onNotify?.(
+                next
+                  ? 'Auto-Pagination ON: Automatically adds pages according to word count'
+                  : 'Auto-Pagination OFF: Manual ---page--- delimiters only',
+                'info'
+              );
+            }}
+            className={`cursor-pointer font-mono-code text-[11px] font-bold rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-all active:scale-95 border ${
+              autoPaginateEnabled
+                ? isLight
+                  ? 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-800 shadow-2xs'
+                  : 'bg-amber-950/40 hover:bg-amber-900/50 border-amber-500/50 text-amber-300'
+                : isLight
+                ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-500'
+                : 'bg-zinc-800/60 hover:bg-zinc-800 border-zinc-700 text-zinc-500'
+            }`}
+            title={
+              autoPaginateEnabled
+                ? 'Auto-Pagination is ON (adds pages automatically based on assignment total words)'
+                : 'Auto-Pagination is OFF (click to enable automatic multi-page allocation)'
+            }
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${autoPaginateEnabled ? 'text-amber-500 animate-pulse' : 'text-zinc-400'}`} />
+            <span className="hidden sm:inline">Auto-Pages:</span>
+            <span>{autoPaginateEnabled ? 'ON' : 'OFF'}</span>
+          </button>
+
           {/* Quick Paste Assignment Button */}
           <button
             type="button"
@@ -490,6 +584,47 @@ export default function TextInputPanel({
         </div>
       )}
 
+      {/* Prominent Multi-Page Requirement Banner */}
+      {stats.needsMorePages && (
+        <div className="px-3 sm:px-4 pt-2.5">
+          <div
+            className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 text-xs font-mono-code transition-all animate-in fade-in slide-in-from-top-1 ${
+              isLight
+                ? 'bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs'
+                : 'bg-[#1a1612] border-amber-500/40 text-amber-200 shadow-inner'
+            }`}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0 border border-amber-500/40">
+                <BookOpen className="w-3.5 h-3.5 text-amber-500" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold flex items-center gap-1.5 flex-wrap">
+                  <span>{wordCount} words detected</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 font-bold">
+                    ~{stats.recommendedPages} pages needed
+                  </span>
+                </p>
+                <p className="text-[11px] opacity-80 truncate">
+                  Currently {totalPages} page{totalPages === 1 ? '' : 's'}. Auto-divide across {stats.recommendedPages} pages?
+                </p>
+              </div>
+            </div>
+
+            {onAutoSplitPages && (
+              <button
+                type="button"
+                onClick={onAutoSplitPages}
+                className="cursor-pointer bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow-xs uppercase tracking-wider flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Auto-Add {stats.recommendedPages} Pages</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Main Spacious Rectangular Assignment Workspace (Mobile-Friendly & High Contrast) */}
       <div className={`flex-1 p-3 sm:p-4 flex flex-col relative ${isLight ? 'bg-slate-100/60' : 'bg-[#08080a]'}`}>
         <div
@@ -509,24 +644,27 @@ export default function TextInputPanel({
               <span className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
               Assignment Paste &amp; Edit Box
             </span>
-            <button
-              type="button"
-              onClick={handlePasteClipboard}
-              className={`hover:text-[#6366f1] cursor-pointer flex items-center gap-1 font-bold ${
-                isLight ? 'text-indigo-600' : 'text-indigo-400'
-              }`}
-            >
-              <ClipboardPaste className="w-3 h-3" />
-              <span>Tap to Paste</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handlePasteClipboard}
+                className={`hover:text-[#6366f1] cursor-pointer flex items-center gap-1 font-bold ${
+                  isLight ? 'text-indigo-600' : 'text-indigo-400'
+                }`}
+              >
+                <ClipboardPaste className="w-3 h-3" />
+                <span>Tap to Paste</span>
+              </button>
+            </div>
           </div>
 
           <textarea
             ref={textareaRef}
             value={rawText}
             onChange={(e) => onChangeText(e.target.value)}
+            onPaste={handleTextareaPaste}
             onKeyDown={handleKeyDown}
-            placeholder={`Paste or type your assignment text here...\n\n• Paste from Word, PDF, Google Docs, or code\n• Use ---page--- to split pages manually\n• Supports multi-page automatic splitting\n• Undo (Ctrl+Z) and Redo (Ctrl+Y) supported`}
+            placeholder={`Paste or type your assignment text here...\n\n• Paste from Word, PDF, Google Docs, or code\n• Automatic Multi-Page: automatically adds needed pages according to total words!\n• Manual delimiters: use ---page--- to split pages manually\n• Undo (Ctrl+Z) and Redo (Ctrl+Y) supported`}
             className={`w-full flex-1 p-3 sm:p-4 font-mono-code text-xs sm:text-[13px] resize-none border-0 focus:outline-hidden leading-relaxed tracking-wide min-h-[300px] sm:min-h-[420px] ${
               isLight
                 ? 'bg-white text-slate-900 placeholder:text-slate-400'
@@ -554,7 +692,7 @@ export default function TextInputPanel({
       >
         {/* Telemetry info */}
         <div
-          className={`flex items-center gap-3 text-[11px] w-full sm:w-auto justify-between sm:justify-start ${
+          className={`flex items-center gap-2.5 text-[11px] w-full sm:w-auto justify-between sm:justify-start flex-wrap ${
             isLight ? 'text-slate-600' : 'text-zinc-400'
           }`}
         >
@@ -562,7 +700,14 @@ export default function TextInputPanel({
           <span>·</span>
           <span>{charCount} chars</span>
           <span>·</span>
-          <span className="text-[#6366f1] font-semibold">{totalPages} {totalPages === 1 ? 'page' : 'pages'}</span>
+          <span className="text-[#6366f1] font-semibold">
+            {totalPages} {totalPages === 1 ? 'page' : 'pages'}
+            {stats.needsMorePages && (
+              <span className="text-amber-500 font-bold ml-1">
+                (~{stats.recommendedPages} needed)
+              </span>
+            )}
+          </span>
           {canUndo && (
             <span className={`text-[10px] hidden md:inline ${isLight ? 'text-slate-500' : 'text-zinc-500'}`}>
               (Undo ready)
@@ -571,20 +716,22 @@ export default function TextInputPanel({
         </div>
 
         {/* Insertion Buttons */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
           {onAutoSplitPages && (
             <button
               type="button"
               onClick={onAutoSplitPages}
-              className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold flex items-center gap-1 transition-colors border ${
-                isLight
+              className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold flex items-center gap-1.5 transition-all border ${
+                stats.needsMorePages
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-600 shadow-xs animate-pulse'
+                  : isLight
                   ? 'bg-white hover:bg-slate-100 border-slate-300 text-slate-800'
                   : 'bg-[#18181b] hover:bg-[#222226] border-[#27272a] text-[#e4e4e7]'
               }`}
-              title="Auto-calculate line capacity and split into pages"
+              title="Automatically calculate total words and divide into required pages"
             >
-              <Sparkles className="w-3 h-3 text-amber-500" />
-              <span>Auto-Split</span>
+              <Sparkles className="w-3 h-3 text-amber-300" />
+              <span>Auto-Add Pages {stats.needsMorePages ? `(${stats.recommendedPages})` : ''}</span>
             </button>
           )}
 

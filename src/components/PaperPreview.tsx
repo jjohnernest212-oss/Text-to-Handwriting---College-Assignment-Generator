@@ -10,6 +10,7 @@ import {
   Eye,
   Sparkles,
   Plus,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   PageSettings,
@@ -19,6 +20,7 @@ import {
 } from '../types';
 import InkBlotsOverlay from './InkBlotsOverlay';
 import PenStrokeJitterCanvas from './PenStrokeJitterCanvas';
+import { getLinesPerPage, getCharsPerLine, formatTextToPaperLines } from '../utils/paginationUtils';
 
 interface PaperPreviewProps {
   theme?: 'dark' | 'light';
@@ -35,6 +37,7 @@ interface PaperPreviewProps {
   paperRef: React.RefObject<HTMLDivElement | null>;
   onAddPage?: () => void;
   onDeletePage?: () => void;
+  onAutoSplitPages?: () => void;
   onUpdateFontSize?: (size: number) => void;
 }
 
@@ -53,6 +56,7 @@ export default function PaperPreview({
   paperRef,
   onAddPage,
   onDeletePage,
+  onAutoSplitPages,
   onUpdateFontSize,
 }: PaperPreviewProps) {
   const isLight = theme === 'light';
@@ -60,6 +64,16 @@ export default function PaperPreview({
   const [activeDiagramId, setActiveDiagramId] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // Page capacity & overflow detection
+  const charsPerLine = getCharsPerLine(settings);
+  const linesPerPage = getLinesPerPage(settings);
+  const formattedLines = formatTextToPaperLines(pageText, charsPerLine);
+  const isPageOverflowing = formattedLines.length > linesPerPage;
+  const overflowLinesCount = Math.max(0, formattedLines.length - linesPerPage);
+  const overflowWordsCount = isPageOverflowing
+    ? formattedLines.slice(linesPerPage).join(' ').trim().split(/\s+/).filter(Boolean).length
+    : 0;
 
   // Filter diagrams for current page
   const pageDiagrams = diagrams.filter((d) => d.pageIndex === pageIndex);
@@ -203,22 +217,36 @@ export default function PaperPreview({
 
   // Human jitter simulation: render text lines with subtle human variations and justification
   const renderHumanizedText = (text: string) => {
+    const lines = formatTextToPaperLines(text, charsPerLine);
+
     if (!settings.humanJitter) {
       return (
         <div
-          className="whitespace-pre-wrap select-text"
+          className="select-text space-y-0"
           style={{
             textAlign: settings.justification === 'full' ? 'justify' : 'left',
-            textJustify: settings.justification === 'full' ? 'inter-word' : undefined,
           }}
         >
-          {text}
+          {lines.map((line, lIdx) => {
+            if (line.trim() === '') {
+              return <div key={lIdx} style={{ height: `${settings.lineHeight}px` }}>&nbsp;</div>;
+            }
+            return (
+              <div
+                key={lIdx}
+                style={{
+                  height: `${settings.lineHeight}px`,
+                  lineHeight: `${settings.lineHeight}px`,
+                  width: '100%',
+                }}
+              >
+                {line}
+              </div>
+            );
+          })}
         </div>
       );
     }
-
-    // Split text into paragraphs/lines
-    const lines = text.split('\n');
 
     return (
       <div
@@ -343,6 +371,20 @@ export default function PaperPreview({
             >
               <Plus className="w-3.5 h-3.5" />
               <span>+ Add Page</span>
+            </button>
+          )}
+
+          {/* Auto-Add Needed Pages quick action if this page has overflow */}
+          {isPageOverflowing && onAutoSplitPages && (
+            <button
+              type="button"
+              onClick={onAutoSplitPages}
+              className="cursor-pointer ml-1 px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs uppercase tracking-wider active:scale-95 animate-pulse"
+              title={`This page has ${overflowLinesCount} lines overflowing. Click to auto-add needed pages.`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Auto-Add Pages</span>
+              <span className="sm:hidden">Auto-Split</span>
             </button>
           )}
 
@@ -703,6 +745,44 @@ export default function PaperPreview({
             )}
           </div>
         </div>
+        {/* Floating Overflow Alert for seamless Auto-Pagination */}
+        {isPageOverflowing && onAutoSplitPages && (
+          <div className="fixed sm:absolute bottom-4 left-1/2 -translate-x-1/2 z-30 max-w-lg w-[92%] px-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div
+              className={`p-3 rounded-xl border shadow-xl flex items-center justify-between gap-3 text-xs backdrop-blur-md transition-all ${
+                isLight
+                  ? 'bg-amber-50/95 border-amber-300 text-amber-950 shadow-amber-900/10'
+                  : 'bg-[#181512]/95 border-amber-500/50 text-amber-200 shadow-black/50'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0 border border-amber-500/40">
+                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-bold flex items-center gap-1.5 flex-wrap">
+                    <span>Assignment overflows Page {pageIndex + 1}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded font-mono-code bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-bold">
+                      +{overflowLinesCount} lines / ~{overflowWordsCount} words
+                    </span>
+                  </div>
+                  <p className="text-[11px] opacity-80 truncate">
+                    Text exceeds physical page height. Auto-add needed pages?
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={onAutoSplitPages}
+                className="cursor-pointer bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow-md uppercase tracking-wider flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Auto-Add Pages</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

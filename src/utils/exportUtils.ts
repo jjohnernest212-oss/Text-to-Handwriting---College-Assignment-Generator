@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import confetti from 'canvas-confetti';
 import { PageSettings, StudentHeaderInfo, DiagramElement, PaperType } from '../types';
+import { getCharsPerLine, formatTextToPaperLines } from './paginationUtils';
 
 export interface ExportProgress {
   currentPage: number;
@@ -232,7 +233,8 @@ export async function renderPageDirectToCanvas({
   }
 
   // 6. Handwritten Text Lines & Words
-  const lines = pageText ? pageText.split('\n') : [];
+  const charsPerLine = getCharsPerLine(settings);
+  const lines = pageText ? formatTextToPaperLines(pageText, charsPerLine) : [];
   const fontWeight = settings.inkThickness > 1.2 ? '600' : settings.inkThickness < 0.9 ? '300' : '400';
   ctx.font = `${fontWeight} ${settings.fontSize}px ${activeFont}`;
   ctx.fillStyle = settings.inkColor;

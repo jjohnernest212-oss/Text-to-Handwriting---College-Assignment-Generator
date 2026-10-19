@@ -49,6 +49,7 @@ import {
   Minimize2,
   ArrowDown,
   ArrowUp,
+  Sparkles,
 } from 'lucide-react';
 
 export default function App() {
@@ -217,11 +218,12 @@ export default function App() {
     showToast(`Deleted page ${safePageIndex + 1}`, 'info');
   };
 
-  // Handle auto split for long text
+  // Handle auto split for long text based on actual page capacity and word count
   const handleAutoSplitPages = () => {
-    const splitText = autoSplitLongText(rawText, 1800);
+    const splitText = autoSplitLongText(rawText, settings);
     setRawText(splitText);
-    showToast('Auto-split text into pages!', 'success');
+    const newPages = parsePagesFromText(splitText);
+    showToast(`Assignment automatically divided into ${newPages.length} pages!`, 'success');
   };
 
   // Clear text
@@ -375,6 +377,7 @@ export default function App() {
               rawText={rawText}
               currentPageIndex={safePageIndex}
               totalPages={pages.length}
+              settings={settings}
               onChangeText={setRawText}
               onApplyPreset={handleApplyPreset}
               onInsertPageBreak={handleAddPage}
@@ -476,6 +479,7 @@ export default function App() {
               onPageChange={setCurrentPageIndex}
               onAddPage={handleAddPage}
               onDeletePage={handleDeleteCurrentPage}
+              onAutoSplitPages={handleAutoSplitPages}
               onUpdateDiagram={handleUpdateDiagram}
               onDeleteDiagram={handleDeleteDiagram}
               paperRef={paperRef}
@@ -515,6 +519,18 @@ export default function App() {
 
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
+                type="button"
+                onClick={handleAutoSplitPages}
+                className="cursor-pointer px-3 py-1.5 text-xs font-mono-code font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-1.5 transition-all shadow-sm uppercase tracking-wider active:scale-95"
+                title="Automatically calculate total words and divide into required pages"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Auto-Split Pages</span>
+                <span className="sm:hidden">Auto-Split</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={handleAddPage}
                 className="cursor-pointer px-3.5 py-1.5 text-xs font-mono-code font-bold bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-lg flex items-center gap-1.5 transition-all shadow-sm uppercase tracking-wider active:scale-95"
                 title="Add unlimited assignment pages"
