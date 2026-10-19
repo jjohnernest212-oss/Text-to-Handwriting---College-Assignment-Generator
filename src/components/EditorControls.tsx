@@ -10,6 +10,8 @@ import {
   Plus,
   Droplet,
   Shuffle,
+  AlignLeft,
+  AlignJustify,
 } from 'lucide-react';
 import {
   PageSettings,
@@ -501,6 +503,77 @@ export default function EditorControls({
               )}
             </div>
 
+            {/* Text Justification / Formal Assignment Alignment Setting */}
+            <div
+              className={`p-3.5 border rounded-xl space-y-2.5 transition-colors ${
+                isLight ? 'bg-white border-slate-200 shadow-2xs' : 'bg-[#18181b] border-[#27272a]'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <label
+                    className={`font-mono-code text-[11px] uppercase tracking-wider font-bold block ${
+                      isLight ? 'text-slate-900' : 'text-[#e4e4e7]'
+                    }`}
+                  >
+                    Text Alignment &amp; Justification
+                  </label>
+                  <span
+                    className={`font-mono-code text-[9px] block ${
+                      isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'
+                    }`}
+                  >
+                    Simulate formal university assignment submission format
+                  </span>
+                </div>
+                <span
+                  className={`text-[10px] font-mono-code px-2 py-0.5 rounded font-bold border ${
+                    settings.justification === 'full'
+                      ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30'
+                      : isLight
+                      ? 'bg-slate-100 text-slate-600 border-slate-200'
+                      : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                  }`}
+                >
+                  {settings.justification === 'full' ? 'Full Justified' : 'Left Aligned'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-1 font-mono-code text-xs">
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ justification: 'left' })}
+                  className={`cursor-pointer p-2 rounded-lg border flex items-center justify-center gap-2 transition-all ${
+                    settings.justification !== 'full'
+                      ? 'bg-[#6366f1] text-white border-[#6366f1] shadow-xs font-bold'
+                      : isLight
+                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                      : 'bg-[#121214] hover:bg-[#1f1f23] border-[#27272a] text-[#e4e4e7]'
+                  }`}
+                  title="Natural left-aligned handwriting with organic line ends"
+                >
+                  <AlignLeft className="w-4 h-4" />
+                  <span>Left (Natural)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onUpdateSettings({ justification: 'full' })}
+                  className={`cursor-pointer p-2 rounded-lg border flex items-center justify-center gap-2 transition-all ${
+                    settings.justification === 'full'
+                      ? 'bg-[#6366f1] text-white border-[#6366f1] shadow-xs font-bold'
+                      : isLight
+                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
+                      : 'bg-[#121214] hover:bg-[#1f1f23] border-[#27272a] text-[#e4e4e7]'
+                  }`}
+                  title="Full justified alignment for formal academic and university homework submissions"
+                >
+                  <AlignJustify className="w-4 h-4" />
+                  <span>Full Justify (Formal)</span>
+                </button>
+              </div>
+            </div>
+
             {/* Ink Blot & Smudge Artifacts Direct Tuning Card */}
             <div
               className={`p-3.5 border rounded-xl space-y-3 transition-colors ${
@@ -812,27 +885,46 @@ export default function EditorControls({
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'ruled', name: 'Ruled Notebook', desc: 'Standard blue rules' },
-                  { id: 'college-ruled', name: 'College Ruled', desc: 'Dense gray rules' },
-                  { id: 'grid', name: 'Math / Grid Paper', desc: 'Engineering matrix' },
-                  { id: 'plain', name: 'Plain A4 Sheet', desc: 'Clean white sheet' },
-                  { id: 'vintage', name: 'Vintage Parchment', desc: 'Aged sepia paper' },
+                  { id: 'ruled', name: 'Ruled Notebook', desc: 'Standard blue rules HD' },
+                  { id: 'college-ruled', name: 'College Ruled', desc: 'Dense spiral notebook rules' },
+                  { id: 'grid', name: 'Engineering Grid', desc: 'Technical math matrix' },
+                  { id: 'plain', name: 'Plain A4 Sheet', desc: 'Clean 80 GSM white paper' },
+                  { id: 'vintage', name: 'Vintage Book Page', desc: 'Aged sepia book texture' },
+                  { id: 'parchment', name: 'Antique Parchment', desc: 'Fibrous manuscript paper HD' },
+                  { id: 'yellow-legal', name: 'Yellow Legal Pad', desc: 'Canary paper + red double rule' },
+                  { id: 'dot-grid', name: 'Bullet / Dot Grid', desc: 'Rhodia 5mm subtle dots' },
+                  { id: 'leather-diary', name: 'Hardcover Diary', desc: 'Warm ivory book grain' },
+                  { id: 'kraft-recycled', name: 'Recycled Kraft', desc: 'Organic wood pulp texture' },
                 ].map((paper) => {
                   const isSelected = settings.paperType === paper.id;
                   return (
                     <button
                       key={paper.id}
                       onClick={() => onUpdateSettings({ paperType: paper.id as PaperType })}
-                      className={`cursor-pointer p-2.5 rounded-md border text-left transition-all bg-[#18181b] ${
+                      className={`cursor-pointer p-2.5 rounded-lg border text-left transition-all ${
                         isSelected
                           ? 'border-[#6366f1] bg-[#6366f1]/15 ring-1 ring-[#6366f1]'
-                          : 'border-[#27272a] hover:border-[#3f3f46]'
+                          : isLight
+                          ? 'border-slate-200 bg-white hover:border-slate-300 shadow-2xs'
+                          : 'border-[#27272a] bg-[#18181b] hover:border-[#3f3f46]'
                       }`}
                     >
-                      <div className="font-mono-code text-[11px] font-bold text-white uppercase">
+                      <div
+                        className={`font-mono-code text-[11px] font-bold uppercase truncate ${
+                          isSelected
+                            ? 'text-[#6366f1]'
+                            : isLight
+                            ? 'text-slate-900'
+                            : 'text-white'
+                        }`}
+                      >
                         {paper.name}
                       </div>
-                      <div className="font-mono-code text-[10px] text-[#e4e4e7]/50 mt-0.5">
+                      <div
+                        className={`font-mono-code text-[10px] mt-0.5 truncate ${
+                          isLight ? 'text-slate-500' : 'text-[#e4e4e7]/50'
+                        }`}
+                      >
                         {paper.desc}
                       </div>
                     </button>

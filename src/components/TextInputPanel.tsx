@@ -7,6 +7,7 @@ import {
   Type,
   Undo2,
   Redo2,
+  ClipboardPaste,
 } from 'lucide-react';
 import { ASSIGNMENT_PRESETS } from '../constants';
 import { AssignmentPreset } from '../types';
@@ -141,6 +142,25 @@ export default function TextInputPanel({
     });
   };
 
+  const handlePasteClipboard = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text && text.trim()) {
+          const nextText = rawText ? rawText + '\n\n' + text : text;
+          pushImmediateSnapshot(nextText);
+          onChangeText(nextText);
+          onNotify?.('Assignment text pasted successfully!', 'success');
+          return;
+        }
+      }
+    } catch {
+      // Clipboard read may be blocked by browser permission
+    }
+    textareaRef.current?.focus();
+    onNotify?.('Tap inside the rectangle below and paste your assignment (Ctrl+V / Cmd+V)', 'info');
+  };
+
   const handleInsertDelimiter = () => {
     const textarea = textareaRef.current;
     if (!textarea) {
@@ -253,6 +273,21 @@ export default function TextInputPanel({
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Quick Paste Assignment Button */}
+          <button
+            type="button"
+            onClick={handlePasteClipboard}
+            className={`cursor-pointer font-mono-code text-[11px] font-bold rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-all active:scale-95 border ${
+              isLight
+                ? 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700 shadow-2xs'
+                : 'bg-[#6366f1]/20 hover:bg-[#6366f1]/30 border-[#6366f1]/50 text-indigo-300'
+            }`}
+            title="Paste assignment text from clipboard"
+          >
+            <ClipboardPaste className="w-3.5 h-3.5 text-[#6366f1]" />
+            <span>Paste</span>
+          </button>
+
           {/* Undo and Redo Button Group */}
           <div
             className={`flex items-center p-0.5 border rounded-lg ${
@@ -296,7 +331,7 @@ export default function TextInputPanel({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className={`cursor-pointer font-mono-code text-[11px] rounded-lg px-2.5 py-1 flex items-center gap-1.5 transition-colors border ${
+            className={`cursor-pointer font-mono-code text-[11px] rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition-colors border ${
               isLight
                 ? 'bg-white hover:bg-slate-100 border-slate-200 text-slate-800 shadow-2xs'
                 : 'bg-[#18181b] hover:bg-[#222226] border-[#27272a] hover:border-[#6366f1] text-[#e4e4e7]'
@@ -304,7 +339,7 @@ export default function TextInputPanel({
             title="Import assignment file (.txt, .md, .doc, .json)"
           >
             <Upload className="w-3 h-3 text-[#6366f1]" />
-            <span>Load File</span>
+            <span className="hidden sm:inline">Load File</span>
           </button>
           <input
             ref={fileInputRef}
@@ -455,25 +490,55 @@ export default function TextInputPanel({
         </div>
       )}
 
-      {/* Main Textarea with Undo/Redo key listeners */}
-      <div className={`flex-1 p-3 flex flex-col relative ${isLight ? 'bg-white' : 'bg-[#0c0c0e]'}`}>
-        <textarea
-          ref={textareaRef}
-          value={rawText}
-          onChange={(e) => onChangeText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={`Type, paste, or drop your assignment text file here...\n\nKeyboard Shortcuts:\n• Ctrl+Z / Cmd+Z: Undo\n• Ctrl+Y / Cmd+Shift+Z: Redo\n\nTo divide into multiple pages, type:\n---page---\n\nor click [+ ADD PAGE BREAK] or [AUTO-SPLIT] below.`}
-          className={`w-full flex-1 p-3 font-mono-code text-xs sm:text-[13px] rounded-lg resize-none border focus:outline-hidden focus:border-[#6366f1] transition-all leading-relaxed tracking-wide ${
+      {/* Main Spacious Rectangular Assignment Workspace (Mobile-Friendly & High Contrast) */}
+      <div className={`flex-1 p-3 sm:p-4 flex flex-col relative ${isLight ? 'bg-slate-100/60' : 'bg-[#08080a]'}`}>
+        <div
+          className={`flex-1 flex flex-col rounded-xl border-2 transition-all overflow-hidden ${
             isLight
-              ? 'bg-slate-50 text-slate-900 border-slate-300 placeholder:text-slate-400 focus:bg-white'
-              : 'bg-[#18181b] text-[#e4e4e7] border-[#27272a] placeholder:text-zinc-600'
+              ? 'bg-white border-slate-300 focus-within:border-[#6366f1] focus-within:ring-2 focus-within:ring-[#6366f1]/20 shadow-xs'
+              : 'bg-[#141418] border-zinc-700/80 focus-within:border-[#6366f1] focus-within:ring-2 focus-within:ring-[#6366f1]/30 shadow-inner'
           }`}
-          spellCheck={false}
-        />
+        >
+          {/* Rectangular Workspace Header Tag */}
+          <div
+            className={`px-3 py-1.5 border-b flex items-center justify-between text-[10px] font-mono-code select-none ${
+              isLight ? 'bg-slate-50 border-slate-200 text-slate-500' : 'bg-[#18181f] border-zinc-700/60 text-zinc-400'
+            }`}
+          >
+            <span className="font-semibold uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
+              Assignment Paste &amp; Edit Box
+            </span>
+            <button
+              type="button"
+              onClick={handlePasteClipboard}
+              className={`hover:text-[#6366f1] cursor-pointer flex items-center gap-1 font-bold ${
+                isLight ? 'text-indigo-600' : 'text-indigo-400'
+              }`}
+            >
+              <ClipboardPaste className="w-3 h-3" />
+              <span>Tap to Paste</span>
+            </button>
+          </div>
+
+          <textarea
+            ref={textareaRef}
+            value={rawText}
+            onChange={(e) => onChangeText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={`Paste or type your assignment text here...\n\n• Paste from Word, PDF, Google Docs, or code\n• Use ---page--- to split pages manually\n• Supports multi-page automatic splitting\n• Undo (Ctrl+Z) and Redo (Ctrl+Y) supported`}
+            className={`w-full flex-1 p-3 sm:p-4 font-mono-code text-xs sm:text-[13px] resize-none border-0 focus:outline-hidden leading-relaxed tracking-wide min-h-[300px] sm:min-h-[420px] ${
+              isLight
+                ? 'bg-white text-slate-900 placeholder:text-slate-400'
+                : 'bg-[#141418] text-[#f4f4f5] placeholder:text-zinc-600'
+            }`}
+            spellCheck={false}
+          />
+        </div>
 
         {/* Drag over overlay visual feedback */}
         {isDraggingFile && (
-          <div className="absolute inset-3 bg-[#6366f1]/20 border-2 border-dashed border-[#6366f1] rounded-lg flex flex-col items-center justify-center pointer-events-none backdrop-blur-xs font-mono-code text-white">
+          <div className="absolute inset-3 bg-[#6366f1]/20 border-2 border-dashed border-[#6366f1] rounded-xl flex flex-col items-center justify-center pointer-events-none backdrop-blur-xs font-mono-code text-white">
             <Upload className="w-8 h-8 text-[#a5b4fc] animate-bounce mb-2" />
             <p className="font-bold text-sm">Drop Assignment File Here</p>
             <p className="text-xs text-[#a5b4fc]">Supports .txt, .md, .docx, .json</p>

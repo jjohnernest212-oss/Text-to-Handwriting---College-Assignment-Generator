@@ -146,6 +146,7 @@ export const DEFAULT_PAGE_SETTINGS: PageSettings = {
   paperEffect: 'subtle-shadow',
   humanJitter: true,
   jitterIntensity: 2,
+  justification: 'left',
   paperTilt: 0,
   snapLinesToText: true,
   inkBlots: true, // Default to true so users immediately enjoy the realistic handwriting ink smudge artifacts

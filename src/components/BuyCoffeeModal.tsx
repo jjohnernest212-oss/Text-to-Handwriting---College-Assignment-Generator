@@ -285,39 +285,21 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                 )}
               </div>
 
-              {/* Actions for QR code */}
-              <div className="mt-2.5 flex items-center justify-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="cursor-pointer text-[10px] text-zinc-300 hover:text-white flex items-center gap-1 py-1 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                  title="Upload screenshot of your PhonePe scanner"
-                >
-                  <Upload className="w-3 h-3 text-amber-400" />
-                  <span>{customScannerImage ? 'Replace Image' : 'Upload Scanner'}</span>
-                </button>
-
+              {/* Action for QR code: Save QR Only */}
+              <div className="mt-3 flex items-center justify-center">
                 <button
                   type="button"
                   onClick={handleDownloadQr}
-                  className="cursor-pointer text-[10px] text-zinc-300 hover:text-white flex items-center gap-1 py-1 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                  title="Save QR Code image to device gallery"
+                  className="cursor-pointer text-xs font-mono-code font-bold text-white hover:text-emerald-300 flex items-center gap-1.5 py-1.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/40 border border-emerald-400/30 transition-all active:scale-95"
+                  title="Save high-resolution PhonePe UPI QR code image to your device"
                 >
-                  <Download className="w-3 h-3 text-emerald-400" />
+                  <Download className="w-4 h-4 text-white" />
                   <span>Save QR</span>
                 </button>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
               </div>
 
-              <div className="mt-1.5 text-[9px] text-zinc-400 font-medium uppercase tracking-wider">
-                Scan with PhonePe · GPay · Paytm · BHIM · Cred · Mobile Banking
+              <div className="mt-2 text-[10px] text-zinc-400 font-medium tracking-wide">
+                Scan with PhonePe · Google Pay · Paytm · BHIM · Cred · Mobile Banking
               </div>
             </div>
 

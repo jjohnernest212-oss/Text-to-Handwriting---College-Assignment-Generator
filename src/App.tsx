@@ -125,7 +125,6 @@ export default function App() {
 
   // Paper DOM reference
   const paperRef = useRef<HTMLDivElement | null>(null);
-  const multiPageExportContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Compute pages from raw text
   const pages = useMemo(() => {
@@ -249,50 +248,6 @@ export default function App() {
     showToast('Diagram removed', 'info');
   };
 
-  // Prepare pages for export with reliable single-page and multi-page support
-  const prepareAllPagesForExport = async (): Promise<HTMLElement[]> => {
-    // If only 1 page exists, paperRef.current is already live on screen
-    if (pages.length === 1 && paperRef.current) {
-      return [paperRef.current];
-    }
-
-    const container = multiPageExportContainerRef.current;
-    if (!container) {
-      return paperRef.current ? [paperRef.current] : [];
-    }
-
-    container.style.left = '0px';
-    container.style.top = '0px';
-    container.style.zIndex = '9999';
-
-    try {
-      await document.fonts.ready;
-    } catch {
-      // ignore
-    }
-
-    const pageNodes = container.querySelectorAll<HTMLElement>('.export-paper-page');
-    const nodes = Array.from(pageNodes);
-    if (nodes.length === 0 && paperRef.current) {
-      return [paperRef.current];
-    }
-    return nodes;
-  };
-
-  // Cleanup after export completes
-  const cleanupAfterExport = () => {
-    const container = multiPageExportContainerRef.current;
-    if (container) {
-      container.style.left = '-9999px';
-      container.style.top = '0px';
-      container.style.zIndex = '-1';
-      const pageNodes = container.querySelectorAll<HTMLElement>('.export-paper-page');
-      pageNodes.forEach((p) => {
-        p.style.display = 'block';
-      });
-    }
-  };
-
   const isLight = theme === 'light';
 
   return (
@@ -347,15 +302,15 @@ export default function App() {
         </button>
       </div>
 
-      {/* Main Spacious Workbench Inspired by saurabhdaware.github.io/text-to-handwriting (Full scrolling enabled) */}
+      {/* Main Spacious Workbench */}
       <main id="workbench" className="flex-1 flex flex-col lg:flex-row min-h-[750px] lg:min-h-[840px]">
-        {/* Left Side: Spacious Assignment Input & Styling Workbench */}
+        {/* Left Side: Assignment Input & Styling Workbench */}
         <section
           className={`w-full lg:w-[460px] xl:w-[500px] 2xl:w-[540px] flex-shrink-0 border-r flex flex-col transition-colors ${
             isLight ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/10'
           } ${isPaperExpanded ? 'hidden' : mobileTab === 'editor' ? 'flex' : 'hidden lg:flex'}`}
         >
-          {/* Top Workbench Tabs: Text Input vs Style Controls */}
+          {/* Top Workbench Tabs */}
           <div
             className={`p-2.5 border-b flex items-center justify-between gap-2 ${
               isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#121216] border-white/10'
@@ -396,7 +351,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* Quick Action Shortcuts: Draw Diagrams & Custom Font */}
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
@@ -457,13 +411,13 @@ export default function App() {
           </div>
         </section>
 
-        {/* Right Side: Spacious Full-View Handwriting Paper Preview (Not Squeezed!) */}
+        {/* Right Side: Full-View Handwriting Paper Preview */}
         <section
           className={`flex-1 min-w-0 flex flex-col min-h-0 p-3 sm:p-5 gap-3 transition-colors ${
             isLight ? 'bg-slate-100' : 'bg-[#121216]'
           } ${mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'}`}
         >
-          {/* Top Paper Header Strip: Page Info, Zoom & Full-View Expand Button */}
+          {/* Top Paper Header Strip */}
           <div
             className={`flex items-center justify-between gap-3 border rounded-xl px-3 sm:px-4 py-2 text-xs font-mono-code transition-colors ${
               isLight
@@ -482,7 +436,6 @@ export default function App() {
               </span>
             </div>
 
-            {/* Expand / Minimize Full View Toggle */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -509,7 +462,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* The Paper Preview Element (Roomy, High Fidelity, Natural Scroll) */}
+          {/* The Paper Preview Element */}
           <div className="flex-1 min-h-[660px] relative">
             <PaperPreview
               theme={theme}
@@ -574,19 +527,19 @@ export default function App() {
         </section>
       </main>
 
-      {/* Real Students Who Used and Liked The Site (With verified real comments) */}
+      {/* Real Students Who Used and Liked The Site */}
       <StudentTestimonials
         theme={theme}
         onOpenCoffeeModal={() => setIsBuyCoffeeOpen(true)}
       />
 
-      {/* Static Contributors Space (Right Above Footer - Plenty's GitHub Only, Student FAQs) */}
+      {/* Static Contributors Space */}
       <StaticContributors
         theme={theme}
         onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
       />
 
-      {/* Clean Technical & Copyright Footer (Scrollable & Visually Crisp) */}
+      {/* Footer */}
       <footer
         className={`border-t px-4 sm:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono-code text-[11px] select-none transition-colors ${
           isLight
@@ -611,7 +564,6 @@ export default function App() {
           </span>
         </div>
 
-        {/* Policy & Quick Nav Links */}
         <div className="flex items-center gap-4 text-xs flex-wrap">
           <button
             type="button"
@@ -689,178 +641,6 @@ export default function App() {
         )}
       </div>
 
-      {/* Container for Multi-Page PDF Export Generation */}
-      <div
-        ref={multiPageExportContainerRef}
-        style={{
-          position: 'fixed',
-          left: '-9999px',
-          top: '0px',
-          width: '794px',
-          height: '1123px',
-          overflow: 'hidden',
-          pointerEvents: 'none',
-          zIndex: -1,
-          opacity: 1,
-          backgroundColor: '#ffffff',
-        }}
-      >
-        {pages.map((pText, pIdx) => {
-          const pageDiags = diagrams.filter((d) => d.pageIndex === pIdx);
-          return (
-            <div
-              key={pIdx}
-              className="export-paper-page relative select-none rounded-none overflow-hidden"
-              style={{
-                width: '794px',
-                height: '1123px',
-                backgroundColor:
-                  settings.paperType === 'vintage'
-                    ? '#fbf5e5'
-                    : settings.paperType === 'ruled'
-                    ? '#fafaf9'
-                    : '#ffffff',
-                backgroundImage:
-                  settings.paperType === 'ruled'
-                    ? `repeating-linear-gradient(transparent 0px, transparent ${settings.lineHeight - 1}px, #93c5fd ${settings.lineHeight - 1}px, #93c5fd ${settings.lineHeight}px)`
-                    : settings.paperType === 'college-ruled'
-                    ? `repeating-linear-gradient(transparent 0px, transparent ${settings.lineHeight - 1}px, #cbd5e1 ${settings.lineHeight - 1}px, #cbd5e1 ${settings.lineHeight}px)`
-                    : settings.paperType === 'grid'
-                    ? `linear-gradient(to right, #e2e8f0 1px, transparent 1px), repeating-linear-gradient(transparent 0px, transparent ${settings.lineHeight - 1}px, #e2e8f0 ${settings.lineHeight - 1}px, #e2e8f0 ${settings.lineHeight}px)`
-                    : settings.paperType === 'vintage'
-                    ? `repeating-linear-gradient(transparent 0px, transparent ${settings.lineHeight - 1}px, #d4be98 ${settings.lineHeight - 1}px, #d4be98 ${settings.lineHeight}px)`
-                    : 'none',
-                backgroundPosition: `0px ${settings.topMargin}px`,
-                backgroundSize: settings.paperType === 'grid' ? `20px 20px, 100% ${settings.lineHeight}px` : undefined,
-              }}
-            >
-              {/* Header margin line */}
-              {settings.paperType !== 'plain' && settings.showMarginLine && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: `${settings.topMargin - 4}px`,
-                    height: '1.5px',
-                    backgroundColor: settings.marginLineColor,
-                    opacity: 0.65,
-                  }}
-                />
-              )}
-
-              {/* Vertical Margin Line */}
-              {settings.showMarginLine && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    left: `${settings.marginLinePosition}px`,
-                    width: '1.5px',
-                    backgroundColor: settings.marginLineColor,
-                    opacity: 0.85,
-                  }}
-                />
-              )}
-
-              {/* Header Info */}
-              {headerInfo.enabled && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '18px',
-                    left: 0,
-                    right: 0,
-                    padding: '0 32px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontFamily: activeFontFamilyCss,
-                    fontSize: '12px',
-                    color: settings.inkColor,
-                    opacity: settings.inkOpacity * 0.9,
-                  }}
-                >
-                  <div>
-                    {headerInfo.name && <span>Name: <strong>{headerInfo.name}</strong> </span>}
-                    {headerInfo.rollNo && <span>Roll No: <strong>{headerInfo.rollNo}</strong></span>}
-                  </div>
-                  <div>
-                    {headerInfo.subject && <span>Sub: {headerInfo.subject} </span>}
-                    {headerInfo.date && <span>Date: {headerInfo.date} </span>}
-                    {headerInfo.showPageNumber && <span>Page {pIdx + 1}/{pages.length}</span>}
-                  </div>
-                </div>
-              )}
-
-              {/* Content text */}
-              <div
-                style={{
-                  paddingTop: `${settings.topMargin}px`,
-                  paddingLeft: `${settings.leftMargin}px`,
-                  paddingRight: `${settings.rightMargin}px`,
-                  paddingBottom: `${settings.bottomMargin}px`,
-                  fontFamily: activeFontFamilyCss,
-                  fontSize: `${settings.fontSize}px`,
-                  lineHeight: `${settings.lineHeight}px`,
-                  letterSpacing: `${settings.letterSpacing}px`,
-                  color: settings.inkColor,
-                  opacity: settings.inkOpacity,
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
-                {pText}
-              </div>
-
-              {/* Diagrams */}
-              {pageDiags.map((d) => (
-                <div
-                  key={d.id}
-                  style={{
-                    position: 'absolute',
-                    left: `${d.x}px`,
-                    top: `${d.y}px`,
-                    width: `${d.width}px`,
-                    height: `${d.height}px`,
-                  }}
-                >
-                  <img src={d.dataUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  {d.title && (
-                    <div style={{ textAlign: 'center', fontSize: '11px', fontFamily: activeFontFamilyCss, color: settings.inkColor }}>
-                      {d.title}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Ink Blots in export output */}
-              {settings.inkBlots && (
-                <InkBlotsOverlay
-                  pageIndex={pIdx}
-                  pageText={pText}
-                  inkColor={settings.inkColor}
-                  intensity={settings.inkBlotIntensity}
-                  seed={settings.inkBlotSeed}
-                  topMargin={settings.topMargin}
-                  leftMargin={settings.leftMargin}
-                  rightMargin={settings.rightMargin}
-                  bottomMargin={settings.bottomMargin}
-                  lineHeight={settings.lineHeight}
-                />
-              )}
-
-              {/* Lighting overlay */}
-              {settings.paperEffect === 'subtle-shadow' && (
-                <div className="absolute inset-0 desk-shadow-overlay" />
-              )}
-              {settings.paperEffect === 'mobile-scan' && (
-                <div className="absolute inset-0 paper-scanner-lighting" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
       {/* Modals */}
       <DiagramModal
         isOpen={isDiagramModalOpen}
@@ -879,6 +659,7 @@ export default function App() {
         onClose={() => setIsBuyCoffeeOpen(false)}
       />
 
+      {/* FIXED: ExportModal now uses data-based export (no html2canvas blank pages) */}
       <ExportModal
         theme={theme}
         isOpen={isExportModalOpen}
@@ -886,8 +667,11 @@ export default function App() {
         currentPageIndex={safePageIndex}
         totalPages={pages.length}
         paperRef={paperRef}
-        onPrepareAllPages={prepareAllPagesForExport}
-        onCleanupExport={cleanupAfterExport}
+        pages={pages}
+        settings={settings}
+        fontFamilyCss={activeFontFamilyCss}
+        diagrams={diagrams}
+        headerInfo={headerInfo}
       />
 
       <PolicyModal

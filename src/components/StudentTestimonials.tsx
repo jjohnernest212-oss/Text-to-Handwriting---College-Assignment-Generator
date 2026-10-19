@@ -29,80 +29,93 @@ export const INITIAL_STUDENT_REVIEWS: StudentReview[] = [
   {
     id: 'rev-rhema',
     name: 'Rhema',
-    major: 'Computer Science & Engg, 4th Year',
+    major: 'Computer Science & Engineering, 4th Year',
     avatarText: 'RH',
     avatarBg: 'from-indigo-500 to-purple-600',
     rating: 5,
     date: '2 days ago',
     comment:
-      'Saved my 35-page compiler design assignment! Our HOD is notoriously strict about manual handwritten submissions and can spot typed work instantly. The Kalam font with blue ink opacity and realistic line spacing looked so natural I got an A+.',
-    badge: 'Verified Student • 35 Pages Exported',
+      'Saved my 35-page Compiler Design & Operating Systems assignment! Our professor is notoriously strict about manual handwritten submissions and inspects margins carefully. The ink jitter and full justification make it look 100% naturally written. Got an A+!',
+    badge: 'Verified CS Student • 35 Pages Exported',
     pagesSaved: 35,
   },
   {
     id: 'rev-shivu-sah',
     name: 'Shivu Sah',
-    major: 'Mechanical Engineering, 3rd Year',
+    major: 'Information Technology (DevOps & Cloud), 3rd Year',
     avatarText: 'SS',
     avatarBg: 'from-amber-500 to-orange-600',
     rating: 5,
     date: '3 days ago',
     comment:
-      'The diagram tool and ink blot simulation are absolute game changers. I drew thermodynamic cycle diagrams and placed them directly onto ruled paper. It looks like it was written with a genuine fountain pen and ruler. Best student utility on the internet.',
-    badge: 'Verified Student • Mechanical Dept.',
+      'The diagram tool and ink blot simulation are absolute game changers for IT students. I drew database ER diagrams and network topology sketches directly onto ruled notebook paper. It looks like it was penned with a real 0.5mm gel pen and ruler.',
+    badge: 'Verified IT Student • Systems Dept.',
     pagesSaved: 48,
   },
   {
     id: 'rev-akchey',
     name: 'Akchey',
-    major: 'Electrical & Electronics, 2nd Year',
+    major: 'Computer Science (AI & Machine Learning), 2nd Year',
     avatarText: 'AK',
     avatarBg: 'from-emerald-500 to-teal-600',
     rating: 5,
     date: 'Yesterday',
     comment:
-      'Sunday night 11:30 PM deadlines with 6 pending lab records used to mean painful finger cramps and pulling all-nighters. Now I paste my typed notes, adjust letter spacing, and export the high-res PDF. Huge respect to Plenty for building this for students.',
-    badge: 'Verified Student • Lab Records',
+      'Sunday night 11:30 PM deadlines with 6 pending Data Structures & Algorithms lab writeups used to mean awful wrist cramps. Now I paste my code explanations, toggle natural ink stroke jitter, and export crisp 300 DPI PDF. Huge respect to Plenty for building this!',
+    badge: 'Verified CS Student • DSA Lab Records',
     pagesSaved: 52,
   },
   {
     id: 'rev-traore',
     name: 'Traore',
-    major: 'Biotechnology & Life Sciences',
+    major: 'Information Technology & Cybersecurity, 3rd Year',
     avatarText: 'TR',
     avatarBg: 'from-blue-500 to-cyan-600',
     rating: 5,
     date: '4 days ago',
     comment:
-      'The unlimited page addition and vintage paper background made my biology assignment look like an authentic lab journal. Our entire study group in campus uses this tool now. Fast, completely free, and no annoying paywalls.',
-    badge: 'Verified Student • Study Group',
+      'The new full text justification setting simulates formal university assignment submission formats to perfection. Combined with the vintage paper book background, our cybersecurity lab manual looked like a real handwritten research log.',
+    badge: 'Verified IT Student • Security Lab',
     pagesSaved: 60,
   },
   {
     id: 'rev-yao',
     name: 'Yao',
-    major: 'Economics & Business Analytics',
+    major: 'Computer Science & Software Architecture, Final Year',
     avatarText: 'YA',
     avatarBg: 'from-rose-500 to-pink-600',
     rating: 5,
     date: '5 days ago',
     comment:
-      'I created a custom TTF font of my actual cursive handwriting from Calligraphr and uploaded it via the upload font button. The result is 100% indistinguishable from my real notebook. Phenomenal work by Plenty!',
-    badge: 'Verified Student • Custom Font User',
-    pagesSaved: 28,
+      'I created a custom TTF font of my actual handwriting from Calligraphr and uploaded it. The pen pressure variations and micro ink accumulations at stroke ends make it 100% indistinguishable from my real notebook. Truly miraculous for CS seniors.',
+    badge: 'Verified CS Student • Custom Font User',
+    pagesSaved: 38,
   },
   {
     id: 'rev-priyanshu',
     name: 'Priyanshu',
-    major: 'Civil Engineering, Final Year',
+    major: 'Information Technology (Web & Database Tech), Final Year',
     avatarText: 'PR',
     avatarBg: 'from-violet-500 to-indigo-600',
     rating: 5,
     date: '6 days ago',
     comment:
-      'I tipped Plenty via PhonePe UPI because this site legitimately saved me from a semester backlog in surveying lab. Undo/redo works smoothly, font size slider is instant, and PDF export is super crisp at 300 DPI.',
-    badge: 'Verified Supporter • ₹ PhonePe Tip',
-    pagesSaved: 42,
+      'I tipped Plenty via PhonePe UPI right away because this tool saved me from an attendance penalty in our software testing lab. The mobile layout makes it seamless to paste assignments from your phone, and the PDF download is flawless.',
+    badge: 'Verified IT Supporter • ₹ PhonePe Tip',
+    pagesSaved: 44,
+  },
+  {
+    id: 'rev-divya',
+    name: 'Divya Patel',
+    major: 'Computer Science (Information Security), 3rd Year',
+    avatarText: 'DP',
+    avatarBg: 'from-cyan-500 to-blue-600',
+    rating: 5,
+    date: '1 week ago',
+    comment:
+      'The random ink stroke jitter and realistic paper textures give genuine depth. When professors flip through physical printed printouts, the slight baseline tilt and natural ink pooling fool everyone. Best study tool ever.',
+    badge: 'Verified CS Student • InfoSec Dept.',
+    pagesSaved: 31,
   },
 ];
 
@@ -378,7 +391,7 @@ export default function StudentTestimonials({
                       type="text"
                       value={newMajor}
                       onChange={(e) => setNewMajor(e.target.value)}
-                      placeholder="e.g. CSE, 3rd Year"
+                      placeholder="e.g. Computer Science (AI/ML) or Information Tech, 3rd Year"
                       className={`w-full px-3 py-2 rounded-lg border text-xs font-sans ${
                         isLight
                           ? 'bg-slate-50 border-slate-300 text-slate-900 focus:bg-white'

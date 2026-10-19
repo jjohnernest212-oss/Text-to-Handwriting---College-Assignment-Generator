@@ -18,6 +18,7 @@ import {
   PaperType,
 } from '../types';
 import InkBlotsOverlay from './InkBlotsOverlay';
+import PenStrokeJitterCanvas from './PenStrokeJitterCanvas';
 
 interface PaperPreviewProps {
   theme?: 'dark' | 'light';
@@ -63,38 +64,97 @@ export default function PaperPreview({
   // Filter diagrams for current page
   const pageDiagrams = diagrams.filter((d) => d.pageIndex === pageIndex);
 
-  // Background styling generator
+  // HD Real-World Paper Book Texture generator
   const getPaperBackgroundStyle = (paperType: PaperType, lineHeight: number, topMargin: number) => {
     switch (paperType) {
       case 'ruled':
         return {
           backgroundColor: '#fafaf9',
-          backgroundImage: `repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #93c5fd ${lineHeight - 1}px, #93c5fd ${lineHeight}px)`,
-          backgroundPosition: `0px ${topMargin}px`,
+          backgroundImage: `
+            radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.015) 100%),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #93c5fd ${lineHeight - 1}px, #93c5fd ${lineHeight}px)
+          `,
+          backgroundPosition: `0 0, 0px ${topMargin}px`,
         };
       case 'college-ruled':
         return {
           backgroundColor: '#ffffff',
-          backgroundImage: `repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #cbd5e1 ${lineHeight - 1}px, #cbd5e1 ${lineHeight}px)`,
-          backgroundPosition: `0px ${topMargin}px`,
+          backgroundImage: `
+            linear-gradient(to right, rgba(0,0,0,0.01) 1px, transparent 1px),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #cbd5e1 ${lineHeight - 1}px, #cbd5e1 ${lineHeight}px)
+          `,
+          backgroundPosition: `0 0, 0px ${topMargin}px`,
         };
       case 'grid':
         return {
           backgroundColor: '#ffffff',
-          backgroundImage: `linear-gradient(to right, #e2e8f0 1px, transparent 1px), repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #e2e8f0 ${lineHeight - 1}px, #e2e8f0 ${lineHeight}px)`,
+          backgroundImage: `
+            linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #e2e8f0 ${lineHeight - 1}px, #e2e8f0 ${lineHeight}px)
+          `,
           backgroundSize: `20px 20px, 100% ${lineHeight}px`,
           backgroundPosition: `0px 0px, 0px ${topMargin}px`,
         };
       case 'vintage':
         return {
-          backgroundColor: '#fbf5e5',
-          backgroundImage: `repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #d4be98 ${lineHeight - 1}px, #d4be98 ${lineHeight}px)`,
-          backgroundPosition: `0px ${topMargin}px`,
+          backgroundColor: '#fbf4dc',
+          backgroundImage: `
+            radial-gradient(ellipse at center, rgba(255,255,255,0.2) 0%, rgba(138, 103, 58, 0.08) 100%),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #cfb78f ${lineHeight - 1}px, #cfb78f ${lineHeight}px)
+          `,
+          backgroundPosition: `0 0, 0px ${topMargin}px`,
+        };
+      case 'parchment':
+        return {
+          backgroundColor: '#f6eed9',
+          backgroundImage: `
+            radial-gradient(circle at 20% 30%, rgba(205, 175, 130, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(180, 140, 95, 0.12) 0%, transparent 50%),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #be9f77 ${lineHeight - 1}px, #be9f77 ${lineHeight}px)
+          `,
+          backgroundPosition: `0 0, 0 0, 0px ${topMargin}px`,
+        };
+      case 'yellow-legal':
+        return {
+          backgroundColor: '#fef9c3',
+          backgroundImage: `
+            radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, rgba(202, 138, 4, 0.05) 100%),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #93c5fd ${lineHeight - 1}px, #93c5fd ${lineHeight}px)
+          `,
+          backgroundPosition: `0 0, 0px ${topMargin}px`,
+        };
+      case 'dot-grid':
+        return {
+          backgroundColor: '#fafaf7',
+          backgroundImage: `radial-gradient(#94a3b8 1.2px, transparent 1.2px)`,
+          backgroundSize: '20px 20px',
+          backgroundPosition: `0px ${topMargin % 20}px`,
+        };
+      case 'leather-diary':
+        return {
+          backgroundColor: '#f5efe0',
+          backgroundImage: `
+            radial-gradient(circle at 10% 20%, rgba(0,0,0,0.03) 0%, transparent 50%),
+            radial-gradient(circle at 90% 80%, rgba(0,0,0,0.04) 0%, transparent 60%),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #b0a18f ${lineHeight - 1}px, #b0a18f ${lineHeight}px)
+          `,
+          backgroundPosition: `0 0, 0 0, 0px ${topMargin}px`,
+        };
+      case 'kraft-recycled':
+        return {
+          backgroundColor: '#ebdccb',
+          backgroundImage: `
+            radial-gradient(circle at 30% 40%, rgba(120, 80, 40, 0.06) 0%, transparent 60%),
+            radial-gradient(circle at 70% 60%, rgba(255,255,255,0.18) 0%, transparent 50%),
+            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #9c846d ${lineHeight - 1}px, #9c846d ${lineHeight}px)
+          `,
+          backgroundPosition: `0 0, 0 0, 0px ${topMargin}px`,
         };
       case 'plain':
       default:
         return {
           backgroundColor: '#ffffff',
+          backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,1) 0%, rgba(248, 250, 252, 0.8) 100%)`,
         };
     }
   };
@@ -141,11 +201,17 @@ export default function PaperPreview({
     });
   };
 
-  // Human jitter simulation: render text lines with subtle human variations
+  // Human jitter simulation: render text lines with subtle human variations and justification
   const renderHumanizedText = (text: string) => {
     if (!settings.humanJitter) {
       return (
-        <div className="whitespace-pre-wrap select-text">
+        <div
+          className="whitespace-pre-wrap select-text"
+          style={{
+            textAlign: settings.justification === 'full' ? 'justify' : 'left',
+            textJustify: settings.justification === 'full' ? 'inter-word' : undefined,
+          }}
+        >
           {text}
         </div>
       );
@@ -155,7 +221,12 @@ export default function PaperPreview({
     const lines = text.split('\n');
 
     return (
-      <div className="select-text space-y-0">
+      <div
+        className="select-text space-y-0"
+        style={{
+          textAlign: settings.justification === 'full' ? 'justify' : 'left',
+        }}
+      >
         {lines.map((line, lIdx) => {
           if (line.trim() === '') {
             return <div key={lIdx} style={{ height: `${settings.lineHeight}px` }}>&nbsp;</div>;
@@ -167,6 +238,13 @@ export default function PaperPreview({
           const lineTilt = ((lIdx % 5) - 2) * (0.05 * settings.jitterIntensity);
           const baselineShift = ((lIdx % 3) - 1) * (0.4 * settings.jitterIntensity);
 
+          // Full justification for formal assignment submission
+          const isJustified =
+            settings.justification === 'full' &&
+            words.length > 1 &&
+            lIdx < lines.length - 1 &&
+            lines[lIdx + 1]?.trim() !== '';
+
           return (
             <div
               key={lIdx}
@@ -177,7 +255,9 @@ export default function PaperPreview({
                 transformOrigin: 'left center',
                 display: 'flex',
                 flexWrap: 'nowrap',
+                justifyContent: isJustified ? 'space-between' : 'flex-start',
                 alignItems: 'baseline',
+                width: '100%',
               }}
             >
               {words.map((word, wIdx) => {
@@ -186,7 +266,7 @@ export default function PaperPreview({
                   <span
                     key={wIdx}
                     style={{
-                      marginRight: `${settings.wordSpacing}px`,
+                      marginRight: isJustified ? undefined : `${settings.wordSpacing}px`,
                       transform: `rotate(${wordJitter}deg)`,
                       display: 'inline-block',
                     }}
@@ -444,6 +524,19 @@ export default function PaperPreview({
               />
             )}
 
+            {/* Secondary Red Margin Line for Yellow Legal Pad (Classic legal pad double red line) */}
+            {settings.paperType === 'yellow-legal' && settings.showMarginLine && (
+              <div
+                className="absolute top-0 bottom-0 pointer-events-none z-10"
+                style={{
+                  left: `${settings.marginLinePosition + 4}px`,
+                  width: '1px',
+                  backgroundColor: settings.marginLineColor,
+                  opacity: 0.65,
+                }}
+              />
+            )}
+
             {/* Student Header at Top of Page (Name, Roll, Subject, Page #) */}
             {headerInfo.enabled && (
               <div
@@ -496,6 +589,14 @@ export default function PaperPreview({
                 </div>
               )}
             </div>
+
+            {/* Dynamic Natural Pen Pressure Jitter & Stroke Endpoint Ink Accumulation Canvas */}
+            <PenStrokeJitterCanvas
+              pageIndex={pageIndex}
+              pageText={pageText}
+              settings={settings}
+              fontFamilyCss={fontFamilyCss}
+            />
 
             {/* Realistic Random Ink Blot & Smudge Artifacts */}
             {settings.inkBlots && (

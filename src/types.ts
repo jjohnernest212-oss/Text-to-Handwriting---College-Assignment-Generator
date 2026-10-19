@@ -1,4 +1,14 @@
-export type PaperType = 'ruled' | 'college-ruled' | 'plain' | 'grid' | 'vintage';
+export type PaperType =
+  | 'ruled'
+  | 'college-ruled'
+  | 'plain'
+  | 'grid'
+  | 'vintage'
+  | 'parchment'
+  | 'yellow-legal'
+  | 'dot-grid'
+  | 'leather-diary'
+  | 'kraft-recycled';
 
 export type PaperEffect = 'none' | 'subtle-shadow' | 'mobile-scan' | 'desk-light';
 
@@ -59,6 +69,7 @@ export interface PageSettings {
   paperEffect: PaperEffect;
   humanJitter: boolean;
   jitterIntensity: number; // 1 to 5
+  justification: 'left' | 'full'; // 'left' natural or 'full' formal assignment justify
   paperTilt: number; // -3 to 3 deg
   snapLinesToText: boolean;
   inkBlots: boolean; // randomly generate small ink smudge artifacts
