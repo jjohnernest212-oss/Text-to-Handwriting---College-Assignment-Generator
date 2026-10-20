@@ -5,9 +5,8 @@
 
 import { useState, useRef, useMemo, useEffect } from 'react';
 import Header from './components/Header';
-import TextInputPanel from './components/TextInputPanel';
-import EditorControls from './components/EditorControls';
 import PaperPreview from './components/PaperPreview';
+import UnifiedControlsPanel from './components/UnifiedControlsPanel';
 import DiagramModal from './components/DiagramModal';
 import HowItWorksModal from './components/HowItWorksModal';
 import BuyCoffeeModal from './components/BuyCoffeeModal';
@@ -16,6 +15,7 @@ import InkBlotsOverlay from './components/InkBlotsOverlay';
 import StudentTestimonials from './components/StudentTestimonials';
 import StaticContributors from './components/StaticContributors';
 import PolicyModal from './components/PolicyModal';
+import { downloadAssignmentAsPdf, downloadAssignmentSinglePage, ExportProgress } from './utils/exportUtils';
 
 import {
   DEFAULT_PAGE_SETTINGS,
@@ -40,11 +40,9 @@ import {
 import { loadCustomFontFile } from './utils/fontLoader';
 import {
   Edit3,
-  SlidersHorizontal,
   Eye,
   Plus,
   PenTool,
-  Upload,
   Maximize2,
   Minimize2,
   ArrowDown,
@@ -62,7 +60,6 @@ export default function App() {
   const [diagrams, setDiagrams] = useState<DiagramElement[]>([]);
 
   // View state: 'split' or 'full-paper' on desktop, 'editor' vs 'preview' on mobile
-  const [leftTab, setLeftTab] = useState<'text' | 'style'>('text');
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('preview');
   const [isPaperExpanded, setIsPaperExpanded] = useState<boolean>(false);
 
@@ -250,6 +247,62 @@ export default function App() {
     showToast('Diagram removed', 'info');
   };
 
+  // Direct export download handlers (Saurabh Daware style instant download)
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
+
+  const handleDirectDownloadPdf = async () => {
+    try {
+      setIsExporting(true);
+      const safePages = pages && pages.length > 0 ? pages : [''];
+      setExportProgress({
+        currentPage: 1,
+        totalPages: safePages.length,
+        status: 'Starting authentic handwritten PDF export...',
+      });
+
+      await downloadAssignmentAsPdf({
+        pages: safePages,
+        settings,
+        fontFamilyCss: activeFontFamilyCss,
+        diagrams,
+        headerInfo,
+        filename: 'Handwritten_Assignment.pdf',
+        onProgress: (p) => setExportProgress(p),
+      });
+
+      showToast(`All ${safePages.length} pages downloaded as PDF successfully!`, 'success');
+    } catch (err: unknown) {
+      console.error('PDF export failed:', err);
+      showToast('Failed to export PDF. Please try again.', 'error');
+    } finally {
+      setIsExporting(false);
+      setExportProgress(null);
+    }
+  };
+
+  const handleDirectDownloadImage = async () => {
+    try {
+      setIsExporting(true);
+      const safePages = pages && pages.length > 0 ? pages : [''];
+      await downloadAssignmentSinglePage({
+        pages: safePages,
+        pageIndex: safePageIndex,
+        settings,
+        fontFamilyCss: activeFontFamilyCss,
+        diagrams,
+        headerInfo,
+        filename: `Handwritten_Assignment_Page_${safePageIndex + 1}.png`,
+      });
+      showToast(`Page ${safePageIndex + 1} PNG downloaded!`, 'success');
+    } catch (err: unknown) {
+      console.error('Image export failed:', err);
+      showToast('Failed to export image. Please try again.', 'error');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const isLight = theme === 'light';
 
   return (
@@ -307,111 +360,42 @@ export default function App() {
       {/* Main Spacious Workbench */}
       <main id="workbench" className="flex-1 flex flex-col lg:flex-row min-h-[750px] lg:min-h-[840px]">
         {/* Left Side: Assignment Input & Styling Workbench */}
+        {/* Left Side: Assignment Input & Styling Workbench (Saurabh Daware style unified panel) */}
         <section
-          className={`w-full lg:w-[460px] xl:w-[500px] 2xl:w-[540px] flex-shrink-0 border-r flex flex-col transition-colors ${
+          className={`w-full lg:w-[480px] xl:w-[520px] 2xl:w-[560px] flex-shrink-0 border-r flex flex-col transition-colors ${
             isLight ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/10'
           } ${isPaperExpanded ? 'hidden' : mobileTab === 'editor' ? 'flex' : 'hidden lg:flex'}`}
         >
-          {/* Top Workbench Tabs */}
-          <div
-            className={`p-2.5 border-b flex items-center justify-between gap-2 ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#121216] border-white/10'
-            }`}
-          >
-            <div
-              className={`flex items-center gap-1.5 p-1 rounded-xl border ${
-                isLight ? 'bg-slate-200/80 border-slate-300' : 'bg-[#09090b] border-white/5'
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => setLeftTab('text')}
-                className={`cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-mono-code font-bold flex items-center gap-1.5 transition-all ${
-                  leftTab === 'text'
-                    ? 'bg-[#6366f1] text-white shadow-sm'
-                    : isLight
-                    ? 'text-slate-700 hover:text-slate-950'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Assignment Text</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setLeftTab('style')}
-                className={`cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-mono-code font-bold flex items-center gap-1.5 transition-all ${
-                  leftTab === 'style'
-                    ? 'bg-[#6366f1] text-white shadow-sm'
-                    : isLight
-                    ? 'text-slate-700 hover:text-slate-950'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>Style &amp; Options</span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setIsDiagramModalOpen(true)}
-                className={`cursor-pointer text-[10px] font-mono-code border px-2 py-1.5 rounded-lg flex items-center gap-1 transition-colors ${
-                  isLight
-                    ? 'text-slate-700 hover:text-slate-950 bg-white hover:bg-slate-100 border-slate-300 shadow-2xs'
-                    : 'text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border-white/10'
-                }`}
-                title="Draw or insert diagrams directly onto paper"
-              >
-                <PenTool className="w-3 h-3 text-[#6366f1]" />
-                <span className="hidden sm:inline">Diagrams</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Tab 1: Assignment Paste Area */}
-          <div className={`flex-1 min-h-0 ${leftTab === 'text' ? 'flex flex-col' : 'hidden'}`}>
-            <TextInputPanel
-              theme={theme}
-              rawText={rawText}
-              currentPageIndex={safePageIndex}
-              totalPages={pages.length}
-              settings={settings}
-              onChangeText={setRawText}
-              onApplyPreset={handleApplyPreset}
-              onInsertPageBreak={handleAddPage}
-              onAutoSplitPages={handleAutoSplitPages}
-              fontSize={settings.fontSize}
-              onUpdateFontSize={(newFontSize) =>
-                setSettings((prev) => ({ ...prev, fontSize: newFontSize }))
-              }
-              onClearText={handleClearText}
-              onCustomFontUpload={handleCustomFontUpload}
-              onNotify={showToast}
-            />
-          </div>
-
-          {/* Tab 2: Style & Options Panel */}
-          <div className={`flex-1 min-h-0 ${leftTab === 'style' ? 'flex flex-col' : 'hidden'}`}>
-            <EditorControls
-              theme={theme}
-              settings={settings}
-              headerInfo={headerInfo}
-              customFonts={customFonts}
-              diagrams={diagrams}
-              currentPageIndex={safePageIndex}
-              onUpdateSettings={(newSettings) =>
-                setSettings((prev) => ({ ...prev, ...newSettings }))
-              }
-              onUpdateHeader={(newHeader) =>
-                setHeaderInfo((prev) => ({ ...prev, ...newHeader }))
-              }
-              onCustomFontUpload={handleCustomFontUpload}
-              onOpenDiagramModal={() => setIsDiagramModalOpen(true)}
-              onDeleteDiagram={handleDeleteDiagram}
-            />
-          </div>
+          <UnifiedControlsPanel
+            theme={theme}
+            rawText={rawText}
+            currentPageIndex={safePageIndex}
+            totalPages={pages.length}
+            settings={settings}
+            onUpdateSettings={(newSettings) =>
+              setSettings((prev) => ({ ...prev, ...newSettings }))
+            }
+            headerInfo={headerInfo}
+            onUpdateHeader={(newHeader) =>
+              setHeaderInfo((prev) => ({ ...prev, ...newHeader }))
+            }
+            customFonts={customFonts}
+            onCustomFontUpload={handleCustomFontUpload}
+            diagrams={diagrams}
+            onOpenDiagramModal={() => setIsDiagramModalOpen(true)}
+            onDeleteDiagram={handleDeleteDiagram}
+            onChangeText={setRawText}
+            onApplyPreset={handleApplyPreset}
+            onInsertPageBreak={handleAddPage}
+            onAutoSplitPages={handleAutoSplitPages}
+            onClearText={handleClearText}
+            onDownloadPdf={handleDirectDownloadPdf}
+            onDownloadImage={handleDirectDownloadImage}
+            isExporting={isExporting}
+            exportProgress={exportProgress}
+            onNotify={showToast}
+            onSwitchToPreviewMobile={() => setMobileTab('preview')}
+          />
         </section>
 
         {/* Right Side: Full-View Handwriting Paper Preview */}
@@ -431,7 +415,7 @@ export default function App() {
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className={`font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                Full-View Paper Preview
+                Real-Time Paper Output
               </span>
               <span className="text-zinc-400 hidden sm:inline">|</span>
               <span className="text-[#6366f1] font-bold hidden sm:inline">
@@ -486,6 +470,8 @@ export default function App() {
               onUpdateFontSize={(newFontSize) =>
                 setSettings((prev) => ({ ...prev, fontSize: newFontSize }))
               }
+              onDownloadPdf={handleDirectDownloadPdf}
+              onDownloadImage={handleDirectDownloadImage}
             />
           </div>
 

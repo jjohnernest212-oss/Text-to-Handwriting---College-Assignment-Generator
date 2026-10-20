@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   ZoomIn,
   ZoomOut,
@@ -11,6 +11,8 @@ import {
   Sparkles,
   Plus,
   AlertTriangle,
+  Download,
+  FileText,
 } from 'lucide-react';
 import {
   PageSettings,
@@ -39,6 +41,8 @@ interface PaperPreviewProps {
   onDeletePage?: () => void;
   onAutoSplitPages?: () => void;
   onUpdateFontSize?: (size: number) => void;
+  onDownloadPdf?: () => void;
+  onDownloadImage?: () => void;
 }
 
 export default function PaperPreview({
@@ -58,9 +62,38 @@ export default function PaperPreview({
   onDeletePage,
   onAutoSplitPages,
   onUpdateFontSize,
+  onDownloadPdf,
+  onDownloadImage,
 }: PaperPreviewProps) {
   const isLight = theme === 'light';
-  const [zoomLevel, setZoomLevel] = useState<number>(0.85);
+  const scrollportRef = useRef<HTMLDivElement | null>(null);
+
+  const calculateFitZoom = () => {
+    const containerWidth = scrollportRef.current?.clientWidth || window.innerWidth;
+    const padding = containerWidth < 640 ? 24 : 64;
+    const availWidth = Math.max(280, containerWidth - padding);
+    return Math.min(1.0, Math.max(0.35, Number((availWidth / 804).toFixed(2))));
+  };
+
+  const [zoomLevel, setZoomLevel] = useState<number>(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      const padding = window.innerWidth < 640 ? 24 : 64;
+      const availWidth = Math.max(280, window.innerWidth - padding);
+      return Math.min(1.0, Math.max(0.35, Number((availWidth / 804).toFixed(2))));
+    }
+    return 0.85;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setZoomLevel(calculateFitZoom());
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [activeDiagramId, setActiveDiagramId] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -500,11 +533,11 @@ export default function PaperPreview({
               <ZoomIn className="w-3 h-3" />
             </button>
             <button
-              onClick={() => setZoomLevel(0.85)}
+              onClick={() => setZoomLevel(calculateFitZoom())}
               className={`cursor-pointer px-1.5 py-0.5 rounded text-[11px] transition-colors ${
                 isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white'
               }`}
-              title="Fit View"
+              title="Fit Paper to Screen"
             >
               <Maximize2 className="w-3 h-3" />
             </button>
@@ -514,6 +547,7 @@ export default function PaperPreview({
 
       {/* Main Paper Scrollport (Desk background) */}
       <div
+        ref={scrollportRef}
         className={`flex-1 overflow-auto p-4 sm:p-8 flex items-start justify-center transition-colors ${
           isLight ? 'bg-slate-200/90' : 'bg-[#121216]'
         }`}
@@ -780,6 +814,42 @@ export default function PaperPreview({
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Auto-Add Pages</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Quick Action Export Bar when viewing paper */}
+        {(onDownloadPdf || onDownloadImage) && (
+          <div className="lg:hidden sticky bottom-2 left-0 right-0 px-3 z-20 pointer-events-auto mt-2">
+            <div
+              className={`p-2 rounded-xl border shadow-lg flex items-center justify-between gap-2 backdrop-blur-md ${
+                isLight ? 'bg-white/95 border-slate-300' : 'bg-[#18181f]/95 border-white/10'
+              }`}
+            >
+              {onDownloadPdf && (
+                <button
+                  type="button"
+                  onClick={onDownloadPdf}
+                  className="flex-1 cursor-pointer bg-[#6366f1] hover:bg-indigo-600 text-white font-mono-code font-bold py-2 px-2.5 rounded-lg text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download PDF ({totalPages}p)</span>
+                </button>
+              )}
+              {onDownloadImage && (
+                <button
+                  type="button"
+                  onClick={onDownloadImage}
+                  className={`cursor-pointer font-mono-code font-bold py-2 px-2.5 rounded-lg text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border active:scale-95 ${
+                    isLight
+                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
+                      : 'bg-[#1e1e24] hover:bg-[#282830] border-white/10 text-white'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5 text-[#6366f1]" />
+                  <span>PNG</span>
+                </button>
+              )}
             </div>
           </div>
         )}
