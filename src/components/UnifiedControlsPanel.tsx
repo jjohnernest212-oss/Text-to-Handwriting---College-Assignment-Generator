@@ -35,6 +35,7 @@ import {
   PaperEffect,
 } from '../types';
 import { calculateAssignmentStats, autoSplitLongText } from '../utils/paginationUtils';
+import { PAPER_DEFINITIONS, PAPER_DEFINITIONS_MAP } from '../utils/paperStyles';
 
 interface UnifiedControlsPanelProps {
   theme?: 'dark' | 'light';
@@ -61,6 +62,7 @@ interface UnifiedControlsPanelProps {
   exportProgress?: { currentPage: number; totalPages: number; status: string } | null;
   onNotify?: (message: string, type: 'success' | 'error' | 'info') => void;
   onSwitchToPreviewMobile?: () => void;
+  onOpenPaperGallery?: () => void;
 }
 
 const PAPER_TYPE_LABELS: { id: PaperType; label: string; badge: string }[] = [
@@ -101,6 +103,7 @@ export default function UnifiedControlsPanel({
   exportProgress = null,
   onNotify,
   onSwitchToPreviewMobile,
+  onOpenPaperGallery,
 }: UnifiedControlsPanelProps) {
   const isLight = theme === 'light';
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -775,25 +778,131 @@ export default function UnifiedControlsPanel({
 
           {openSections.paper && (
             <div className="p-3 pt-1 border-t space-y-3 font-mono-code text-xs border-inherit">
-              {/* Paper Type Dropdown */}
+              {/* Paper Type Selector & Gallery Trigger */}
               <div>
-                <label className="block text-[11px] font-semibold mb-1 opacity-75">
-                  Paper Texture &amp; Ruling:
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[11px] font-semibold opacity-75">
+                    Paper Texture &amp; Ruling:
+                  </label>
+                  {onOpenPaperGallery && (
+                    <button
+                      type="button"
+                      onClick={onOpenPaperGallery}
+                      className="cursor-pointer text-[11px] text-[#6366f1] hover:underline font-bold flex items-center gap-1 active:scale-95"
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      <span>Browse 20+ Gallery ↗</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Current Paper Visual Banner Card */}
+                {(() => {
+                  const currentDef =
+                    PAPER_DEFINITIONS_MAP[settings.paperType] || PAPER_DEFINITIONS[0];
+                  return (
+                    <div
+                      onClick={onOpenPaperGallery}
+                      className={`cursor-pointer mb-2 p-2 rounded-lg border flex items-center justify-between gap-2.5 transition-all active:scale-[0.99] group ${
+                        isLight
+                          ? 'bg-slate-50 hover:bg-slate-100 border-slate-300'
+                          : 'bg-[#1a1a20] hover:bg-[#22222a] border-zinc-700'
+                      }`}
+                      title="Click to open full Visual Notebooks Gallery"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Mini Swatch */}
+                        <div
+                          className="w-8 h-8 rounded-md border shadow-inner shrink-0 relative overflow-hidden"
+                          style={{ backgroundColor: currentDef.bgColor }}
+                        >
+                          {currentDef.lineColor !== 'transparent' && (
+                            <div
+                              className="absolute inset-0 pt-1"
+                              style={{
+                                backgroundImage: `repeating-linear-gradient(transparent 0px, transparent 4px, ${currentDef.lineColor} 4px, ${currentDef.lineColor} 5px)`,
+                              }}
+                            />
+                          )}
+                          {currentDef.marginColor !== 'transparent' && (
+                            <div
+                              className="absolute top-0 bottom-0 left-2 w-[1px]"
+                              style={{ backgroundColor: currentDef.marginColor }}
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-bold text-[11px] truncate group-hover:text-[#6366f1] transition-colors">
+                              {currentDef.name}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded font-bold uppercase bg-[#6366f1]/20 text-[#6366f1]">
+                              {currentDef.badge}
+                            </span>
+                          </div>
+                          <span className="text-[10px] opacity-70 block truncate">
+                            {currentDef.description}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#6366f1] shrink-0 font-bold group-hover:translate-x-0.5 transition-transform">
+                        →
+                      </span>
+                    </div>
+                  );
+                })()}
+
+                {/* Grouped Select Dropdown */}
                 <select
                   value={settings.paperType}
-                  onChange={(e) => onUpdateSettings({ paperType: e.target.value as PaperType })}
+                  onChange={(e) => {
+                    const newType = e.target.value as PaperType;
+                    const def = PAPER_DEFINITIONS_MAP[newType];
+                    if (def) {
+                      onUpdateSettings({
+                        paperType: newType,
+                        marginLineColor: def.marginColor,
+                        lineHeight: def.recommendedLineHeight,
+                        topMargin: def.recommendedTopMargin,
+                      });
+                    } else {
+                      onUpdateSettings({ paperType: newType });
+                    }
+                  }}
                   className={`w-full px-3 py-2 rounded-lg border text-xs font-medium cursor-pointer transition-colors ${
                     isLight
                       ? 'bg-slate-50 border-slate-300 text-slate-900 focus:border-[#6366f1]'
                       : 'bg-[#1e1e24] border-zinc-700 text-zinc-100 focus:border-[#6366f1]'
                   }`}
                 >
-                  {PAPER_TYPE_LABELS.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.label} ({p.badge})
-                    </option>
-                  ))}
+                  <optgroup label="── 1. School Notebooks (Undetected) ──">
+                    {PAPER_DEFINITIONS.filter((p) => p.category === 'school').map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.badge})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="── 2. Aesthetic Study Journals ──">
+                    {PAPER_DEFINITIONS.filter((p) => p.category === 'aesthetic').map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.badge})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="── 3. Realistic &amp; Scanned Pages ──">
+                    {PAPER_DEFINITIONS.filter((p) => p.category === 'realistic').map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.badge})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="── 4. Math, Grid &amp; Dark ──">
+                    {PAPER_DEFINITIONS.filter((p) => p.category === 'math').map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.badge})
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
               </div>
 

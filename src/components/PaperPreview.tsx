@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Download,
   FileText,
+  Layers,
 } from 'lucide-react';
 import {
   PageSettings,
@@ -23,6 +24,7 @@ import {
 import InkBlotsOverlay from './InkBlotsOverlay';
 import PenStrokeJitterCanvas from './PenStrokeJitterCanvas';
 import { getLinesPerPage, getCharsPerLine, formatTextToPaperLines } from '../utils/paginationUtils';
+import { getPaperBackgroundStyle, PAPER_DEFINITIONS_MAP } from '../utils/paperStyles';
 
 interface PaperPreviewProps {
   theme?: 'dark' | 'light';
@@ -43,6 +45,7 @@ interface PaperPreviewProps {
   onUpdateFontSize?: (size: number) => void;
   onDownloadPdf?: () => void;
   onDownloadImage?: () => void;
+  onOpenPaperGallery?: () => void;
 }
 
 export default function PaperPreview({
@@ -64,6 +67,7 @@ export default function PaperPreview({
   onUpdateFontSize,
   onDownloadPdf,
   onDownloadImage,
+  onOpenPaperGallery,
 }: PaperPreviewProps) {
   const isLight = theme === 'light';
   const scrollportRef = useRef<HTMLDivElement | null>(null);
@@ -98,6 +102,10 @@ export default function PaperPreview({
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
+  // Current paper metadata
+  const currentPaperDef =
+    PAPER_DEFINITIONS_MAP[settings.paperType] || PAPER_DEFINITIONS_MAP['ruled'];
+
   // Page capacity & overflow detection
   const charsPerLine = getCharsPerLine(settings);
   const linesPerPage = getLinesPerPage(settings);
@@ -110,101 +118,6 @@ export default function PaperPreview({
 
   // Filter diagrams for current page
   const pageDiagrams = diagrams.filter((d) => d.pageIndex === pageIndex);
-
-  // HD Real-World Paper Book Texture generator
-  const getPaperBackgroundStyle = (paperType: PaperType, lineHeight: number, topMargin: number) => {
-    switch (paperType) {
-      case 'ruled':
-        return {
-          backgroundColor: '#fafaf9',
-          backgroundImage: `
-            radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.015) 100%),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #93c5fd ${lineHeight - 1}px, #93c5fd ${lineHeight}px)
-          `,
-          backgroundPosition: `0 0, 0px ${topMargin}px`,
-        };
-      case 'college-ruled':
-        return {
-          backgroundColor: '#ffffff',
-          backgroundImage: `
-            linear-gradient(to right, rgba(0,0,0,0.01) 1px, transparent 1px),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #cbd5e1 ${lineHeight - 1}px, #cbd5e1 ${lineHeight}px)
-          `,
-          backgroundPosition: `0 0, 0px ${topMargin}px`,
-        };
-      case 'grid':
-        return {
-          backgroundColor: '#ffffff',
-          backgroundImage: `
-            linear-gradient(to right, #e2e8f0 1px, transparent 1px),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #e2e8f0 ${lineHeight - 1}px, #e2e8f0 ${lineHeight}px)
-          `,
-          backgroundSize: `20px 20px, 100% ${lineHeight}px`,
-          backgroundPosition: `0px 0px, 0px ${topMargin}px`,
-        };
-      case 'vintage':
-        return {
-          backgroundColor: '#fbf4dc',
-          backgroundImage: `
-            radial-gradient(ellipse at center, rgba(255,255,255,0.2) 0%, rgba(138, 103, 58, 0.08) 100%),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #cfb78f ${lineHeight - 1}px, #cfb78f ${lineHeight}px)
-          `,
-          backgroundPosition: `0 0, 0px ${topMargin}px`,
-        };
-      case 'parchment':
-        return {
-          backgroundColor: '#f6eed9',
-          backgroundImage: `
-            radial-gradient(circle at 20% 30%, rgba(205, 175, 130, 0.15) 0%, transparent 40%),
-            radial-gradient(circle at 80% 70%, rgba(180, 140, 95, 0.12) 0%, transparent 50%),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #be9f77 ${lineHeight - 1}px, #be9f77 ${lineHeight}px)
-          `,
-          backgroundPosition: `0 0, 0 0, 0px ${topMargin}px`,
-        };
-      case 'yellow-legal':
-        return {
-          backgroundColor: '#fef9c3',
-          backgroundImage: `
-            radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, rgba(202, 138, 4, 0.05) 100%),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #93c5fd ${lineHeight - 1}px, #93c5fd ${lineHeight}px)
-          `,
-          backgroundPosition: `0 0, 0px ${topMargin}px`,
-        };
-      case 'dot-grid':
-        return {
-          backgroundColor: '#fafaf7',
-          backgroundImage: `radial-gradient(#94a3b8 1.2px, transparent 1.2px)`,
-          backgroundSize: '20px 20px',
-          backgroundPosition: `0px ${topMargin % 20}px`,
-        };
-      case 'leather-diary':
-        return {
-          backgroundColor: '#f5efe0',
-          backgroundImage: `
-            radial-gradient(circle at 10% 20%, rgba(0,0,0,0.03) 0%, transparent 50%),
-            radial-gradient(circle at 90% 80%, rgba(0,0,0,0.04) 0%, transparent 60%),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #b0a18f ${lineHeight - 1}px, #b0a18f ${lineHeight}px)
-          `,
-          backgroundPosition: `0 0, 0 0, 0px ${topMargin}px`,
-        };
-      case 'kraft-recycled':
-        return {
-          backgroundColor: '#ebdccb',
-          backgroundImage: `
-            radial-gradient(circle at 30% 40%, rgba(120, 80, 40, 0.06) 0%, transparent 60%),
-            radial-gradient(circle at 70% 60%, rgba(255,255,255,0.18) 0%, transparent 50%),
-            repeating-linear-gradient(transparent 0px, transparent ${lineHeight - 1}px, #9c846d ${lineHeight - 1}px, #9c846d ${lineHeight}px)
-          `,
-          backgroundPosition: `0 0, 0 0, 0px ${topMargin}px`,
-        };
-      case 'plain':
-      default:
-        return {
-          backgroundColor: '#ffffff',
-          backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,1) 0%, rgba(248, 250, 252, 0.8) 100%)`,
-        };
-    }
-  };
 
   // Diagram drag start
   const handleDiagramMouseDown = (e: React.MouseEvent, diag: DiagramElement) => {
@@ -444,10 +357,32 @@ export default function PaperPreview({
           }`}
         >
           <Eye className="w-3.5 h-3.5 text-[#6366f1]" />
-          <span>REAL-TIME A4 SIMULATION // 300 DPI EQUIV</span>
+          <span>A4 SIMULATION // 300 DPI</span>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Quick Paper Style Selector Button */}
+          {onOpenPaperGallery && (
+            <button
+              type="button"
+              onClick={onOpenPaperGallery}
+              className={`cursor-pointer px-2.5 py-1 rounded-lg font-mono-code text-[11px] font-bold flex items-center gap-1.5 border transition-all active:scale-95 ${
+                isLight
+                  ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-2xs'
+                  : 'bg-[#18181b] hover:bg-[#222226] border-[#27272a] text-white'
+              }`}
+              title="Change Notebook Paper Style / Texture"
+            >
+              <Layers className="w-3.5 h-3.5 text-[#6366f1]" />
+              <span className="truncate max-w-[120px] sm:max-w-[150px]">
+                {currentPaperDef.name.split(' ')[0]} {currentPaperDef.name.split(' ')[1] || ''}
+              </span>
+              <span className="text-[9px] px-1 py-0.2 rounded bg-[#6366f1]/20 text-[#6366f1] hidden sm:inline">
+                {currentPaperDef.badge}
+              </span>
+            </button>
+          )}
+
           {/* Real-time Font Size Quick Tuning */}
           {onUpdateFontSize && (
             <div
@@ -574,6 +509,56 @@ export default function PaperPreview({
               ...getPaperBackgroundStyle(settings.paperType, settings.lineHeight, settings.topMargin),
             }}
           >
+            {/* Spiral Bound Left Wire Rings & Micro-Perforations */}
+            {settings.paperType === 'spiral-notebook' && (
+              <div className="absolute left-0 top-0 bottom-0 w-8 pointer-events-none z-20 flex flex-col justify-between py-4 select-none">
+                <div className="absolute right-0 top-0 bottom-0 border-r border-dashed border-slate-400/40" />
+                {[...Array(26)].map((_, i) => (
+                  <div key={i} className="relative flex items-center pl-2">
+                    <div className="w-3.5 h-2 rounded-full bg-slate-900 border border-black/40 shadow-inner" />
+                    <div className="absolute -left-1 w-4.5 h-3 rounded-full border-2 border-slate-400 bg-transparent shadow-xs -rotate-12" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 3-Hole Punched Binder Loose-Leaf Paper */}
+            {settings.paperType === 'perforated-binder' && (
+              <div className="absolute left-0 top-0 bottom-0 w-12 pointer-events-none z-20 select-none">
+                {[0.15, 0.5, 0.85].map((posRatio, i) => (
+                  <div
+                    key={i}
+                    className="absolute left-3 w-5 h-5 rounded-full bg-slate-800/80 border border-black/30 shadow-inner -translate-y-1/2"
+                    style={{ top: `${posRatio * 100}%` }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Cornell Study Notes Dividing Lines */}
+            {settings.paperType === 'cornell-notes' && (
+              <>
+                <div className="absolute top-0 bottom-36 left-[25%] w-[1.5px] bg-indigo-400/70 pointer-events-none z-10" />
+                <div className="absolute bottom-36 left-0 right-0 h-[1.5px] bg-indigo-400/70 pointer-events-none z-10" />
+                <div className="absolute bottom-32 left-4 text-[10px] font-mono-code font-bold text-indigo-500/60 uppercase tracking-widest pointer-events-none z-10">
+                  SUMMARY / KEY TAKEAWAYS:
+                </div>
+              </>
+            )}
+
+            {/* Realistic Wrinkled / Crinkled Scanned Paper Overlay */}
+            {settings.paperType === 'crinkled-paper' && (
+              <div
+                className="absolute inset-0 pointer-events-none z-10"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(135deg, rgba(0,0,0,0.03) 0%, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%, rgba(0,0,0,0.04) 100%),
+                    linear-gradient(45deg, rgba(0,0,0,0.02) 0%, transparent 45%, rgba(255,255,255,0.25) 55%, transparent 65%, rgba(0,0,0,0.03) 100%)
+                  `,
+                }}
+              />
+            )}
+
             {/* Top Red Header Separator Line (traditional notebook feature) */}
             {settings.paperType !== 'plain' && settings.showMarginLine && (
               <div

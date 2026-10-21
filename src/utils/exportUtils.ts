@@ -29,31 +29,23 @@ function mulberry32(a: number) {
   };
 }
 
-const PAPER_COLORS: Record<PaperType, string> = {
-  'ruled': '#fafaf9',
-  'college-ruled': '#ffffff',
-  'grid': '#ffffff',
-  'plain': '#ffffff',
-  'vintage': '#fbf4dc',
-  'parchment': '#f6eed9',
-  'yellow-legal': '#fef9c3',
-  'dot-grid': '#fafaf7',
-  'leather-diary': '#f5efe0',
-  'kraft-recycled': '#ebdccb',
-};
+import { PAPER_DEFINITIONS_MAP } from './paperStyles';
 
-const PAPER_LINE_COLORS: Record<PaperType, string> = {
-  'ruled': '#93c5fd',
-  'college-ruled': '#cbd5e1',
-  'grid': '#e2e8f0',
-  'plain': 'transparent',
-  'vintage': '#cfb78f',
-  'parchment': '#be9f77',
-  'yellow-legal': '#93c5fd',
-  'dot-grid': '#94a3b8',
-  'leather-diary': '#b0a18f',
-  'kraft-recycled': '#9c846d',
-};
+const PAPER_COLORS: Record<PaperType, string> = Object.keys(PAPER_DEFINITIONS_MAP).reduce(
+  (acc, key) => {
+    acc[key as PaperType] = PAPER_DEFINITIONS_MAP[key as PaperType].bgColor;
+    return acc;
+  },
+  {} as Record<PaperType, string>
+);
+
+const PAPER_LINE_COLORS: Record<PaperType, string> = Object.keys(PAPER_DEFINITIONS_MAP).reduce(
+  (acc, key) => {
+    acc[key as PaperType] = PAPER_DEFINITIONS_MAP[key as PaperType].lineColor;
+    return acc;
+  },
+  {} as Record<PaperType, string>
+);
 
 function sanitizeFontFamily(raw: string | undefined): string {
   if (!raw) return 'cursive';
@@ -144,6 +136,28 @@ export async function renderPageDirectToCanvas({
       }
     }
 
+    // French Seyes auxiliary ruling
+    if (settings.paperType === 'french-seyes') {
+      const subLineH = Math.round(settings.lineHeight / 4);
+      ctx.strokeStyle = '#e0e7ff';
+      ctx.lineWidth = 0.75;
+      for (let y = settings.topMargin; y <= height - settings.bottomMargin; y += subLineH) {
+        if ((y - settings.topMargin) % settings.lineHeight !== 0) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+      }
+      // Vertical Seyes 8mm guide lines (~30px)
+      for (let x = 0; x <= width; x += 30) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+    }
+
     // Engineering grid vertical lines
     if (settings.paperType === 'grid') {
       ctx.strokeStyle = '#e2e8f0';
@@ -154,6 +168,36 @@ export async function renderPageDirectToCanvas({
         ctx.lineTo(x, height);
         ctx.stroke();
       }
+    }
+
+    // Korean Aesthetic 24px Grid
+    if (settings.paperType === 'korean-grid') {
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 0.8;
+      for (let x = 0; x <= width; x += 24) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+    }
+
+    // Cornell System Dividing Lines
+    if (settings.paperType === 'cornell-notes') {
+      ctx.strokeStyle = '#6366f1';
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.7;
+      // Cue column dividing vertical line
+      ctx.beginPath();
+      ctx.moveTo(width * 0.25, 0);
+      ctx.lineTo(width * 0.25, height - 160);
+      ctx.stroke();
+      // Summary bottom box horizontal line
+      ctx.beginPath();
+      ctx.moveTo(0, height - 160);
+      ctx.lineTo(width, height - 160);
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
     }
 
     // Dot grid 5mm pattern
@@ -167,6 +211,55 @@ export async function renderPageDirectToCanvas({
           ctx.fill();
         }
       }
+    }
+
+    // Spiral Bound Notebook: realistic left holes and wire loops
+    if (settings.paperType === 'spiral-notebook') {
+      const holeCount = 28;
+      const step = height / (holeCount + 1);
+      for (let i = 1; i <= holeCount; i++) {
+        const y = i * step;
+        // Punched hole
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(20, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        // Wire ring highlight
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(14, y, 7, -Math.PI / 2, Math.PI / 2);
+        ctx.stroke();
+      }
+    }
+
+    // 3-Hole Punched Binder Loose-Leaf Paper
+    if (settings.paperType === 'perforated-binder') {
+      const punchYPositions = [height * 0.15, height * 0.5, height * 0.85];
+      for (const py of punchYPositions) {
+        ctx.fillStyle = '#334155';
+        ctx.beginPath();
+        ctx.arc(28, py, 11, 0, Math.PI * 2);
+        ctx.fill();
+        // Hole inner shadow ring
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(28, py, 11, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    // Crinkled paper fold highlights
+    if (settings.paperType === 'crinkled-paper') {
+      const crinkleGrad = ctx.createLinearGradient(0, 0, width, height);
+      crinkleGrad.addColorStop(0, 'rgba(0,0,0,0.03)');
+      crinkleGrad.addColorStop(0.35, 'rgba(255,255,255,0.15)');
+      crinkleGrad.addColorStop(0.5, 'rgba(0,0,0,0.02)');
+      crinkleGrad.addColorStop(0.7, 'rgba(255,255,255,0.2)');
+      crinkleGrad.addColorStop(1, 'rgba(0,0,0,0.04)');
+      ctx.fillStyle = crinkleGrad;
+      ctx.fillRect(0, 0, width, height);
     }
   }
 

@@ -15,7 +15,9 @@ import InkBlotsOverlay from './components/InkBlotsOverlay';
 import StudentTestimonials from './components/StudentTestimonials';
 import StaticContributors from './components/StaticContributors';
 import PolicyModal from './components/PolicyModal';
+import PaperGalleryModal from './components/PaperGalleryModal';
 import { downloadAssignmentAsPdf, downloadAssignmentSinglePage, ExportProgress } from './utils/exportUtils';
+import { PAPER_DEFINITIONS_MAP } from './utils/paperStyles';
 
 import {
   DEFAULT_PAGE_SETTINGS,
@@ -119,6 +121,7 @@ export default function App() {
   const [isBuyCoffeeOpen, setIsBuyCoffeeOpen] = useState<boolean>(false);
   const [isDiagramModalOpen, setIsDiagramModalOpen] = useState<boolean>(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
+  const [isPaperGalleryOpen, setIsPaperGalleryOpen] = useState<boolean>(false);
   const [policyModalType, setPolicyModalType] = useState<'privacy' | 'terms' | null>(null);
 
   // Paper DOM reference
@@ -395,6 +398,7 @@ export default function App() {
             exportProgress={exportProgress}
             onNotify={showToast}
             onSwitchToPreviewMobile={() => setMobileTab('preview')}
+            onOpenPaperGallery={() => setIsPaperGalleryOpen(true)}
           />
         </section>
 
@@ -472,6 +476,7 @@ export default function App() {
               }
               onDownloadPdf={handleDirectDownloadPdf}
               onDownloadImage={handleDirectDownloadImage}
+              onOpenPaperGallery={() => setIsPaperGalleryOpen(true)}
             />
           </div>
 
@@ -553,7 +558,7 @@ export default function App() {
           <span>&copy; 2026 Text to Handwriting.</span>
           <span className="text-zinc-500 hidden sm:inline">|</span>
           <a
-            href="https://github.com/jjohnernest212-oss"
+            href="https://github.com/plenty"
             target="_blank"
             rel="noopener noreferrer"
             className="text-amber-500 hover:text-amber-600 font-bold transition-colors"
@@ -600,7 +605,7 @@ export default function App() {
           </button>
           <span className="text-zinc-400">·</span>
           <a
-            href="https://github.com/jjohnernest212-oss"
+            href="https://github.com/plenty"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline transition-colors font-bold text-indigo-500"
@@ -680,6 +685,23 @@ export default function App() {
         isOpen={policyModalType !== null}
         onClose={() => setPolicyModalType(null)}
         type={policyModalType || 'privacy'}
+      />
+
+      {/* Visual Notebook & Book Pages Aesthetic Gallery Modal */}
+      <PaperGalleryModal
+        isOpen={isPaperGalleryOpen}
+        onClose={() => setIsPaperGalleryOpen(false)}
+        currentPaper={settings.paperType}
+        theme={theme}
+        onSelectPaper={(newPaperId, recSettings) => {
+          setSettings((prev) => ({
+            ...prev,
+            paperType: newPaperId,
+            ...recSettings,
+          }));
+          const def = PAPER_DEFINITIONS_MAP[newPaperId];
+          showToast(`Applied ${def ? def.name : newPaperId}!`, 'success');
+        }}
       />
 
       {/* Floating System Toast */}

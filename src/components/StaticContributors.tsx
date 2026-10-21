@@ -204,7 +204,7 @@ export default function StaticContributors({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* 1. PLENTY (Only this profile links to his GitHub projects & follow) */}
           <a
-            href="https://github.com/jjohnernest212-oss"
+            href="https://github.com/plenty"
             target="_blank"
             rel="noopener noreferrer"
             className={`cursor-pointer group rounded-2xl p-3.5 flex flex-col justify-between transition-all shadow-sm hover:shadow-xl relative overflow-hidden border ${
@@ -227,7 +227,7 @@ export default function StaticContributors({
 
             <div className="flex items-center gap-3">
               {/* Plenty Avatar */}
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm font-mono-code text-xs font-bold group-hover:scale-105 transition-transform">
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm font-mono-code text-xs font-bold group-hover:scale-105 transition-transform">
                 &lt;/&gt;
               </div>
 
@@ -247,7 +247,7 @@ export default function StaticContributors({
                     isLight ? 'text-slate-500' : 'text-zinc-400'
                   }`}
                 >
-                  github.com/jjohnernest212-oss
+                  github.com/plenty
                 </span>
               </div>
             </div>
