@@ -257,7 +257,7 @@ export default function StaticContributors({
                 isLight ? 'text-slate-600' : 'text-zinc-300'
               }`}
             >
-              Engineered ink physics, custom font engine, and PhonePe tipping.
+              Engineered ink physics, custom font engine, and PhonePe &amp; Bitcoin (BTC) international tipping.
             </p>
 
             <div

@@ -142,7 +142,7 @@ export default function Header({
               ? 'bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900 font-bold'
               : 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-400/30 hover:border-amber-400/60 text-amber-200 font-bold'
           }`}
-          title="Buy Me a Coffee / Scanner Tip"
+          title="Tip Plenty / Buy Me Coffee (UPI & Bitcoin Supported Worldwide)"
         >
           <Coffee className="w-3.5 h-3.5 text-amber-400 shrink-0" />
           <span className="hidden sm:inline">Buy Me Coffee</span>
