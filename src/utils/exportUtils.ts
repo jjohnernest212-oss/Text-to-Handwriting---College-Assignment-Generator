@@ -79,9 +79,13 @@ export async function renderPageDirectToCanvas({
   headerInfo?: StudentHeaderInfo;
   scale?: number;
 }): Promise<HTMLCanvasElement> {
-  // Ensure web fonts are ready
+  const activeFont = sanitizeFontFamily(fontFamilyCss);
+  // Ensure web fonts and specific handwriting script are completely loaded
   try {
     await document.fonts.ready;
+    if (document.fonts.load) {
+      await document.fonts.load(`${settings.fontSize}px ${activeFont}`);
+    }
   } catch {
     // ignore
   }
@@ -298,7 +302,6 @@ export async function renderPageDirectToCanvas({
   }
 
   // 5. Student Header
-  const activeFont = sanitizeFontFamily(fontFamilyCss);
   if (headerInfo?.enabled) {
     ctx.save();
     ctx.font = `12px ${activeFont}`;

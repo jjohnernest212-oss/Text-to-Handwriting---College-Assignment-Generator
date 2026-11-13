@@ -4,27 +4,22 @@ import {
   ZoomOut,
   Maximize2,
   Trash2,
-  Move,
   ChevronLeft,
   ChevronRight,
-  Eye,
   Sparkles,
   Plus,
   AlertTriangle,
-  Download,
-  FileText,
-  Layers,
+  Ruler,
 } from 'lucide-react';
 import {
   PageSettings,
   StudentHeaderInfo,
   DiagramElement,
-  PaperType,
 } from '../types';
 import InkBlotsOverlay from './InkBlotsOverlay';
 import PenStrokeJitterCanvas from './PenStrokeJitterCanvas';
 import { getLinesPerPage, getCharsPerLine, formatTextToPaperLines } from '../utils/paginationUtils';
-import { getPaperBackgroundStyle, PAPER_DEFINITIONS_MAP } from '../utils/paperStyles';
+import { getPaperBackgroundStyle } from '../utils/paperStyles';
 
 interface PaperPreviewProps {
   theme?: 'dark' | 'light';
@@ -46,6 +41,7 @@ interface PaperPreviewProps {
   onDownloadPdf?: () => void;
   onDownloadImage?: () => void;
   onOpenPaperGallery?: () => void;
+  onToggleMarginGuides?: () => void;
 }
 
 export default function PaperPreview({
@@ -64,24 +60,21 @@ export default function PaperPreview({
   onAddPage,
   onDeletePage,
   onAutoSplitPages,
-  onUpdateFontSize,
-  onDownloadPdf,
-  onDownloadImage,
-  onOpenPaperGallery,
+  onToggleMarginGuides,
 }: PaperPreviewProps) {
   const isLight = theme === 'light';
   const scrollportRef = useRef<HTMLDivElement | null>(null);
 
   const calculateFitZoom = () => {
     const containerWidth = scrollportRef.current?.clientWidth || window.innerWidth;
-    const padding = containerWidth < 640 ? 24 : 64;
+    const padding = containerWidth < 640 ? 20 : 56;
     const availWidth = Math.max(280, containerWidth - padding);
     return Math.min(1.0, Math.max(0.35, Number((availWidth / 804).toFixed(2))));
   };
 
   const [zoomLevel, setZoomLevel] = useState<number>(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-      const padding = window.innerWidth < 640 ? 24 : 64;
+      const padding = window.innerWidth < 640 ? 20 : 56;
       const availWidth = Math.max(280, window.innerWidth - padding);
       return Math.min(1.0, Math.max(0.35, Number((availWidth / 804).toFixed(2))));
     }
@@ -89,22 +82,34 @@ export default function PaperPreview({
   });
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 640) {
+    const updateMobileFit = () => {
+      if (window.innerWidth < 1024 && scrollportRef.current && scrollportRef.current.clientWidth > 0) {
         setZoomLevel(calculateFitZoom());
       }
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    const observer = new ResizeObserver(() => {
+      updateMobileFit();
+    });
+
+    if (scrollportRef.current) {
+      observer.observe(scrollportRef.current);
+    }
+    window.addEventListener('resize', updateMobileFit);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateMobileFit);
+    };
   }, []);
 
   const [activeDiagramId, setActiveDiagramId] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  // Current paper metadata
-  const currentPaperDef =
-    PAPER_DEFINITIONS_MAP[settings.paperType] || PAPER_DEFINITIONS_MAP['ruled'];
+  const dragStartRef = useRef<{
+    pointerX: number;
+    pointerY: number;
+    origX: number;
+    origY: number;
+  } | null>(null);
 
   // Page capacity & overflow detection
   const charsPerLine = getCharsPerLine(settings);
@@ -118,26 +123,55 @@ export default function PaperPreview({
 
   // Filter diagrams for current page
   const pageDiagrams = diagrams.filter((d) => d.pageIndex === pageIndex);
+  const activeDiagram = pageDiagrams.find((d) => d.id === activeDiagramId) || null;
 
-  // Diagram drag start
-  const handleDiagramMouseDown = (e: React.MouseEvent, diag: DiagramElement) => {
+  const isDarkPaper =
+    settings.paperType === 'dark-aesthetic' || settings.paperType === 'leather-diary';
+
+  // Zoom-aware unified Pointer dragging (works identically on mobile touch & desktop mouse)
+  const handleDiagramPointerDown = (
+    e: React.PointerEvent<HTMLDivElement>,
+    diag: DiagramElement
+  ) => {
     e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
     setActiveDiagramId(diag.id);
     setDraggingId(diag.id);
-    setDragOffset({
-      x: e.clientX - diag.x,
-      y: e.clientY - diag.y,
-    });
+    dragStartRef.current = {
+      pointerX: e.clientX,
+      pointerY: e.clientY,
+      origX: diag.x,
+      origY: diag.y,
+    };
   };
 
-  const handlePaperMouseMove = (e: React.MouseEvent) => {
-    if (!draggingId) return;
+  const handlePaperPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!draggingId || !dragStartRef.current) return;
     const diag = pageDiagrams.find((d) => d.id === draggingId);
     if (!diag) return;
 
-    // Calculate new position constrained to paper boundaries
-    const newX = Math.max(10, Math.min(794 - diag.width - 10, e.clientX - dragOffset.x));
-    const newY = Math.max(10, Math.min(1123 - diag.height - 10, e.clientY - dragOffset.y));
+    const deltaX = (e.clientX - dragStartRef.current.pointerX) / zoomLevel;
+    const deltaY = (e.clientY - dragStartRef.current.pointerY) / zoomLevel;
+
+    let newX = Math.max(
+      8,
+      Math.min(794 - diag.width - 8, Math.round(dragStartRef.current.origX + deltaX))
+    );
+    let newY = Math.max(
+      8,
+      Math.min(1123 - diag.height - 8, Math.round(dragStartRef.current.origY + deltaY))
+    );
+
+    // Gentle magnetic snap when Margin Guides are visible
+    if (settings.showMarginGuides) {
+      const centerX = Math.round((794 - diag.width) / 2);
+      const rightEdgeX = 794 - settings.rightMargin - diag.width;
+      if (Math.abs(newX - settings.leftMargin) < 8) newX = settings.leftMargin;
+      else if (Math.abs(newX - centerX) < 8) newX = centerX;
+      else if (Math.abs(newX - rightEdgeX) < 8) newX = rightEdgeX;
+
+      if (Math.abs(newY - settings.topMargin) < 8) newY = settings.topMargin;
+    }
 
     onUpdateDiagram({
       ...diag,
@@ -146,8 +180,9 @@ export default function PaperPreview({
     });
   };
 
-  const handlePaperMouseUp = () => {
+  const handlePaperPointerUp = () => {
     setDraggingId(null);
+    dragStartRef.current = null;
   };
 
   const handleResizeDiagram = (e: React.MouseEvent, diag: DiagramElement, delta: number) => {
@@ -175,7 +210,11 @@ export default function PaperPreview({
         >
           {lines.map((line, lIdx) => {
             if (line.trim() === '') {
-              return <div key={lIdx} style={{ height: `${settings.lineHeight}px` }}>&nbsp;</div>;
+              return (
+                <div key={lIdx} style={{ height: `${settings.lineHeight}px` }}>
+                  &nbsp;
+                </div>
+              );
             }
             return (
               <div
@@ -203,16 +242,17 @@ export default function PaperPreview({
       >
         {lines.map((line, lIdx) => {
           if (line.trim() === '') {
-            return <div key={lIdx} style={{ height: `${settings.lineHeight}px` }}>&nbsp;</div>;
+            return (
+              <div key={lIdx} style={{ height: `${settings.lineHeight}px` }}>
+                &nbsp;
+              </div>
+            );
           }
 
-          // Split words to apply subtle micro-variations
           const words = line.split(' ');
-          // Pseudo-random deterministic shift based on line index
           const lineTilt = ((lIdx % 5) - 2) * (0.05 * settings.jitterIntensity);
           const baselineShift = ((lIdx % 3) - 1) * (0.4 * settings.jitterIntensity);
 
-          // Full justification for formal assignment submission
           const isJustified =
             settings.justification === 'full' &&
             words.length > 1 &&
@@ -256,225 +296,176 @@ export default function PaperPreview({
     );
   };
 
+  // Precompute guide geometry for A4 (794 x 1123)
+  const guideStroke = isDarkPaper ? 'rgba(165, 180, 252, 0.5)' : 'rgba(79, 70, 229, 0.36)';
+  const guideCenterStroke = isDarkPaper
+    ? 'rgba(165, 180, 252, 0.24)'
+    : 'rgba(79, 70, 229, 0.16)';
+  const guideZoneTint = isDarkPaper ? 'rgba(129, 140, 248, 0.08)' : 'rgba(99, 102, 241, 0.04)';
+  const guideTagBg = isDarkPaper
+    ? 'bg-slate-900/90 text-indigo-200 border-indigo-400/30'
+    : 'bg-white/90 text-indigo-700 border-indigo-200';
+  const safeRightX = 794 - settings.rightMargin;
+  const safeBottomY = 1123 - settings.bottomMargin;
+  const lineMarkers: number[] = [];
+  for (let i = 5; i <= linesPerPage; i += 5) {
+    lineMarkers.push(i);
+  }
+
   return (
     <div
-      className={`flex flex-col h-full rounded-lg border overflow-hidden shadow-2xl transition-colors ${
+      className={`flex flex-col h-full rounded-2xl border overflow-hidden shadow-xs transition-colors ${
         isLight
-          ? 'bg-slate-100 border-slate-300 text-slate-800'
-          : 'bg-[#121214] border-[#27272a] text-[#e4e4e7]'
+          ? 'bg-white border-slate-200 text-slate-800'
+          : 'bg-[#141418] border-white/10 text-zinc-100'
       }`}
     >
-      {/* Top Bar: Zoom Controls & Pagination */}
+      {/* Top Bar: Clean Pagination, Guides Toggle & Zoom Controls */}
       <div
-        className={`px-4 py-2.5 border-b flex items-center justify-between gap-3 flex-wrap select-none ${
-          isLight ? 'bg-slate-50 border-slate-300' : 'bg-[#0c0c0e] border-[#27272a]'
+        className={`px-3 sm:px-4 py-2 border-b flex items-center justify-between gap-2 flex-wrap select-none ${
+          isLight ? 'bg-slate-50/90 border-slate-200' : 'bg-[#101014] border-white/10'
         }`}
       >
-        {/* Pagination navigator */}
-        <div className="flex items-center gap-1.5 font-mono-code">
-          <button
-            onClick={() => onPageChange(Math.max(0, pageIndex - 1))}
-            disabled={pageIndex === 0}
-            className={`cursor-pointer p-1 rounded disabled:opacity-20 disabled:hover:bg-transparent transition-colors ${
-              isLight
-                ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-                : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]'
-            }`}
-            title="Previous Page"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-
-          <span
-            className={`text-[11px] font-bold px-2.5 py-0.5 rounded tracking-wider border ${
-              isLight
-                ? 'text-slate-900 bg-white border-slate-300 shadow-2xs'
-                : 'text-[#e4e4e7] bg-[#18181b] border-[#27272a]'
+        {/* Left: Pagination & Add Page */}
+        <div className="flex items-center gap-1.5">
+          <div
+            className={`flex items-center rounded-xl border p-0.5 ${
+              isLight ? 'bg-white border-slate-200' : 'bg-[#18181d] border-white/10'
             }`}
           >
-            PAGE {String(pageIndex + 1).padStart(2, '0')} / {String(totalPages).padStart(2, '0')}
-          </span>
+            <button
+              type="button"
+              onClick={() => onPageChange(Math.max(0, pageIndex - 1))}
+              disabled={pageIndex === 0}
+              className={`cursor-pointer min-h-[36px] min-w-[36px] rounded-lg flex items-center justify-center disabled:opacity-25 transition-colors ${
+                isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-zinc-300 hover:bg-white/10'
+              }`}
+              title="Previous Page"
+              aria-label="Previous Page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
 
-          <button
-            onClick={() => onPageChange(Math.min(totalPages - 1, pageIndex + 1))}
-            disabled={pageIndex >= totalPages - 1}
-            className={`cursor-pointer p-1 rounded disabled:opacity-20 disabled:hover:bg-transparent transition-colors ${
-              isLight
-                ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-                : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]'
-            }`}
-            title="Next Page"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
+            <span className="text-xs font-semibold tabular-nums px-2 whitespace-nowrap">
+              Page {pageIndex + 1} / {totalPages}
+            </span>
 
-          {/* Direct + Add Page Button */}
+            <button
+              type="button"
+              onClick={() => onPageChange(Math.min(totalPages - 1, pageIndex + 1))}
+              disabled={pageIndex >= totalPages - 1}
+              className={`cursor-pointer min-h-[36px] min-w-[36px] rounded-lg flex items-center justify-center disabled:opacity-25 transition-colors ${
+                isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-zinc-300 hover:bg-white/10'
+              }`}
+              title="Next Page"
+              aria-label="Next Page"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
           {onAddPage && (
             <button
+              type="button"
               onClick={onAddPage}
-              className="cursor-pointer ml-1 px-2.5 py-1 rounded bg-[#6366f1] hover:bg-[#4f46e5] text-white text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs uppercase tracking-wider active:scale-95"
-              title="Add another handwritten assignment page (unlimited)"
+              className="cursor-pointer min-h-[38px] px-3 rounded-xl bg-[#6366f1] hover:bg-indigo-600 text-white text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 active:scale-95"
+              title="Add a blank page"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>+ Add Page</span>
+              <span>Add Page</span>
             </button>
           )}
 
-          {/* Auto-Add Needed Pages quick action if this page has overflow */}
           {isPageOverflowing && onAutoSplitPages && (
             <button
               type="button"
               onClick={onAutoSplitPages}
-              className="cursor-pointer ml-1 px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs uppercase tracking-wider active:scale-95 animate-pulse"
-              title={`This page has ${overflowLinesCount} lines overflowing. Click to auto-add needed pages.`}
+              className="cursor-pointer min-h-[38px] px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 active:scale-95"
+              title={`Split overflowing text across pages`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Auto-Add Pages</span>
-              <span className="sm:hidden">Auto-Split</span>
+              <span>Auto-Split</span>
             </button>
           )}
 
-          {/* Delete current page button (only if > 1 page) */}
           {totalPages > 1 && onDeletePage && (
             <button
+              type="button"
               onClick={onDeletePage}
-              className={`cursor-pointer p-1 rounded transition-colors ml-0.5 ${
+              className={`cursor-pointer min-h-[38px] min-w-[38px] rounded-xl flex items-center justify-center transition-colors border ${
                 isLight
-                  ? 'text-slate-400 hover:text-rose-600 hover:bg-slate-200'
-                  : 'text-[#e4e4e7]/50 hover:text-rose-400 hover:bg-[#18181b]'
+                  ? 'border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50'
+                  : 'border-white/10 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10'
               }`}
               title={`Delete Page ${pageIndex + 1}`}
+              aria-label={`Delete Page ${pageIndex + 1}`}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* Paper title / prompt info */}
-        <div
-          className={`hidden sm:flex items-center gap-2 font-mono-code text-[10px] uppercase tracking-widest ${
-            isLight ? 'text-slate-500' : 'text-[#e4e4e7]/50'
-          }`}
-        >
-          <Eye className="w-3.5 h-3.5 text-[#6366f1]" />
-          <span>A4 SIMULATION // 300 DPI</span>
-        </div>
-
+        {/* Right: Quick Margin Guides Toggle + Zoom Controls */}
         <div className="flex items-center gap-2">
-          {/* Quick Paper Style Selector Button */}
-          {onOpenPaperGallery && (
+          {onToggleMarginGuides && (
             <button
               type="button"
-              onClick={onOpenPaperGallery}
-              className={`cursor-pointer px-2.5 py-1 rounded-lg font-mono-code text-[11px] font-bold flex items-center gap-1.5 border transition-all active:scale-95 ${
-                isLight
-                  ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-2xs'
-                  : 'bg-[#18181b] hover:bg-[#222226] border-[#27272a] text-white'
+              onClick={onToggleMarginGuides}
+              aria-pressed={settings.showMarginGuides}
+              title="Toggle faint Margin Guides for aligning text and diagrams (not printed)"
+              className={`cursor-pointer min-h-[38px] px-3 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-colors whitespace-nowrap shrink-0 active:scale-95 ${
+                settings.showMarginGuides
+                  ? 'bg-[#6366f1]/15 border-[#6366f1]/50 text-indigo-600 dark:text-indigo-300'
+                  : isLight
+                  ? 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  : 'bg-[#18181d] border-white/10 text-zinc-300 hover:text-white hover:bg-white/5'
               }`}
-              title="Change Notebook Paper Style / Texture"
             >
-              <Layers className="w-3.5 h-3.5 text-[#6366f1]" />
-              <span className="truncate max-w-[120px] sm:max-w-[150px]">
-                {currentPaperDef.name.split(' ')[0]} {currentPaperDef.name.split(' ')[1] || ''}
-              </span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-[#6366f1]/20 text-[#6366f1] hidden sm:inline">
-                {currentPaperDef.badge}
-              </span>
+              <Ruler className="w-3.5 h-3.5 text-[#6366f1]" />
+              <span>Guides</span>
             </button>
           )}
 
-          {/* Real-time Font Size Quick Tuning */}
-          {onUpdateFontSize && (
-            <div
-              className={`flex items-center gap-1.5 px-2 py-1 rounded font-mono-code text-[11px] border ${
-                isLight
-                  ? 'bg-white border-slate-300 text-slate-800'
-                  : 'bg-[#18181b] border-[#27272a] text-[#e4e4e7]'
-              }`}
-            >
-              <span className={`text-[10px] hidden md:inline ${isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'}`}>
-                Font:
-              </span>
-              <button
-                type="button"
-                onClick={() => onUpdateFontSize(Math.max(11, settings.fontSize - 1))}
-                disabled={settings.fontSize <= 11}
-                className={`cursor-pointer text-[10px] disabled:opacity-30 px-1 py-0.5 rounded transition-colors ${
-                  isLight
-                    ? 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-                    : 'text-[#e4e4e7] hover:text-white hover:bg-[#27272a]'
-                }`}
-                title="Decrease font size (A-)"
-              >
-                A-
-              </button>
-              <input
-                type="range"
-                min="11"
-                max="32"
-                step="1"
-                value={settings.fontSize}
-                onChange={(e) => onUpdateFontSize(Number(e.target.value))}
-                className="w-14 sm:w-20 accent-[#6366f1] cursor-pointer h-1.5 hidden sm:inline-block"
-                title={`Font Size: ${settings.fontSize}px`}
-                aria-label="Font size slider"
-              />
-              <span className="text-[#6366f1] font-bold min-w-[28px] text-center text-[10px] sm:text-[11px]">
-                {settings.fontSize}px
-              </span>
-              <button
-                type="button"
-                onClick={() => onUpdateFontSize(Math.min(32, settings.fontSize + 1))}
-                disabled={settings.fontSize >= 32}
-                className={`cursor-pointer text-[10px] disabled:opacity-30 px-1 py-0.5 rounded transition-colors ${
-                  isLight
-                    ? 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-                    : 'text-[#e4e4e7] hover:text-white hover:bg-[#27272a]'
-                }`}
-                title="Increase font size (A+)"
-              >
-                A+
-              </button>
-            </div>
-          )}
-
-          {/* Zoom controls */}
           <div
-            className={`flex items-center gap-1 p-0.5 rounded font-mono-code border ${
-              isLight
-                ? 'bg-white border-slate-300'
-                : 'bg-[#18181b] border-[#27272a]'
+            className={`flex items-center gap-0.5 p-0.5 rounded-xl border ${
+              isLight ? 'bg-white border-slate-200' : 'bg-[#18181d] border-white/10'
             }`}
           >
             <button
-              onClick={() => setZoomLevel((z) => Math.max(0.4, Number((z - 0.1).toFixed(2))))}
-              className={`cursor-pointer px-1.5 py-0.5 rounded text-[11px] transition-colors ${
-                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white'
+              type="button"
+              onClick={() => setZoomLevel((z) => Math.max(0.35, Number((z - 0.1).toFixed(2))))}
+              className={`cursor-pointer min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center transition-colors ${
+                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-white/10 text-zinc-300'
               }`}
               title="Zoom Out"
+              aria-label="Zoom Out"
             >
-              <ZoomOut className="w-3 h-3" />
+              <ZoomOut className="w-3.5 h-3.5" />
             </button>
-            <span className="text-[11px] text-[#6366f1] font-bold px-1.5">
+            <span className="text-xs font-semibold tabular-nums text-[#6366f1] px-1.5 min-w-[44px] text-center">
               {Math.round(zoomLevel * 100)}%
             </span>
             <button
+              type="button"
               onClick={() => setZoomLevel((z) => Math.min(1.3, Number((z + 0.1).toFixed(2))))}
-              className={`cursor-pointer px-1.5 py-0.5 rounded text-[11px] transition-colors ${
-                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white'
+              className={`cursor-pointer min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center transition-colors ${
+                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-white/10 text-zinc-300'
               }`}
               title="Zoom In"
+              aria-label="Zoom In"
             >
-              <ZoomIn className="w-3 h-3" />
+              <ZoomIn className="w-3.5 h-3.5" />
             </button>
             <button
+              type="button"
               onClick={() => setZoomLevel(calculateFitZoom())}
-              className={`cursor-pointer px-1.5 py-0.5 rounded text-[11px] transition-colors ${
-                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-[#27272a] text-[#e4e4e7]/70 hover:text-white'
+              className={`cursor-pointer min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center transition-colors ${
+                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-white/10 text-zinc-300'
               }`}
               title="Fit Paper to Screen"
+              aria-label="Fit Paper to Screen"
             >
-              <Maximize2 className="w-3 h-3" />
+              <Maximize2 className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -483,21 +474,31 @@ export default function PaperPreview({
       {/* Main Paper Scrollport (Desk background) */}
       <div
         ref={scrollportRef}
-        className={`flex-1 overflow-auto p-4 sm:p-8 flex items-start justify-center transition-colors ${
-          isLight ? 'bg-slate-200/90' : 'bg-[#121216]'
+        className={`flex-1 overflow-auto p-3 sm:p-6 lg:p-8 flex items-start justify-center transition-colors relative ${
+          isLight ? 'bg-slate-100/90' : 'bg-[#0e0e12]'
         }`}
-        onMouseMove={handlePaperMouseMove}
-        onMouseUp={handlePaperMouseUp}
+        onPointerMove={handlePaperPointerMove}
+        onPointerUp={handlePaperPointerUp}
+        onPointerCancel={handlePaperPointerUp}
         onClick={() => setActiveDiagramId(null)}
       >
         <div
           style={{
-            transform: `scale(${zoomLevel}) rotate(${settings.paperTilt}deg)`,
-            transformOrigin: 'top center',
-            transition: 'transform 0.1s ease-out',
+            width: `${Math.round(794 * zoomLevel)}px`,
+            height: `${Math.round(1123 * zoomLevel)}px`,
           }}
-          className="relative"
+          className="relative shrink-0 mx-auto"
         >
+          <div
+            style={{
+              width: '794px',
+              height: '1123px',
+              transform: `scale(${zoomLevel}) rotate(${settings.paperTilt}deg)`,
+              transformOrigin: 'top left',
+              transition: 'transform 0.1s ease-out',
+            }}
+            className="relative"
+          >
           {/* THE PHYSICAL A4 PAPER SHEET */}
           <div
             ref={paperRef}
@@ -541,7 +542,7 @@ export default function PaperPreview({
                 <div className="absolute top-0 bottom-36 left-[25%] w-[1.5px] bg-indigo-400/70 pointer-events-none z-10" />
                 <div className="absolute bottom-36 left-0 right-0 h-[1.5px] bg-indigo-400/70 pointer-events-none z-10" />
                 <div className="absolute bottom-32 left-4 text-[10px] font-mono-code font-bold text-indigo-500/60 uppercase tracking-widest pointer-events-none z-10">
-                  SUMMARY / KEY TAKEAWAYS:
+                  Summary / Key Takeaways:
                 </div>
               </>
             )}
@@ -585,7 +586,7 @@ export default function PaperPreview({
               />
             )}
 
-            {/* Secondary Red Margin Line for Yellow Legal Pad (Classic legal pad double red line) */}
+            {/* Secondary Red Margin Line for Yellow Legal Pad */}
             {settings.paperType === 'yellow-legal' && settings.showMarginLine && (
               <div
                 className="absolute top-0 bottom-0 pointer-events-none z-10"
@@ -598,7 +599,7 @@ export default function PaperPreview({
               />
             )}
 
-            {/* Student Header at Top of Page (Name, Roll, Subject, Page #) */}
+            {/* Student Header at Top of Page */}
             {headerInfo.enabled && (
               <div
                 className="absolute left-0 right-0 px-8 flex justify-between items-center text-xs pointer-events-none select-none z-10"
@@ -610,8 +611,16 @@ export default function PaperPreview({
                 }}
               >
                 <div className="flex items-center gap-4">
-                  {headerInfo.name && <span>Name: <strong>{headerInfo.name}</strong></span>}
-                  {headerInfo.rollNo && <span>Roll No: <strong>{headerInfo.rollNo}</strong></span>}
+                  {headerInfo.name && (
+                    <span>
+                      Name: <strong>{headerInfo.name}</strong>
+                    </span>
+                  )}
+                  {headerInfo.rollNo && (
+                    <span>
+                      Roll No: <strong>{headerInfo.rollNo}</strong>
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   {headerInfo.subject && <span>Sub: {headerInfo.subject}</span>}
@@ -639,14 +648,15 @@ export default function PaperPreview({
                 letterSpacing: `${settings.letterSpacing}px`,
                 color: settings.inkColor,
                 opacity: settings.inkOpacity,
-                fontWeight: settings.inkThickness > 1.2 ? 600 : settings.inkThickness < 0.9 ? 300 : 400,
+                fontWeight:
+                  settings.inkThickness > 1.2 ? 600 : settings.inkThickness < 0.9 ? 300 : 400,
               }}
             >
               {pageText ? (
                 renderHumanizedText(pageText)
               ) : (
                 <div className="text-slate-400 italic font-sans text-sm pt-8">
-                  (Type or paste your assignment text in the editor on the left to see your handwritten page live...)
+                  Type or paste your assignment text to see your handwritten page live.
                 </div>
               )}
             </div>
@@ -675,19 +685,218 @@ export default function PaperPreview({
               />
             )}
 
+            {/* ===================================================================== */}
+            {/* OPTIONAL MARGIN GUIDES OVERLAY (Preview Only · Never Exported)        */}
+            {/* ===================================================================== */}
+            {settings.showMarginGuides && (
+              <div
+                aria-hidden="true"
+                data-preview-only="true"
+                className="absolute inset-0 pointer-events-none select-none z-20"
+              >
+                {/* Faint shaded non-printable outer margin zones */}
+                <div
+                  className="absolute top-0 left-0 right-0"
+                  style={{ height: `${settings.topMargin}px`, backgroundColor: guideZoneTint }}
+                />
+                <div
+                  className="absolute bottom-0 left-0 right-0"
+                  style={{ height: `${settings.bottomMargin}px`, backgroundColor: guideZoneTint }}
+                />
+                <div
+                  className="absolute left-0"
+                  style={{
+                    top: `${settings.topMargin}px`,
+                    bottom: `${settings.bottomMargin}px`,
+                    width: `${settings.leftMargin}px`,
+                    backgroundColor: guideZoneTint,
+                  }}
+                />
+                <div
+                  className="absolute right-0"
+                  style={{
+                    top: `${settings.topMargin}px`,
+                    bottom: `${settings.bottomMargin}px`,
+                    width: `${settings.rightMargin}px`,
+                    backgroundColor: guideZoneTint,
+                  }}
+                />
+
+                {/* Top Margin Guide Line */}
+                <div
+                  className="absolute left-0 right-0"
+                  style={{
+                    top: `${settings.topMargin}px`,
+                    borderTop: `1px dashed ${guideStroke}`,
+                  }}
+                />
+
+                {/* Bottom Margin Guide Line */}
+                <div
+                  className="absolute left-0 right-0"
+                  style={{
+                    top: `${safeBottomY}px`,
+                    borderTop: `1px dashed ${guideStroke}`,
+                  }}
+                />
+
+                {/* Left Writing Margin Guide Line */}
+                <div
+                  className="absolute top-0 bottom-0"
+                  style={{
+                    left: `${settings.leftMargin}px`,
+                    borderLeft: `1px dashed ${guideStroke}`,
+                  }}
+                />
+
+                {/* Right Writing Margin Guide Line */}
+                <div
+                  className="absolute top-0 bottom-0"
+                  style={{
+                    left: `${safeRightX}px`,
+                    borderLeft: `1px dashed ${guideStroke}`,
+                  }}
+                />
+
+                {/* Subtle Center Axis Crosshairs (helps center diagrams & headings) */}
+                <div
+                  className="absolute left-1/2"
+                  style={{
+                    top: `${settings.topMargin}px`,
+                    bottom: `${settings.bottomMargin}px`,
+                    borderLeft: `1px dotted ${guideCenterStroke}`,
+                  }}
+                />
+                <div
+                  className="absolute top-1/2"
+                  style={{
+                    left: `${settings.leftMargin}px`,
+                    right: `${settings.rightMargin}px`,
+                    borderTop: `1px dotted ${guideCenterStroke}`,
+                  }}
+                />
+
+                {/* Corner Registration Brackets on the Printable Content Frame */}
+                <div
+                  className="absolute w-3.5 h-3.5 border-t-2 border-l-2"
+                  style={{
+                    top: `${settings.topMargin - 1}px`,
+                    left: `${settings.leftMargin - 1}px`,
+                    borderColor: guideStroke,
+                  }}
+                />
+                <div
+                  className="absolute w-3.5 h-3.5 border-t-2 border-r-2"
+                  style={{
+                    top: `${settings.topMargin - 1}px`,
+                    left: `${safeRightX - 13}px`,
+                    borderColor: guideStroke,
+                  }}
+                />
+                <div
+                  className="absolute w-3.5 h-3.5 border-b-2 border-l-2"
+                  style={{
+                    top: `${safeBottomY - 13}px`,
+                    left: `${settings.leftMargin - 1}px`,
+                    borderColor: guideStroke,
+                  }}
+                />
+                <div
+                  className="absolute w-3.5 h-3.5 border-b-2 border-r-2"
+                  style={{
+                    top: `${safeBottomY - 13}px`,
+                    left: `${safeRightX - 13}px`,
+                    borderColor: guideStroke,
+                  }}
+                />
+
+                {/* Line Interval Ticks along Left Margin (every 5 lines) */}
+                {lineMarkers.map((lineNum) => {
+                  const yPos = settings.topMargin + (lineNum - 1) * settings.lineHeight;
+                  if (yPos > safeBottomY - 10) return null;
+                  return (
+                    <div
+                      key={lineNum}
+                      className="absolute flex items-center gap-1"
+                      style={{
+                        top: `${yPos + settings.lineHeight * 0.45}px`,
+                        left: `${Math.max(6, settings.leftMargin - 30)}px`,
+                      }}
+                    >
+                      <span
+                        className={`text-[9px] font-mono-code font-semibold px-1 rounded border ${guideTagBg}`}
+                      >
+                        L{lineNum}
+                      </span>
+                      <span
+                        className="w-2 h-[1px]"
+                        style={{ backgroundColor: guideStroke }}
+                      />
+                    </div>
+                  );
+                })}
+
+                {/* Dimension Markers & Preview-Only Legend */}
+                <div
+                  className={`absolute text-[10px] font-mono-code font-medium px-1.5 py-0.5 rounded border ${guideTagBg}`}
+                  style={{ top: `${Math.max(4, settings.topMargin - 20)}px`, left: `${settings.leftMargin + 6}px` }}
+                >
+                  Margin Guides · Preview Only · Top {settings.topMargin}px
+                </div>
+                <div
+                  className={`absolute text-[10px] font-mono-code font-medium px-1.5 py-0.5 rounded border ${guideTagBg}`}
+                  style={{
+                    top: `${Math.min(1100, safeBottomY + 6)}px`,
+                    left: `${settings.leftMargin + 6}px`,
+                  }}
+                >
+                  Safe Width: {794 - settings.leftMargin - settings.rightMargin}px · Bottom {settings.bottomMargin}px
+                </div>
+
+                {/* Live Alignment Crosshairs when dragging/selecting a diagram */}
+                {activeDiagram && (
+                  <>
+                    <div
+                      className="absolute left-0 right-0 border-t border-dashed border-indigo-500/60"
+                      style={{ top: `${activeDiagram.y}px` }}
+                    />
+                    <div
+                      className="absolute top-0 bottom-0 border-l border-dashed border-indigo-500/60"
+                      style={{ left: `${activeDiagram.x}px` }}
+                    />
+                    <div
+                      className="absolute top-0 bottom-0 border-l border-dotted border-indigo-400/50"
+                      style={{ left: `${activeDiagram.x + activeDiagram.width / 2}px` }}
+                    />
+                    <div
+                      className={`absolute text-[10px] font-mono-code font-bold px-1.5 py-0.5 rounded border ${guideTagBg}`}
+                      style={{
+                        top: `${Math.max(6, activeDiagram.y - 22)}px`,
+                        left: `${activeDiagram.x}px`,
+                      }}
+                    >
+                      X: {activeDiagram.x}px · Y: {activeDiagram.y}px
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
             {/* Placed Diagram / Sketch Overlays */}
             {pageDiagrams.map((diag) => {
               const isSelected = activeDiagramId === diag.id;
               return (
                 <div
                   key={diag.id}
-                  onMouseDown={(e) => handleDiagramMouseDown(e, diag)}
+                  onPointerDown={(e) => handleDiagramPointerDown(e, diag)}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveDiagramId(diag.id);
                   }}
-                  className={`absolute z-20 cursor-move transition-shadow ${
-                    isSelected ? 'ring-2 ring-indigo-500 shadow-lg' : 'hover:ring-1 hover:ring-indigo-300'
+                  className={`absolute z-20 cursor-move touch-none transition-shadow ${
+                    isSelected
+                      ? 'ring-2 ring-indigo-500 shadow-lg'
+                      : 'hover:ring-1 hover:ring-indigo-300'
                   }`}
                   style={{
                     left: `${diag.x}px`,
@@ -715,30 +924,39 @@ export default function PaperPreview({
 
                   {/* Edit Controls when selected */}
                   {isSelected && (
-                    <div className="absolute -top-7 right-0 flex items-center gap-1 bg-white border border-slate-300 rounded-md shadow-md p-0.5 z-30">
+                    <div
+                      className="absolute -top-11 right-0 flex items-center gap-1 bg-white border border-slate-300 rounded-xl shadow-md p-1 z-30"
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
                       <button
+                        type="button"
                         onClick={(e) => handleResizeDiagram(e, diag, -20)}
-                        className="px-1.5 py-0.5 text-[10px] font-bold text-slate-600 hover:bg-slate-100 rounded"
+                        className="min-w-[32px] min-h-[32px] px-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer flex items-center justify-center"
                         title="Smaller"
+                        aria-label="Shrink diagram"
                       >
                         -
                       </button>
                       <button
+                        type="button"
                         onClick={(e) => handleResizeDiagram(e, diag, 20)}
-                        className="px-1.5 py-0.5 text-[10px] font-bold text-slate-600 hover:bg-slate-100 rounded"
+                        className="min-w-[32px] min-h-[32px] px-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer flex items-center justify-center"
                         title="Larger"
+                        aria-label="Enlarge diagram"
                       >
                         +
                       </button>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDeleteDiagram(diag.id);
                         }}
-                        className="p-1 text-rose-600 hover:bg-rose-50 rounded"
+                        className="min-w-[32px] min-h-[32px] p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer flex items-center justify-center"
                         title="Delete diagram"
+                        aria-label="Delete diagram"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   )}
@@ -763,30 +981,29 @@ export default function PaperPreview({
               />
             )}
           </div>
+          </div>
         </div>
-        {/* Floating Overflow Alert for seamless Auto-Pagination */}
+
+        {/* Overflow Alert for seamless Auto-Pagination */}
         {isPageOverflowing && onAutoSplitPages && (
-          <div className="fixed sm:absolute bottom-4 left-1/2 -translate-x-1/2 z-30 max-w-lg w-[92%] px-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="fixed sm:absolute bottom-20 lg:bottom-4 left-1/2 -translate-x-1/2 z-30 max-w-lg w-[92%] px-2">
             <div
-              className={`p-3 rounded-xl border shadow-xl flex items-center justify-between gap-3 text-xs backdrop-blur-md transition-all ${
+              className={`p-3 rounded-2xl border shadow-xl flex items-center justify-between gap-3 text-xs backdrop-blur-md transition-all ${
                 isLight
-                  ? 'bg-amber-50/95 border-amber-300 text-amber-950 shadow-amber-900/10'
-                  : 'bg-[#181512]/95 border-amber-500/50 text-amber-200 shadow-black/50'
+                  ? 'bg-amber-50/95 border-amber-300 text-amber-950'
+                  : 'bg-[#181512]/95 border-amber-500/50 text-amber-200'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0 border border-amber-500/40">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 border border-amber-500/30">
                   <AlertTriangle className="w-4 h-4 text-amber-500" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-bold flex items-center gap-1.5 flex-wrap">
-                    <span>Assignment overflows Page {pageIndex + 1}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded font-mono-code bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-bold">
-                      +{overflowLinesCount} lines / ~{overflowWordsCount} words
-                    </span>
+                  <div className="font-semibold">
+                    Page {pageIndex + 1} has +{overflowLinesCount} extra lines (~{overflowWordsCount} words)
                   </div>
                   <p className="text-[11px] opacity-80 truncate">
-                    Text exceeds physical page height. Auto-add needed pages?
+                    Split cleanly onto the next sheet so nothing gets cut off.
                   </p>
                 </div>
               </div>
@@ -794,47 +1011,11 @@ export default function PaperPreview({
               <button
                 type="button"
                 onClick={onAutoSplitPages}
-                className="cursor-pointer bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow-md uppercase tracking-wider flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
+                className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shrink-0 transition-colors active:scale-95 whitespace-nowrap"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Auto-Add Pages</span>
+                <span>Auto-Split</span>
               </button>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Quick Action Export Bar when viewing paper */}
-        {(onDownloadPdf || onDownloadImage) && (
-          <div className="lg:hidden sticky bottom-2 left-0 right-0 px-3 z-20 pointer-events-auto mt-2">
-            <div
-              className={`p-2 rounded-xl border shadow-lg flex items-center justify-between gap-2 backdrop-blur-md ${
-                isLight ? 'bg-white/95 border-slate-300' : 'bg-[#18181f]/95 border-white/10'
-              }`}
-            >
-              {onDownloadPdf && (
-                <button
-                  type="button"
-                  onClick={onDownloadPdf}
-                  className="flex-1 cursor-pointer bg-[#6366f1] hover:bg-indigo-600 text-white font-mono-code font-bold py-2 px-2.5 rounded-lg text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download PDF ({totalPages}p)</span>
-                </button>
-              )}
-              {onDownloadImage && (
-                <button
-                  type="button"
-                  onClick={onDownloadImage}
-                  className={`cursor-pointer font-mono-code font-bold py-2 px-2.5 rounded-lg text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border active:scale-95 ${
-                    isLight
-                      ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
-                      : 'bg-[#1e1e24] hover:bg-[#282830] border-white/10 text-white'
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5 text-[#6366f1]" />
-                  <span>PNG</span>
-                </button>
-              )}
             </div>
           </div>
         )}

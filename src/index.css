@@ -1,13 +1,15 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 html {
   scroll-behavior: smooth;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root {
   --bg: #111113;
   --ink: #e4e4e7;
-  --ink-dim: rgba(228, 228, 231, 0.5);
+  --ink-dim: rgba(228, 228, 231, 0.55);
   --ink-faint: rgba(228, 228, 231, 0.1);
   --accent: #6366f1;
   --panel-bg: #18181b;
@@ -21,18 +23,24 @@ html.dark {
   color-scheme: dark;
 }
 
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 @layer utilities {
   /* Design system fonts */
-  .font-syne { font-family: 'Syne', sans-serif; }
-  .font-mono-code { font-family: 'JetBrains Mono', monospace; }
-
-  /* Monospace label class from design */
-  .label-mono {
+  .font-syne { font-family: 'Plus Jakarta Sans', 'Syne', sans-serif; }
+  .font-sans { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+  .font-mono-code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Tabular numerals */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Handwriting fonts */
@@ -52,7 +60,7 @@ html.dark {
 
 /* Paper textures and shadows */
 .paper-shadow-realistic {
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), 0 0 1px 1px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25), 0 0 1px 1px rgba(0, 0, 0, 0.08);
 }
 
 .paper-scanner-lighting {
@@ -108,4 +116,14 @@ html.dark {
 .animate-scroll-left:hover,
 .animate-scroll-right:hover {
   animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-scroll-left,
+  .animate-scroll-right {
+    animation: none;
+  }
 }

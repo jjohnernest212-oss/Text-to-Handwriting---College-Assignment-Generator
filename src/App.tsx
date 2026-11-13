@@ -43,13 +43,10 @@ import { loadCustomFontFile } from './utils/fontLoader';
 import {
   Edit3,
   Eye,
-  Plus,
-  PenTool,
   Maximize2,
   Minimize2,
-  ArrowDown,
-  ArrowUp,
-  Sparkles,
+  Ruler,
+  Download,
 } from 'lucide-react';
 
 export default function App() {
@@ -62,7 +59,7 @@ export default function App() {
   const [diagrams, setDiagrams] = useState<DiagramElement[]>([]);
 
   // View state: 'split' or 'full-paper' on desktop, 'editor' vs 'preview' on mobile
-  const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('preview');
+  const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
   const [isPaperExpanded, setIsPaperExpanded] = useState<boolean>(false);
 
   // Theme state: 'dark' (Night Mode) vs 'light' (Day Mode)
@@ -99,16 +96,6 @@ export default function App() {
   };
 
   // Smooth scroll tracking
-  const [isScrolledDown, setIsScrolledDown] = useState<boolean>(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolledDown(window.scrollY > 350);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
     if (el) {
@@ -306,17 +293,42 @@ export default function App() {
     }
   };
 
+  // Keyboard shortcut: Ctrl+S / Cmd+S for instant PDF download
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleDirectDownloadPdf();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [pages, settings, activeFontFamilyCss, diagrams, headerInfo]);
+
   const isLight = theme === 'light';
+
+  const toggleMarginGuides = () => {
+    setSettings((prev) => {
+      const nextValue = !prev.showMarginGuides;
+      showToast(
+        nextValue
+          ? 'Margin guides shown on paper preview'
+          : 'Margin guides hidden',
+        'info'
+      );
+      return { ...prev, showMarginGuides: nextValue };
+    });
+  };
 
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 selection:bg-[#6366f1]/30 ${
+      className={`min-h-screen flex flex-col font-sans pb-16 lg:pb-0 transition-colors duration-200 selection:bg-[#6366f1]/30 ${
         isLight
-          ? 'bg-slate-50 text-slate-800 selection:text-slate-900'
+          ? 'bg-slate-50 text-slate-900 selection:text-slate-900'
           : 'bg-[#0c0c0e] text-[#e4e4e7] selection:text-white'
       }`}
     >
-      {/* Header with Glassy Buttons, Theme Toggle, and Smooth Navigation */}
+      {/* Top Header */}
       <Header
         theme={theme}
         onToggleTheme={toggleTheme}
@@ -326,46 +338,93 @@ export default function App() {
         onScrollToSection={scrollToSection}
       />
 
-      {/* Mobile Navigation Switch (Clean & Non-disturbing) */}
-      <div
-        className={`flex lg:hidden p-2 border-b gap-2 shrink-0 z-20 transition-colors ${
-          isLight ? 'bg-slate-100 border-slate-200' : 'bg-[#121215] border-white/10'
+      {/* Smooth, Clear Front-Page Intro Strip */}
+      <section
+        className={`border-b px-4 sm:px-6 lg:px-8 py-5 sm:py-6 transition-colors ${
+          isLight
+            ? 'bg-white border-slate-200'
+            : 'bg-[#111115] border-white/10'
         }`}
       >
-        <button
-          onClick={() => setMobileTab('editor')}
-          className={`flex-1 min-h-[42px] py-2 px-3 font-mono-code text-xs uppercase tracking-wider font-semibold rounded-xl flex items-center justify-center gap-2 transition-all ${
-            mobileTab === 'editor'
-              ? 'bg-[#6366f1] text-white shadow-md shadow-indigo-950/40'
-              : isLight
-              ? 'text-slate-600 hover:text-slate-950 hover:bg-white'
-              : 'text-zinc-400 hover:text-white hover:bg-white/5'
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="max-w-2xl space-y-1.5">
+            <h1
+              className={`text-xl sm:text-2xl lg:text-[1.75rem] font-bold tracking-tight text-balance leading-snug ${
+                isLight ? 'text-slate-900' : 'text-white'
+              }`}
+            >
+              Turn typed notes into real handwritten pages.
+            </h1>
+            <p
+              className={`text-xs sm:text-sm leading-relaxed ${
+                isLight ? 'text-slate-600' : 'text-zinc-400'
+              }`}
+            >
+              Paste your text, pick a notebook sheet and pen color, align with optional margin guides, and download a print-ready PDF.
+            </p>
+          </div>
+
+          <div
+            className={`flex items-center gap-2 text-xs font-medium shrink-0 ${
+              isLight ? 'text-slate-500' : 'text-zinc-400'
+            }`}
+          >
+            <span>1. Paste text</span>
+            <span aria-hidden="true">·</span>
+            <span>2. Style paper</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-[#6366f1] font-semibold">3. Export PDF</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile Top Segmented Switcher */}
+      <div
+        className={`flex lg:hidden px-3 py-2.5 border-b gap-2 shrink-0 transition-colors ${
+          isLight ? 'bg-slate-100/80 border-slate-200' : 'bg-[#121216] border-white/10'
+        }`}
+      >
+        <div
+          className={`w-full grid grid-cols-2 p-1 rounded-xl border ${
+            isLight ? 'bg-white border-slate-200' : 'bg-[#1a1a20] border-white/10'
           }`}
         >
-          <Edit3 className="w-4 h-4" />
-          <span>Input &amp; Options</span>
-        </button>
-        <button
-          onClick={() => setMobileTab('preview')}
-          className={`flex-1 min-h-[42px] py-2 px-3 font-mono-code text-xs uppercase tracking-wider font-semibold rounded-xl flex items-center justify-center gap-2 transition-all ${
-            mobileTab === 'preview'
-              ? 'bg-[#6366f1] text-white shadow-md shadow-indigo-950/40'
-              : isLight
-              ? 'text-slate-600 hover:text-slate-950 hover:bg-white'
-              : 'text-zinc-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Eye className="w-4 h-4" />
-          <span>Paper Preview ({pages.length})</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('editor')}
+            className={`min-h-[40px] px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+              mobileTab === 'editor'
+                ? 'bg-[#6366f1] text-white shadow-xs'
+                : isLight
+                ? 'text-slate-600 hover:text-slate-900'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Write &amp; Settings</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('preview')}
+            className={`min-h-[40px] px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+              mobileTab === 'preview'
+                ? 'bg-[#6366f1] text-white shadow-xs'
+                : isLight
+                ? 'text-slate-600 hover:text-slate-900'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>Paper Preview ({pages.length})</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Spacious Workbench */}
-      <main id="workbench" className="flex-1 flex flex-col lg:flex-row min-h-[750px] lg:min-h-[840px]">
+      <main id="workbench" className="flex-1 flex flex-col lg:flex-row min-h-[700px] lg:min-h-[820px]">
         {/* Left Side: Assignment Input & Styling Workbench */}
-        {/* Left Side: Assignment Input & Styling Workbench (Saurabh Daware style unified panel) */}
         <section
-          className={`w-full lg:w-[480px] xl:w-[520px] 2xl:w-[560px] flex-shrink-0 border-r flex flex-col transition-colors ${
+          className={`w-full lg:w-[460px] xl:w-[500px] 2xl:w-[540px] flex-shrink-0 border-r flex flex-col transition-colors ${
             isLight ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/10'
           } ${isPaperExpanded ? 'hidden' : mobileTab === 'editor' ? 'flex' : 'hidden lg:flex'}`}
         >
@@ -410,30 +469,37 @@ export default function App() {
         >
           {/* Top Paper Header Strip */}
           <div
-            className={`flex items-center justify-between gap-3 border rounded-xl px-3 sm:px-4 py-2 text-xs font-mono-code transition-colors ${
+            className={`flex items-center justify-between gap-3 border rounded-2xl px-4 py-2.5 text-xs transition-colors ${
               isLight
-                ? 'bg-white border-slate-300 text-slate-800 shadow-2xs'
-                : 'bg-[#0c0c0e] border-white/10 text-zinc-300'
+                ? 'bg-white border-slate-200 text-slate-800'
+                : 'bg-[#141418] border-white/10 text-zinc-200'
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className={`font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                Real-Time Paper Output
+              <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                Live Paper Output
               </span>
-              <span className="text-zinc-400 hidden sm:inline">|</span>
-              <span className="text-[#6366f1] font-bold hidden sm:inline">
+              <span aria-hidden="true" className="opacity-40">·</span>
+              <span className="text-[#6366f1] font-semibold tabular-nums">
                 Page {safePageIndex + 1} of {pages.length}
               </span>
+              {settings.showMarginGuides && (
+                <>
+                  <span aria-hidden="true" className="opacity-40 hidden sm:inline">·</span>
+                  <span className="text-[11px] opacity-70 hidden sm:inline">
+                    Margin Guides On
+                  </span>
+                </>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setIsPaperExpanded(!isPaperExpanded)}
-                className={`cursor-pointer hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-colors ${
+                className={`cursor-pointer hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors ${
                   isLight
-                    ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
+                    ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
                     : 'bg-white/5 hover:bg-white/10 border-white/10 text-zinc-300 hover:text-white'
                 }`}
                 title={isPaperExpanded ? 'Restore Split View' : 'Maximize Paper to Full View'}
@@ -454,7 +520,7 @@ export default function App() {
           </div>
 
           {/* The Paper Preview Element */}
-          <div className="flex-1 min-h-[660px] relative">
+          <div className="flex-1 min-h-[580px] lg:min-h-[660px] relative">
             <PaperPreview
               theme={theme}
               pageIndex={safePageIndex}
@@ -477,60 +543,40 @@ export default function App() {
               onDownloadPdf={handleDirectDownloadPdf}
               onDownloadImage={handleDirectDownloadImage}
               onOpenPaperGallery={() => setIsPaperGalleryOpen(true)}
+              onToggleMarginGuides={toggleMarginGuides}
             />
           </div>
 
-          {/* Multi-page Navigation Strip */}
-          <div
-            className={`rounded-xl border p-2 sm:p-2.5 flex items-center justify-between gap-3 select-none transition-colors ${
-              isLight ? 'bg-white border-slate-300 shadow-2xs' : 'bg-[#0c0c0e] border-white/10'
-            }`}
-          >
-            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 font-mono-code scrollbar-thin">
-              {pages.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentPageIndex(idx)}
-                  className={`cursor-pointer px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all flex-shrink-0 ${
-                    idx === safePageIndex
-                      ? 'bg-[#6366f1] text-white shadow-sm ring-1 ring-indigo-400'
-                      : isLight
-                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                      : 'bg-[#18181b] text-zinc-400 hover:bg-[#222226] border border-white/5'
-                  }`}
-                  title={`Go to Page ${idx + 1}`}
-                >
-                  <span>PAGE {idx + 1}</span>
-                  {diagrams.some((d) => d.pageIndex === idx) && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  )}
-                </button>
-              ))}
+          {/* Clean Multi-page Navigation Bar (Shown when multi-page assignment) */}
+          {pages.length > 1 && (
+            <div
+              className={`rounded-xl border p-2 flex items-center justify-center gap-2 select-none transition-colors ${
+                isLight ? 'bg-white border-slate-300 shadow-2xs' : 'bg-[#0c0c0e] border-white/10'
+              }`}
+            >
+              <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 font-mono-code scrollbar-thin">
+                {pages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentPageIndex(idx)}
+                    className={`cursor-pointer px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all flex-shrink-0 ${
+                      idx === safePageIndex
+                        ? 'bg-[#6366f1] text-white shadow-sm ring-1 ring-indigo-400'
+                        : isLight
+                        ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                        : 'bg-[#18181b] text-zinc-400 hover:bg-[#222226] border border-white/5'
+                    }`}
+                    title={`Switch to Page ${idx + 1}`}
+                  >
+                    <span>PAGE {idx + 1}</span>
+                    {diagrams.some((d) => d.pageIndex === idx) && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
-
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                type="button"
-                onClick={handleAutoSplitPages}
-                className="cursor-pointer px-3 py-1.5 text-xs font-mono-code font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-1.5 transition-all shadow-sm uppercase tracking-wider active:scale-95"
-                title="Automatically calculate total words and divide into required pages"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Auto-Split Pages</span>
-                <span className="sm:hidden">Auto-Split</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleAddPage}
-                className="cursor-pointer px-3.5 py-1.5 text-xs font-mono-code font-bold bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-lg flex items-center gap-1.5 transition-all shadow-sm uppercase tracking-wider active:scale-95"
-                title="Add unlimited assignment pages"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>+ Add Page</span>
-              </button>
-            </div>
-          </div>
+          )}
         </section>
       </main>
 
@@ -615,39 +661,6 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Floating Smooth Scroll Navigation Pill */}
-      <div className="fixed bottom-6 left-6 z-40 hidden sm:flex items-center gap-2">
-        {isScrolledDown ? (
-          <button
-            type="button"
-            onClick={() => scrollToSection('workbench')}
-            className={`cursor-pointer backdrop-blur-md px-3.5 py-2 rounded-full text-xs font-mono-code shadow-xl flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 border ${
-              isLight
-                ? 'bg-white/95 text-slate-800 border-slate-300 hover:bg-slate-100 shadow-slate-300'
-                : 'bg-slate-900/90 text-white border-white/20 hover:bg-slate-900 shadow-black'
-            }`}
-            title="Scroll back to top of editor"
-          >
-            <ArrowUp className="w-3.5 h-3.5 text-indigo-500" />
-            <span className="font-semibold">Top of Editor ↑</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => scrollToSection('student-reviews')}
-            className={`cursor-pointer backdrop-blur-md px-3.5 py-2 rounded-full text-xs font-mono-code shadow-xl flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 border ${
-              isLight
-                ? 'bg-white/95 text-slate-800 border-slate-300 hover:bg-slate-100 shadow-slate-300'
-                : 'bg-slate-900/90 text-white border-white/20 hover:bg-slate-900 shadow-black'
-            }`}
-            title="Scroll down to real student reviews & footer"
-          >
-            <ArrowDown className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="font-semibold">Student Reviews &amp; Footer ↓</span>
-          </button>
-        )}
-      </div>
-
       {/* Modals */}
       <DiagramModal
         isOpen={isDiagramModalOpen}
@@ -704,18 +717,76 @@ export default function App() {
         }}
       />
 
+      {/* Unified Mobile Thumb-Zone Bottom Bar (<= 15% sticky height cap) */}
+      <nav
+        aria-label="Mobile quick navigation"
+        className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 h-[60px] px-2 border-t backdrop-blur-md grid grid-cols-4 items-center gap-1 ${
+          isLight
+            ? 'bg-white/95 border-slate-200 text-slate-700'
+            : 'bg-[#111115]/95 border-white/10 text-zinc-300'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => setMobileTab('editor')}
+          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-colors cursor-pointer ${
+            mobileTab === 'editor'
+              ? 'text-[#6366f1] font-semibold'
+              : 'opacity-75 hover:opacity-100'
+          }`}
+        >
+          <Edit3 className="w-5 h-5" />
+          <span className="text-[10px] mt-0.5 leading-none">Write</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMobileTab('preview')}
+          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-colors cursor-pointer ${
+            mobileTab === 'preview'
+              ? 'text-[#6366f1] font-semibold'
+              : 'opacity-75 hover:opacity-100'
+          }`}
+        >
+          <Eye className="w-5 h-5" />
+          <span className="text-[10px] mt-0.5 leading-none">Paper ({pages.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            toggleMarginGuides();
+            if (mobileTab !== 'preview') {
+              setMobileTab('preview');
+            }
+          }}
+          aria-pressed={settings.showMarginGuides}
+          className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-colors cursor-pointer ${
+            settings.showMarginGuides
+              ? 'text-[#6366f1] font-semibold'
+              : 'opacity-75 hover:opacity-100'
+          }`}
+        >
+          <Ruler className="w-5 h-5" />
+          <span className="text-[10px] mt-0.5 leading-none">Guides</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleDirectDownloadPdf}
+          disabled={isExporting}
+          className="min-h-[44px] mx-1 rounded-xl bg-[#6366f1] hover:bg-indigo-600 disabled:opacity-50 text-white flex flex-col items-center justify-center transition-colors cursor-pointer active:scale-95"
+        >
+          <Download className="w-4 h-4" />
+          <span className="text-[10px] font-semibold mt-0.5 leading-none">
+            {isExporting ? 'Saving...' : 'PDF'}
+          </span>
+        </button>
+      </nav>
+
       {/* Floating System Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl font-mono-code text-xs shadow-2xl border animate-in slide-in-from-bottom-3 duration-200 bg-[#18181b] border-white/10 text-white">
-          <span
-            className={`w-2 h-2 rounded-full ${
-              toast.type === 'success'
-                ? 'bg-emerald-400'
-                : toast.type === 'error'
-                ? 'bg-rose-400'
-                : 'bg-[#6366f1]'
-            }`}
-          />
+        <div className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium shadow-xl border bg-[#18181b] border-white/10 text-white">
           <span>{toast.message}</span>
         </div>
       )}

@@ -83,10 +83,24 @@ export function wrapParagraphToLines(paragraph: string, maxCharsPerLine: number 
 }
 
 /**
+ * Normalizes text glyphs for handwriting rendering consistency across all browsers
+ */
+export function normalizeScriptText(input: string): string {
+  if (!input) return '';
+  return input
+    .replace(/[\u2018\u2019]/g, "'") // smart single quotes
+    .replace(/[\u201C\u201D]/g, '"') // smart double quotes
+    .replace(/[\u2013\u2014]/g, '-') // em / en dashes
+    .replace(/\r\n/g, '\n') // normalize CRLF
+    .replace(/\t/g, '    '); // tab to 4 spaces
+}
+
+/**
  * Format raw text into an array of wrapped lines as it will actually render on ruled paper.
  */
 export function formatTextToPaperLines(text: string, maxCharsPerLine: number = 65): string[] {
-  const rawParagraphs = text.split('\n');
+  const normalized = normalizeScriptText(text);
+  const rawParagraphs = normalized.split('\n');
   const allLines: string[] = [];
 
   for (const para of rawParagraphs) {

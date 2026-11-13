@@ -77,6 +77,7 @@ export interface PageSettings {
   rightMargin: number; // in px
   bottomMargin: number; // in px
   showMarginLine: boolean;
+  showMarginGuides: boolean; // optional faint visual markers on preview area for aligning text and diagrams
   marginLinePosition: number; // in px from left
   marginLineColor: string;
   paperEffect: PaperEffect;
