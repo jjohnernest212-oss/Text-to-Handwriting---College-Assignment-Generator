@@ -101,3 +101,22 @@ export interface AssignmentPreset {
   recommendedInk: string;
   recommendedPaper: PaperType;
 }
+
+export type AppPage =
+  | 'home'
+  | 'editor'
+  | 'features'
+  | 'styles'
+  | 'papers'
+  | 'tools'
+  | 'pricing'
+  | 'faq';
+
+export type ToolSlug =
+  | 'text-to-handwriting'
+  | 'handwritten-notes'
+  | 'cursive-handwriting-generator'
+  | 'assignment-formatting'
+  | 'long-document-conversion'
+  | 'pdf-to-handwriting'
+  | 'handwriting-worksheets';

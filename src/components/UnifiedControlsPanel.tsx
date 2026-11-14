@@ -54,7 +54,9 @@ interface UnifiedControlsPanelProps {
   exportProgress?: { currentPage: number; totalPages: number; status: string } | null;
   onNotify?: (message: string, type: 'success' | 'error' | 'info') => void;
   onSwitchToPreviewMobile?: () => void;
+  onGenerateHandwriting?: () => void;
   onOpenPaperGallery?: () => void;
+  onOpenStylesGallery?: () => void;
 }
 
 export default function UnifiedControlsPanel({
@@ -79,7 +81,10 @@ export default function UnifiedControlsPanel({
   isExporting = false,
   exportProgress = null,
   onNotify,
+  onSwitchToPreviewMobile,
+  onGenerateHandwriting,
   onOpenPaperGallery,
+  onOpenStylesGallery,
 }: UnifiedControlsPanelProps) {
   const isLight = theme === 'light';
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -415,16 +420,27 @@ export default function UnifiedControlsPanel({
 
           {/* Font Selector */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center justify-between gap-2 mb-1.5">
               <label className="text-xs font-semibold opacity-85">Handwriting Style</label>
-              <button
-                type="button"
-                onClick={() => fontFileInputRef.current?.click()}
-                className="cursor-pointer text-xs text-[#6366f1] hover:underline font-semibold flex items-center gap-1"
-              >
-                <Upload className="w-3 h-3" />
-                <span>Upload Font</span>
-              </button>
+              <div className="flex items-center gap-3">
+                {onOpenStylesGallery && (
+                  <button
+                    type="button"
+                    onClick={onOpenStylesGallery}
+                    className="cursor-pointer text-xs text-[#6366f1] hover:underline font-semibold"
+                  >
+                    Browse Styles ↗
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => fontFileInputRef.current?.click()}
+                  className="cursor-pointer text-xs text-[#6366f1] hover:underline font-semibold flex items-center gap-1"
+                >
+                  <Upload className="w-3 h-3" />
+                  <span>Upload Font</span>
+                </button>
+              </div>
               <input
                 ref={fontFileInputRef}
                 type="file"
@@ -720,7 +736,7 @@ export default function UnifiedControlsPanel({
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="w-4 h-4 text-[#6366f1]" />
               <span className="text-xs font-semibold">
-                Fine-Tune Margins, Jitter &amp; Diagrams
+                Advanced settings
               </span>
             </div>
             {showAdvanced ? (
@@ -958,6 +974,22 @@ export default function UnifiedControlsPanel({
             </div>
           )}
         </section>
+
+        {/* Prominent Generate Handwriting CTA */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onGenerateHandwriting) {
+              onGenerateHandwriting();
+            } else {
+              onSwitchToPreviewMobile?.();
+            }
+          }}
+          className="cursor-pointer w-full min-h-[48px] bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-xs active:scale-[0.99] text-sm"
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>Generate Handwriting</span>
+        </button>
       </div>
 
       {/* Desktop Sticky Export Bar (Mobile uses unified thumb bar at bottom of screen) */}

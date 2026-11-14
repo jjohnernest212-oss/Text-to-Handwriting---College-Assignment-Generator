@@ -44,7 +44,7 @@ export default function PolicyModal({ isOpen, onClose, type }: PolicyModalProps)
               <div className="space-y-2">
                 <h4 className="font-bold text-white uppercase text-[11px] font-mono-code">1. Information We Process</h4>
                 <p>
-                  Text to Handwriting processes your homework text, font files, and diagram drawings exclusively in your local browser memory (DOM and Canvas). No user text or uploaded files are sent to external cloud servers.
+                  Human Handwriting AI processes your notes, assignments, font files, and diagram drawings exclusively in your local browser memory (DOM and Canvas). No user text or uploaded files are sent to external cloud servers.
                 </p>
               </div>
               <div className="space-y-2">
@@ -71,7 +71,7 @@ export default function PolicyModal({ isOpen, onClose, type }: PolicyModalProps)
               <div className="space-y-2">
                 <h4 className="font-bold text-white uppercase text-[11px] font-mono-code">1. Acceptance of Terms</h4>
                 <p>
-                  By using Text to Handwriting, you agree that you are using this educational utility for learning, homework drafting, and creative handwriting simulation.
+                  By using Human Handwriting AI, you agree that you are using this educational utility for learning, note drafting, and creative handwriting simulation.
                 </p>
               </div>
               <div className="space-y-2">
@@ -92,7 +92,7 @@ export default function PolicyModal({ isOpen, onClose, type }: PolicyModalProps)
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-white/10 bg-[#16161b] flex items-center justify-between font-mono-code text-[11px]">
-          <span className="text-zinc-500">TEXT TO HANDWRITING // PLENTY</span>
+          <span className="text-zinc-500">HUMAN HANDWRITING AI // PLENTY</span>
           <button
             onClick={onClose}
             className="cursor-pointer px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold transition-colors uppercase"
