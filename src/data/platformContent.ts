@@ -574,9 +574,9 @@ export const GENERAL_FAQS: { category: string; q: string; a: string }[] = [
     a: 'No. Everything runs 100% locally in your browser using HTML5 Canvas and jsPDF. Your typed notes, uploaded .txt/.md files, custom fonts, and exported PDFs never leave your device.',
   },
   {
-    category: 'Pricing & Limits',
+    category: 'Free & Tipping',
     q: 'Is Human Handwriting AI really free without watermarks?',
-    a: 'Yes. Every built-in handwriting style, all 23 paper templates, margin guides, and high-DPI PDF/PNG exports are free with no watermarks or account wall. Optional tips via UPI or Bitcoin help support ongoing maintenance.',
+    a: 'Yes. Every built-in handwriting style, all 23 paper templates, margin guides, and high-DPI PDF/PNG exports are free with no watermarks or account wall. Happy users can optionally tip Plenty a coffee via UPI or Bitcoin.',
   },
   {
     category: 'Handwriting & Fonts',

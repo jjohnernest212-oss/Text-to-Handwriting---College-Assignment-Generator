@@ -1,36 +1,24 @@
 import React from 'react';
+import { Coffee } from 'lucide-react';
 import { AppPage } from '../types';
 import AppLogo from './AppLogo';
 
 interface FooterProps {
-  theme: 'dark' | 'light';
   onNavigate: (page: AppPage) => void;
   onOpenPolicy: (type: 'privacy' | 'terms') => void;
   onOpenBuyCoffee: () => void;
 }
 
 export default function Footer({
-  theme,
   onNavigate,
   onOpenPolicy,
   onOpenBuyCoffee,
 }: FooterProps) {
-  const isLight = theme === 'light';
-
-  const linkClass = `cursor-pointer text-sm transition-colors text-left ${
-    isLight
-      ? 'text-slate-600 hover:text-slate-900'
-      : 'text-zinc-400 hover:text-white'
-  }`;
+  const linkClass =
+    'cursor-pointer text-sm text-[#57534e] hover:text-[#18181b] transition-colors text-left';
 
   return (
-    <footer
-      className={`border-t transition-colors ${
-        isLight
-          ? 'bg-white border-slate-200 text-slate-700'
-          : 'bg-[#0b0c10] border-white/10 text-zinc-300'
-      }`}
-    >
+    <footer className="border-t border-[#e5dfd2] bg-white text-[#44403c]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
           {/* Brand Column */}
@@ -40,24 +28,16 @@ export default function Footer({
               onClick={() => onNavigate('home')}
               className="cursor-pointer flex items-center gap-2.5 text-left"
             >
-              <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
-                <AppLogo size={18} className="text-white" />
+              <span className="w-9 h-9 rounded-xl bg-[#18181b] text-[#faf7f0] flex items-center justify-center shrink-0">
+                <AppLogo size={24} variant="brand" />
               </span>
-              <span
-                className={`text-base font-bold tracking-tight ${
-                  isLight ? 'text-slate-900' : 'text-white'
-                }`}
-              >
+              <span className="text-base font-bold tracking-tight text-[#18181b]">
                 Human Handwriting AI
               </span>
             </button>
 
-            <p
-              className={`text-sm leading-relaxed max-w-sm ${
-                isLight ? 'text-slate-600' : 'text-zinc-400'
-              }`}
-            >
-              Turn typed notes, essays, and study sheets into realistic handwritten A4 pages directly in your browser. Free, private, and watermark-free.
+            <p className="text-sm leading-relaxed max-w-sm text-[#57534e]">
+              100% free browser-based handwriting generator with instant rendering, 19 scripts, 23 notebook papers, and watermark-free A4 PDF export. If you love the speed, you can tip Plenty anytime.
             </p>
 
             <div className="flex items-center gap-3 pt-1 flex-wrap">
@@ -65,11 +45,7 @@ export default function Footer({
                 href="https://github.com/plenty"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold border transition-colors ${
-                  isLight
-                    ? 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900'
-                    : 'bg-white/10 hover:bg-white/15 text-white border-white/15'
-                }`}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-white transition-colors"
               >
                 <svg
                   width="14"
@@ -90,24 +66,17 @@ export default function Footer({
               <button
                 type="button"
                 onClick={onOpenBuyCoffee}
-                className={`cursor-pointer px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors ${
-                  isLight
-                    ? 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-900'
-                    : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-400/25 text-amber-200'
-                }`}
+                className="cursor-pointer px-4 py-2 rounded-xl text-xs font-semibold border border-[#e6d5a3] bg-[#fbf5e3] hover:bg-[#f6ebd0] text-[#6b4f0b] inline-flex items-center gap-1.5 transition-colors"
               >
-                Support / Tip Plenty (UPI &amp; Bitcoin)
+                <Coffee className="w-3.5 h-3.5" />
+                <span>Buy Plenty a Coffee (UPI &amp; Bitcoin)</span>
               </button>
             </div>
           </div>
 
           {/* Product Column */}
           <div className="md:col-span-2 space-y-3">
-            <h3
-              className={`text-xs font-semibold uppercase tracking-wider ${
-                isLight ? 'text-slate-900' : 'text-white'
-              }`}
-            >
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#18181b]">
               Product
             </h3>
             <ul className="space-y-2.5 flex flex-col items-start">
@@ -136,11 +105,7 @@ export default function Footer({
 
           {/* Resources Column */}
           <div className="md:col-span-2 space-y-3">
-            <h3
-              className={`text-xs font-semibold uppercase tracking-wider ${
-                isLight ? 'text-slate-900' : 'text-white'
-              }`}
-            >
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#18181b]">
               Resources
             </h3>
             <ul className="space-y-2.5 flex flex-col items-start">
@@ -150,8 +115,8 @@ export default function Footer({
                 </button>
               </li>
               <li>
-                <button type="button" onClick={() => onNavigate('pricing')} className={linkClass}>
-                  Pricing &amp; Support
+                <button type="button" onClick={onOpenBuyCoffee} className={linkClass}>
+                  Tip / Buy Coffee
                 </button>
               </li>
               <li>
@@ -162,13 +127,9 @@ export default function Footer({
             </ul>
           </div>
 
-          {/* Legal & Privacy Column */}
+          {/* Privacy & Support Column */}
           <div className="md:col-span-3 space-y-3">
-            <h3
-              className={`text-xs font-semibold uppercase tracking-wider ${
-                isLight ? 'text-slate-900' : 'text-white'
-              }`}
-            >
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#18181b]">
               Privacy &amp; Contact
             </h3>
             <ul className="space-y-2.5 flex flex-col items-start">
@@ -204,13 +165,9 @@ export default function Footer({
           </div>
         </div>
 
-        <div
-          className={`mt-10 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs ${
-            isLight ? 'border-slate-200 text-slate-500' : 'border-white/10 text-zinc-500'
-          }`}
-        >
+        <div className="mt-10 pt-6 border-t border-[#e5dfd2] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#78716c]">
           <span>&copy; 2026 Human Handwriting AI · Created by Plenty.</span>
-          <span>100% Browser Processing · Zero Server Uploads</span>
+          <span>100% Free &amp; Local in Browser · Zero Server Uploads</span>
         </div>
       </div>
     </footer>

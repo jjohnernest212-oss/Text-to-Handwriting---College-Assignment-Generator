@@ -109,7 +109,6 @@ export type AppPage =
   | 'styles'
   | 'papers'
   | 'tools'
-  | 'pricing'
   | 'faq';
 
 export type ToolSlug =

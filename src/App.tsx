@@ -11,7 +11,6 @@ import FeaturesView from './components/views/FeaturesView';
 import StylesGalleryView from './components/views/StylesGalleryView';
 import PaperTemplatesView from './components/views/PaperTemplatesView';
 import ToolsView from './components/views/ToolsView';
-import PricingView from './components/views/PricingView';
 import FaqView from './components/views/FaqView';
 import PaperPreview from './components/PaperPreview';
 import UnifiedControlsPanel from './components/UnifiedControlsPanel';
@@ -68,7 +67,6 @@ const VALID_PAGES: AppPage[] = [
   'styles',
   'papers',
   'tools',
-  'pricing',
   'faq',
 ];
 
@@ -93,6 +91,9 @@ function parseHashRoute(): { page: AppPage; toolSlug: ToolSlug | null } {
 }
 
 export default function App() {
+  // Always crisp warm light editorial canvas (no dark mode toggle)
+  const theme: 'light' = 'light';
+
   // Multi-page navigation synced with URL hash
   const initialRoute = useMemo(() => parseHashRoute(), []);
   const [currentPage, setCurrentPage] = useState<AppPage>(initialRoute.page);
@@ -114,43 +115,10 @@ export default function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
   const [isPaperExpanded, setIsPaperExpanded] = useState<boolean>(false);
 
-  // Theme state: defaults to 'light' for crisp SaaS look, supports full dark mode switch
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    try {
-      const saved = localStorage.getItem('app-theme');
-      if (saved === 'light' || saved === 'dark') return saved;
-    } catch {
-      // Ignore localStorage restrictions
-    }
-    return 'light';
-  });
-
   useEffect(() => {
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.remove('dark');
-    } else {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    }
-
-    const themeMeta = document.querySelector('meta[name="theme-color"]');
-    if (themeMeta) {
-      themeMeta.setAttribute('content', theme === 'light' ? '#f8fafc' : '#0c0c0e');
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      try {
-        localStorage.setItem('app-theme', next);
-      } catch {
-        // Ignore
-      }
-      return next;
-    });
-  };
+    document.documentElement.classList.add('light');
+    document.documentElement.classList.remove('dark');
+  }, []);
 
   // Sync URL hash <-> navigation
   const navigateTo = useCallback(
@@ -502,8 +470,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentPage, pages, settings, activeFontFamilyCss, diagrams, headerInfo]);
 
-  const isLight = theme === 'light';
-
   const toggleMarginGuides = () => {
     setSettings((prev) => {
       const nextValue = !prev.showMarginGuides;
@@ -519,27 +485,20 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 selection:bg-indigo-500/25 ${
+      className={`min-h-screen flex flex-col font-sans bg-[#faf7f0] text-[#18181b] selection:bg-[#a68426]/20 selection:text-[#18181b] ${
         currentPage === 'editor' ? 'pb-16 lg:pb-0' : ''
-      } ${
-        isLight
-          ? 'bg-slate-50 text-slate-900 selection:text-slate-900'
-          : 'bg-[#0c0c0e] text-[#e4e4e7] selection:text-white'
       }`}
     >
-      {/* Top SaaS Navigation Bar */}
+      {/* Top SaaS Navigation Bar (No Dark Mode Toggle, No Pricing Link) */}
       <Navbar
         currentPage={currentPage}
-        theme={theme}
         onNavigate={(page) => navigateTo(page, null)}
-        onToggleTheme={toggleTheme}
       />
 
       {/* Page Router Outlet */}
       <main className="flex-1 flex flex-col">
         {currentPage === 'home' && (
           <HomeView
-            theme={theme}
             onNavigate={(page) => navigateTo(page, null)}
             onStartWithSetup={handleStartWithSetup}
             onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
@@ -581,14 +540,6 @@ export default function App() {
           />
         )}
 
-        {currentPage === 'pricing' && (
-          <PricingView
-            theme={theme}
-            onNavigate={(page) => navigateTo(page, null)}
-            onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
-          />
-        )}
-
         {currentPage === 'faq' && (
           <FaqView
             theme={theme}
@@ -602,29 +553,15 @@ export default function App() {
         {currentPage === 'editor' && (
           <div className="flex-1 flex flex-col">
             {/* Mobile Top Segmented Switcher */}
-            <div
-              className={`flex lg:hidden px-3 py-2.5 border-b gap-2 shrink-0 transition-colors ${
-                isLight
-                  ? 'bg-slate-100/80 border-slate-200'
-                  : 'bg-[#121216] border-white/10'
-              }`}
-            >
-              <div
-                className={`w-full grid grid-cols-2 p-1 rounded-xl border ${
-                  isLight
-                    ? 'bg-white border-slate-200'
-                    : 'bg-[#1a1a20] border-white/10'
-                }`}
-              >
+            <div className="flex lg:hidden px-3 py-2.5 border-b border-[#e5dfd2] bg-[#f4efe6] gap-2 shrink-0">
+              <div className="w-full grid grid-cols-2 p-1 rounded-xl border border-[#e2ddd0] bg-white">
                 <button
                   type="button"
                   onClick={() => setMobileTab('editor')}
                   className={`min-h-[40px] px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                     mobileTab === 'editor'
-                      ? 'bg-[#6366f1] text-white shadow-xs'
-                      : isLight
-                      ? 'text-slate-600 hover:text-slate-900'
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-[#18181b] text-[#faf7f0] shadow-xs'
+                      : 'text-[#57534e] hover:text-[#18181b]'
                   }`}
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -635,10 +572,8 @@ export default function App() {
                   onClick={() => setMobileTab('preview')}
                   className={`min-h-[40px] px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                     mobileTab === 'preview'
-                      ? 'bg-[#6366f1] text-white shadow-xs'
-                      : isLight
-                      ? 'text-slate-600 hover:text-slate-900'
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-[#18181b] text-[#faf7f0] shadow-xs'
+                      : 'text-[#57534e] hover:text-[#18181b]'
                   }`}
                 >
                   <Eye className="w-3.5 h-3.5" />
@@ -654,11 +589,7 @@ export default function App() {
             >
               {/* Left Side: Input & Settings */}
               <section
-                className={`w-full lg:w-[460px] xl:w-[500px] 2xl:w-[540px] shrink-0 border-r flex flex-col transition-colors ${
-                  isLight
-                    ? 'bg-white border-slate-200'
-                    : 'bg-[#0e0e12] border-white/10'
-                } ${
+                className={`w-full lg:w-[460px] xl:w-[500px] 2xl:w-[540px] shrink-0 border-r border-[#e5dfd2] bg-white flex flex-col ${
                   isPaperExpanded
                     ? 'hidden'
                     : mobileTab === 'editor'
@@ -703,30 +634,18 @@ export default function App() {
 
               {/* Right Side: Large Live Handwritten Paper Preview */}
               <section
-                className={`flex-1 min-w-0 flex flex-col min-h-0 p-3 sm:p-5 gap-3 transition-colors ${
-                  isLight ? 'bg-slate-100' : 'bg-[#121216]'
-                } ${mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'}`}
+                className={`flex-1 min-w-0 flex flex-col min-h-0 p-3 sm:p-5 gap-3 bg-[#f3efe6] ${
+                  mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'
+                }`}
               >
                 {/* Top Paper Header Strip */}
-                <div
-                  className={`flex items-center justify-between gap-3 border rounded-2xl px-4 py-2.5 text-xs transition-colors ${
-                    isLight
-                      ? 'bg-white border-slate-200 text-slate-800'
-                      : 'bg-[#141418] border-white/10 text-zinc-200'
-                  }`}
-                >
+                <div className="flex items-center justify-between gap-3 border border-[#e2ddd0] bg-white text-[#18181b] rounded-2xl px-4 py-2.5 text-xs">
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`font-semibold ${
-                        isLight ? 'text-slate-900' : 'text-white'
-                      }`}
-                    >
-                      Live Paper Output
-                    </span>
+                    <span className="font-semibold">Live Paper Output</span>
                     <span aria-hidden="true" className="opacity-40">
                       ·
                     </span>
-                    <span className="text-[#6366f1] font-semibold tabular-nums">
+                    <span className="text-[#856514] font-semibold tabular-nums">
                       Page {safePageIndex + 1} of {pages.length}
                     </span>
                     {settings.showMarginGuides && (
@@ -737,7 +656,7 @@ export default function App() {
                         >
                           ·
                         </span>
-                        <span className="text-[11px] opacity-70 hidden sm:inline">
+                        <span className="text-[11px] text-[#57534e] hidden sm:inline">
                           Margin Guides On
                         </span>
                       </>
@@ -748,11 +667,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => setIsPaperExpanded(!isPaperExpanded)}
-                      className={`cursor-pointer hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors ${
-                        isLight
-                          ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                          : 'bg-white/5 hover:bg-white/10 border-white/10 text-zinc-300 hover:text-white'
-                      }`}
+                      className="cursor-pointer hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#e2ddd0] bg-[#faf7f0] hover:bg-[#f1eadc] text-[#44403c] text-xs font-medium transition-colors"
                       title={
                         isPaperExpanded
                           ? 'Restore Split View'
@@ -804,13 +719,7 @@ export default function App() {
 
                 {/* Clean Multi-page Navigation Bar */}
                 {pages.length > 1 && (
-                  <div
-                    className={`rounded-xl border p-2 flex items-center justify-center gap-2 select-none transition-colors ${
-                      isLight
-                        ? 'bg-white border-slate-300 shadow-2xs'
-                        : 'bg-[#0c0c0e] border-white/10'
-                    }`}
-                  >
+                  <div className="rounded-xl border border-[#e2ddd0] bg-white p-2 flex items-center justify-center gap-2 select-none">
                     <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 font-mono-code scrollbar-thin">
                       {pages.map((_, idx) => (
                         <button
@@ -819,16 +728,14 @@ export default function App() {
                           onClick={() => setCurrentPageIndex(idx)}
                           className={`cursor-pointer px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 ${
                             idx === safePageIndex
-                              ? 'bg-[#6366f1] text-white shadow-sm ring-1 ring-indigo-400'
-                              : isLight
-                              ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                              : 'bg-[#18181b] text-zinc-400 hover:bg-[#222226] border border-white/5'
+                              ? 'bg-[#18181b] text-[#faf7f0] shadow-xs'
+                              : 'bg-[#f4efe6] text-[#44403c] hover:bg-[#eae2d3] border border-[#e2ddd0]'
                           }`}
                           title={`Switch to Page ${idx + 1}`}
                         >
                           <span>PAGE {idx + 1}</span>
                           {diagrams.some((d) => d.pageIndex === idx) && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                           )}
                         </button>
                       ))}
@@ -843,7 +750,6 @@ export default function App() {
 
       {/* Quiet Unified Footer */}
       <Footer
-        theme={theme}
         onNavigate={(page) => navigateTo(page, null)}
         onOpenPolicy={(type) => setPolicyModalType(type)}
         onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
@@ -901,19 +807,15 @@ export default function App() {
       {currentPage === 'editor' && (
         <nav
           aria-label="Mobile editor quick navigation"
-          className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 h-[60px] px-2 border-t backdrop-blur-md grid grid-cols-4 items-center gap-1 ${
-            isLight
-              ? 'bg-white/95 border-slate-200 text-slate-700'
-              : 'bg-[#111115]/95 border-white/10 text-zinc-300'
-          }`}
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-[60px] px-2 border-t border-[#e5dfd2] bg-white/95 text-[#44403c] backdrop-blur-md grid grid-cols-4 items-center gap-1"
         >
           <button
             type="button"
             onClick={() => setMobileTab('editor')}
             className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-colors cursor-pointer ${
               mobileTab === 'editor'
-                ? 'text-[#6366f1] font-semibold'
-                : 'opacity-75 hover:opacity-100'
+                ? 'text-[#18181b] font-semibold'
+                : 'opacity-70 hover:opacity-100'
             }`}
           >
             <Edit3 className="w-5 h-5" />
@@ -925,8 +827,8 @@ export default function App() {
             onClick={() => setMobileTab('preview')}
             className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-colors cursor-pointer ${
               mobileTab === 'preview'
-                ? 'text-[#6366f1] font-semibold'
-                : 'opacity-75 hover:opacity-100'
+                ? 'text-[#18181b] font-semibold'
+                : 'opacity-70 hover:opacity-100'
             }`}
           >
             <Eye className="w-5 h-5" />
@@ -946,8 +848,8 @@ export default function App() {
             aria-pressed={settings.showMarginGuides}
             className={`min-h-[44px] flex flex-col items-center justify-center rounded-xl transition-colors cursor-pointer ${
               settings.showMarginGuides
-                ? 'text-[#6366f1] font-semibold'
-                : 'opacity-75 hover:opacity-100'
+                ? 'text-[#856514] font-semibold'
+                : 'opacity-70 hover:opacity-100'
             }`}
           >
             <Ruler className="w-5 h-5" />
@@ -958,7 +860,7 @@ export default function App() {
             type="button"
             onClick={handleDirectDownloadPdf}
             disabled={isExporting}
-            className="min-h-[44px] mx-1 rounded-xl bg-[#6366f1] hover:bg-indigo-600 disabled:opacity-50 text-white flex flex-col items-center justify-center transition-colors cursor-pointer active:scale-95"
+            className="min-h-[44px] mx-1 rounded-xl bg-[#18181b] hover:bg-[#27272a] disabled:opacity-50 text-[#faf7f0] flex flex-col items-center justify-center transition-colors cursor-pointer active:scale-95"
           >
             <Download className="w-4 h-4" />
             <span className="text-[10px] font-semibold mt-0.5 leading-none">
@@ -971,7 +873,7 @@ export default function App() {
       {/* Floating System Toast */}
       {toast && (
         <div
-          className={`fixed right-4 lg:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium shadow-xl border bg-[#18181b] border-white/10 text-white ${
+          className={`fixed right-4 lg:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium shadow-xl border bg-[#18181b] border-black/15 text-[#faf7f0] ${
             currentPage === 'editor' ? 'bottom-20 lg:bottom-6' : 'bottom-6'
           }`}
         >
