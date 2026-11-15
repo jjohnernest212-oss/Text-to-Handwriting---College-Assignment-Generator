@@ -296,7 +296,7 @@ export const FEATURE_CATEGORIES: FeatureCategory[] = [
     code: 'F',
     title: 'Export and Download',
     summary:
-      'Generate crisp, watermark-free A4 documents locally using high-DPI Canvas rendering and jsPDF.',
+      'Generate crisp, print-ready A4 documents locally using high-DPI Canvas rendering and jsPDF.',
     targetPage: 'editor',
     ctaLabel: 'Create & Export PDF',
     items: [
@@ -575,8 +575,8 @@ export const GENERAL_FAQS: { category: string; q: string; a: string }[] = [
   },
   {
     category: 'Free & Tipping',
-    q: 'Is Human Handwriting AI really free without watermarks?',
-    a: 'Yes. Every built-in handwriting style, all 23 paper templates, margin guides, and high-DPI PDF/PNG exports are free with no watermarks or account wall. Happy users can optionally tip Plenty a coffee via UPI or Bitcoin.',
+    q: 'Is Human Handwriting AI really free to print and export?',
+    a: 'Yes. Every built-in SIL-licensed handwriting script, all 23 procedural paper rulings, margin guides, and high-DPI PDF/PNG exports are free with no paywalls or account wall. Happy users can optionally tip Plenty a coffee via UPI or Bitcoin.',
   },
   {
     category: 'Handwriting & Fonts',

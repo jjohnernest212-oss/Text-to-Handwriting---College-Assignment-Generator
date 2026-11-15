@@ -238,12 +238,12 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto select-none">
-      <div className="bg-[#0c0c0e] rounded-2xl shadow-2xl border border-white/10 max-w-lg w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-4 max-h-[95vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1B18]/45 p-3 sm:p-4 overflow-y-auto select-none">
+      <div className="bg-[#FFFDF8] text-[#1E1B18] rounded-2xl shadow-2xl border border-[#DDD2BC] max-w-lg w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-4 max-h-[95vh]">
         {/* Header */}
-        <div className="px-5 sm:px-6 py-4 border-b border-white/10 bg-[#121215] flex items-center justify-between">
+        <div className="px-5 sm:px-6 py-4 border-b border-[#EAE0CD] bg-[#FAF4E8] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center text-xl shrink-0 shadow-sm border border-amber-400/40 font-bold">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-xl shrink-0 shadow-sm border border-amber-400/50 font-bold">
               {paymentMethod === 'bitcoin' ? (
                 <Bitcoin className="w-5 h-5 text-white" />
               ) : (
@@ -251,40 +251,41 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
               )}
             </div>
             <div>
-              <h2 className="font-syne text-base font-extrabold uppercase text-white tracking-tight flex items-center gap-2">
+              <h2 className="font-syne text-base font-extrabold uppercase text-[#1E1B18] tracking-tight flex items-center gap-2 flex-wrap">
                 <span>Tip Plenty / Coffee Fund</span>
-                <span className="text-[9px] font-mono-code bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded font-bold uppercase">
+                <span className="text-[9px] font-mono-code bg-[#F6EBE0] text-[#9A4319] border border-[#E2C2A8] px-1.5 py-0.5 rounded font-bold uppercase">
                   {paymentMethod === 'bitcoin' ? 'Bitcoin ₿' : 'PhonePe UPI'}
                 </span>
               </h2>
-              <p className="font-mono-code text-[10px] text-zinc-400 uppercase tracking-wider">
-                Support open-source development &amp; scanner servers
+              <p className="font-mono-code text-[10px] text-[#6E655A] uppercase tracking-wider">
+                Support open-source development &amp; free hosting
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="cursor-pointer p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Close coffee tip modal"
+            className="cursor-pointer p-1.5 rounded-lg text-[#6E655A] hover:text-[#1E1B18] hover:bg-[#EDE4D2] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Region & Payment Method Selector Tabs */}
-        <div className="px-5 pt-3 pb-1 border-b border-white/5 bg-[#101014] flex items-center gap-2">
+        <div className="px-5 pt-3 pb-2 border-b border-[#EAE0CD] bg-[#F5EEE0] flex items-center gap-2">
           {/* Bitcoin Tab (For Users Outside India) */}
           <button
             type="button"
             onClick={() => setPaymentMethod('bitcoin')}
             className={`cursor-pointer flex-1 py-2 px-3 rounded-xl font-mono-code text-xs font-bold transition-all flex items-center justify-center gap-2 border active:scale-95 ${
               paymentMethod === 'bitcoin'
-                ? 'bg-[#f7931a]/15 border-[#f7931a] text-[#f7931a] shadow-sm shadow-orange-950/40 ring-1 ring-[#f7931a]/40'
-                : 'bg-[#16161b] border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
+                ? 'bg-[#FFF5E8] border-[#D97706] text-[#B45309] shadow-xs ring-1 ring-[#D97706]/30'
+                : 'bg-[#FFFDF8] border-[#D7CCB5] text-[#4A433A] hover:text-[#1E1B18] hover:border-[#BFA98B]'
             }`}
           >
-            <Globe className="w-3.5 h-3.5 text-[#f7931a]" />
+            <Globe className="w-3.5 h-3.5 text-[#D97706]" />
             <span className="truncate">Outside India (Bitcoin ₿)</span>
-            <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#f7931a]/20 text-[#f7931a] font-mono-code uppercase font-extrabold hidden sm:inline">
+            <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-100 text-[#B45309] font-mono-code uppercase font-extrabold hidden sm:inline">
               ⚡ Fast Approval
             </span>
           </button>
@@ -295,11 +296,11 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
             onClick={() => setPaymentMethod('upi')}
             className={`cursor-pointer flex-1 py-2 px-3 rounded-xl font-mono-code text-xs font-bold transition-all flex items-center justify-center gap-2 border active:scale-95 ${
               paymentMethod === 'upi'
-                ? 'bg-amber-500/15 border-amber-400 text-amber-300 shadow-sm shadow-amber-950/40 ring-1 ring-amber-400/40'
-                : 'bg-[#16161b] border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
+                ? 'bg-[#F6EBE0] border-[#9A4319] text-[#9A4319] shadow-xs ring-1 ring-[#9A4319]/30'
+                : 'bg-[#FFFDF8] border-[#D7CCB5] text-[#4A433A] hover:text-[#1E1B18] hover:border-[#BFA98B]'
             }`}
           >
-            <Smartphone className="w-3.5 h-3.5 text-amber-400" />
+            <Smartphone className="w-3.5 h-3.5 text-[#9A4319]" />
             <span className="truncate">India (PhonePe / UPI)</span>
           </button>
         </div>
@@ -308,54 +309,54 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
         {thankYouNote ? (
           /* THANK YOU & APPROVAL CONFIRMATION SCREEN */
           <div className="p-6 sm:p-8 text-center space-y-4 font-mono-code overflow-y-auto">
-            <div className="w-16 h-16 bg-emerald-500/15 border border-emerald-400/40 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl animate-bounce">
-              <CheckCircle2 className="w-9 h-9 text-emerald-400" />
+            <div className="w-16 h-16 bg-emerald-100 border border-emerald-300 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-3xl animate-bounce">
+              <CheckCircle2 className="w-9 h-9 text-emerald-700" />
             </div>
 
             <div>
-              <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase tracking-wider inline-flex items-center gap-1.5 mb-2">
-                <Zap className="w-3 h-3 text-emerald-400 fill-emerald-400" />
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold uppercase tracking-wider inline-flex items-center gap-1.5 mb-2">
+                <Zap className="w-3 h-3 text-emerald-700 fill-emerald-600" />
                 <span>PAYMENT FAST-APPROVED // 0-CONF VERIFIED</span>
               </span>
-              <h3 className="font-syne text-xl font-extrabold text-white uppercase tracking-tight">
+              <h3 className="font-syne text-xl font-extrabold text-[#1E1B18] uppercase tracking-tight">
                 Thank You For Supporting!
               </h3>
             </div>
 
-            <p className="text-xs text-[#e4e4e7]/80 leading-relaxed font-sans max-w-sm mx-auto">
+            <p className="text-xs text-[#4A433A] leading-relaxed font-sans max-w-sm mx-auto">
               {supporterName ? `"${supporterName}", your` : 'Your'}{' '}
               {paymentMethod === 'bitcoin' ? 'Bitcoin (BTC)' : 'UPI'}{' '}
-              coffee tip has been verified and registered. You are keeping Text to Handwriting 100% free, private, and constantly updated for students worldwide! 🚀
+              coffee tip has been verified and registered. You are keeping Human Handwriting AI 100% free, private, and constantly updated for students worldwide! 🚀
             </p>
 
             {/* Fast Approval Details Card */}
             {paymentMethod === 'bitcoin' && (
-              <div className="bg-[#141418] border border-emerald-500/30 rounded-xl p-3 text-left space-y-2 text-xs">
-                <div className="flex items-center justify-between text-[11px] border-b border-white/5 pb-1.5">
-                  <span className="text-zinc-400">Recipient Address:</span>
-                  <span className="font-mono-code text-white truncate max-w-[200px]">
+              <div className="bg-[#FAF4E8] border border-emerald-300 rounded-xl p-3 text-left space-y-2 text-xs">
+                <div className="flex items-center justify-between text-[11px] border-b border-[#EAE0CD] pb-1.5">
+                  <span className="text-[#6E655A]">Recipient Address:</span>
+                  <span className="font-mono-code text-[#1E1B18] truncate max-w-[200px]">
                     {CREATOR_BITCOIN_ADDRESS}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-[11px] border-b border-white/5 pb-1.5">
-                  <span className="text-zinc-400">Tip Amount:</span>
-                  <span className="font-bold text-[#f7931a]">{activeBtcAmount} BTC</span>
+                <div className="flex items-center justify-between text-[11px] border-b border-[#EAE0CD] pb-1.5">
+                  <span className="text-[#6E655A]">Tip Amount:</span>
+                  <span className="font-bold text-[#B45309]">{activeBtcAmount} BTC</span>
                 </div>
                 {fastApprovedData && (
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-zinc-400">Approval Receipt:</span>
-                    <span className="font-mono-code text-emerald-400 text-[10px] truncate max-w-[180px]">
+                    <span className="text-[#6E655A]">Approval Receipt:</span>
+                    <span className="font-mono-code text-emerald-700 text-[10px] truncate max-w-[180px]">
                       {fastApprovedData.txId}
                     </span>
                   </div>
                 )}
-                <div className="pt-1 flex items-center justify-between text-[10px] text-zinc-400">
+                <div className="pt-1 flex items-center justify-between text-[10px] text-[#6E655A]">
                   <span>Network: Native SegWit (Bech32)</span>
                   <a
                     href={`https://mempool.space/address/${CREATOR_BITCOIN_ADDRESS}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#f7931a] hover:underline flex items-center gap-1 font-bold"
+                    className="text-[#B45309] hover:underline flex items-center gap-1 font-bold"
                   >
                     <span>View on Mempool.space</span>
                     <ExternalLink className="w-2.5 h-2.5" />
@@ -368,7 +369,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
               <button
                 type="button"
                 onClick={() => setThankYouNote(false)}
-                className="cursor-pointer px-5 py-2 text-xs bg-[#18181b] border border-white/10 text-white rounded-xl hover:border-amber-400 uppercase transition-all font-bold active:scale-95 shadow-md"
+                className="cursor-pointer px-5 py-2 text-xs bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8] rounded-xl uppercase transition-all font-bold active:scale-95 shadow-sm"
               >
                 Back to Payment Options
               </button>
@@ -380,35 +381,35 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
           /* ========================================================================= */
           <div className="p-4 sm:p-5 space-y-4 font-mono-code overflow-y-auto">
             {/* Global Notice Banner */}
-            <div className="bg-gradient-to-r from-[#f7931a]/15 via-[#f7931a]/10 to-amber-500/10 border border-[#f7931a]/40 rounded-xl p-3 flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-[#f7931a]/20 border border-[#f7931a]/40 text-[#f7931a] flex items-center justify-center shrink-0">
+            <div className="bg-[#FFF5E8] border border-[#E8C597] rounded-xl p-3 flex items-start gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#FDE6C4] border border-[#E8C597] text-[#B45309] flex items-center justify-center shrink-0">
                 <Globe className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-bold text-white uppercase">
+                  <span className="text-xs font-bold text-[#1E1B18] uppercase">
                     International Bitcoin Tipping
                   </span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase flex items-center gap-1">
-                    <Zap className="w-2.5 h-2.5 fill-emerald-400" />
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold uppercase flex items-center gap-1">
+                    <Zap className="w-2.5 h-2.5 fill-emerald-600" />
                     <span>Fast Approvals Active</span>
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-300 font-sans mt-0.5 leading-relaxed">
+                <p className="text-[11px] text-[#4A433A] font-sans mt-0.5 leading-relaxed">
                   For users outside India: Send Bitcoin from any wallet or exchange (Cash App, Strike, Binance, Coinbase, Trust Wallet, Exodus, etc.).
                 </p>
               </div>
             </div>
 
             {/* BITCOIN SCANNER QR CONTAINER */}
-            <div className="bg-[#141418] border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center relative">
-              <div className="flex items-center gap-1.5 text-[11px] text-[#f7931a] font-bold mb-2 uppercase tracking-wide">
-                <QrCode className="w-3.5 h-3.5 text-[#f7931a]" />
+            <div className="bg-[#FAF4E8] border border-[#DDD2BC] rounded-2xl p-4 flex flex-col items-center justify-center text-center relative">
+              <div className="flex items-center gap-1.5 text-[11px] text-[#B45309] font-bold mb-2 uppercase tracking-wide">
+                <QrCode className="w-3.5 h-3.5 text-[#D97706]" />
                 <span>Scan Bitcoin QR Code</span>
               </div>
 
               {/* The Bitcoin QR Code Image */}
-              <div className="bg-white p-3 rounded-2xl border border-zinc-200 shadow-2xl max-w-[240px] w-full text-slate-800 flex flex-col items-center">
+              <div className="bg-white p-3 rounded-2xl border border-[#DDD2BC] shadow-md max-w-[240px] w-full text-slate-800 flex flex-col items-center">
                 <div className="relative p-1 bg-white rounded-lg flex items-center justify-center">
                   {generatedBtcQrDataUrl ? (
                     <img
@@ -435,7 +436,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                   <span className="font-semibold text-slate-800 truncate">
                     Native SegWit (Bech32)
                   </span>
-                  <span className="text-emerald-600 font-bold text-[9px] flex items-center gap-0.5 shrink-0">
+                  <span className="text-emerald-700 font-bold text-[9px] flex items-center gap-0.5 shrink-0">
                     <ShieldCheck className="w-3 h-3" />
                     LOWEST FEES
                   </span>
@@ -446,7 +447,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
               <div className="mt-3 flex items-center gap-2 flex-wrap justify-center">
                 <a
                   href={bitcoinUri}
-                  className="cursor-pointer text-xs font-mono-code font-bold text-white bg-gradient-to-r from-[#f7931a] to-amber-600 hover:from-[#e08213] hover:to-amber-500 py-1.5 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-orange-950/40 border border-orange-400/30 transition-all active:scale-95"
+                  className="cursor-pointer text-xs font-mono-code font-bold text-white bg-gradient-to-r from-[#d97706] to-[#b45309] hover:from-[#b45309] hover:to-[#92400e] py-1.5 px-3.5 rounded-xl flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
                 >
                   <Bitcoin className="w-3.5 h-3.5 text-white" />
                   <span>Open in Wallet</span>
@@ -461,9 +462,9 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                         'Plenty_Bitcoin_Tip_QR.png'
                       )
                     }
-                    className="cursor-pointer text-xs font-mono-code font-bold text-zinc-300 hover:text-white bg-white/10 hover:bg-white/15 py-1.5 px-3 rounded-xl flex items-center gap-1.5 border border-white/10 transition-all active:scale-95"
+                    className="cursor-pointer text-xs font-mono-code font-bold text-[#1E1B18] bg-[#FFFDF8] hover:bg-[#EDE4D2] py-1.5 px-3 rounded-xl flex items-center gap-1.5 border border-[#D7CCB5] transition-all active:scale-95"
                   >
-                    <Download className="w-3.5 h-3.5 text-zinc-300" />
+                    <Download className="w-3.5 h-3.5 text-[#4A433A]" />
                     <span>Save QR</span>
                   </button>
                 )}
@@ -473,28 +474,28 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
             {/* BITCOIN ADDRESS (COPYABLE WITH ONE CLICK) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] text-zinc-400 uppercase tracking-widest block font-bold">
+                <label className="text-[10px] text-[#6E655A] uppercase tracking-widest block font-bold">
                   Bitcoin Address (Bech32):
                 </label>
-                <span className="text-[9px] text-[#f7931a] font-bold">
+                <span className="text-[9px] text-[#9A4319] font-bold">
                   Beneficiary: Plenty
                 </span>
               </div>
 
               <div
                 onClick={() => handleCopy(CREATOR_BITCOIN_ADDRESS)}
-                className="cursor-pointer rounded-xl p-2.5 bg-[#141418] hover:bg-[#1a1a20] border border-[#f7931a]/40 hover:border-[#f7931a] flex items-center justify-between gap-2.5 transition-all group"
+                className="cursor-pointer rounded-xl p-2.5 bg-[#FAF4E8] hover:bg-[#F3E9D6] border border-[#E2C2A8] hover:border-[#9A4319] flex items-center justify-between gap-2.5 transition-all group"
                 title="Click to copy Bitcoin address"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-[#f7931a]/20 border border-[#f7931a]/40 text-[#f7931a] flex items-center justify-center font-bold text-sm shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-[#FFF5E8] border border-[#E8C597] text-[#B45309] flex items-center justify-center font-bold text-sm shrink-0">
                     ₿
                   </div>
                   <div className="min-w-0">
-                    <span className="font-mono-code text-[11px] sm:text-xs text-white font-bold block truncate tracking-tight">
+                    <span className="font-mono-code text-[11px] sm:text-xs text-[#1E1B18] font-bold block truncate tracking-tight">
                       {CREATOR_BITCOIN_ADDRESS}
                     </span>
-                    <span className="text-[9px] text-zinc-400 block truncate font-sans">
+                    <span className="text-[9px] text-[#6E655A] block truncate font-sans">
                       Bitcoin Mainnet · Native SegWit P2WPKH
                     </span>
                   </div>
@@ -508,8 +509,8 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                   }}
                   className={`cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 shrink-0 transition-all ${
                     copiedId === CREATOR_BITCOIN_ADDRESS
-                      ? 'bg-emerald-500 text-white shadow-xs'
-                      : 'bg-[#f7931a] hover:bg-[#e08213] text-black shadow-xs font-bold'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8] shadow-xs font-bold'
                   }`}
                 >
                   {copiedId === CREATOR_BITCOIN_ADDRESS ? (
@@ -530,14 +531,14 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
             {/* TIP AMOUNT SUGGESTIONS */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[10px] text-zinc-400 uppercase tracking-widest block flex items-center gap-1 font-bold">
-                  <Coffee className="w-3 h-3 text-[#f7931a]" />
+                <label className="text-[10px] text-[#6E655A] uppercase tracking-widest block flex items-center gap-1 font-bold">
+                  <Coffee className="w-3 h-3 text-[#9A4319]" />
                   <span>Choose Tip Amount:</span>
                 </label>
-                <div className="text-xs font-bold font-mono-code text-[#f7931a]">
+                <div className="text-xs font-bold font-mono-code text-[#B45309]">
                   {activeBtcAmount} BTC{' '}
                   {activeBtcUsd && (
-                    <span className="text-zinc-400 text-[10px]">
+                    <span className="text-[#6E655A] text-[10px]">
                       (~${activeBtcUsd} USD)
                     </span>
                   )}
@@ -555,20 +556,20 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                     }}
                     className={`cursor-pointer py-1.5 px-1 rounded-lg text-center transition-all border ${
                       selectedBtcIndex === idx && !customBtcAmount
-                        ? 'bg-[#f7931a]/20 border-[#f7931a] text-[#f7931a] ring-1 ring-[#f7931a] font-bold'
-                        : 'border-white/10 bg-[#141418] text-zinc-300 hover:border-white/20'
+                        ? 'bg-[#FFF5E8] border-[#D97706] text-[#B45309] ring-1 ring-[#D97706] font-bold'
+                        : 'border-[#D7CCB5] bg-[#FAF4E8] text-[#4A433A] hover:border-[#BFA98B]'
                     }`}
                   >
                     <div className="text-xs font-bold">${item.usd}</div>
-                    <div className="text-[8px] text-zinc-400 truncate">{item.label}</div>
+                    <div className="text-[8px] text-[#6E655A] truncate">{item.label}</div>
                   </button>
                 ))}
               </div>
 
               {/* Custom BTC Amount & Supporter Name */}
               <div className="grid grid-cols-2 gap-2 mt-2">
-                <div className="flex items-center gap-1.5 bg-[#121215] border border-white/10 rounded-lg px-2.5 py-1">
-                  <span className="text-[10px] text-zinc-400 uppercase font-semibold">
+                <div className="flex items-center gap-1.5 bg-[#FAF4E8] border border-[#D7CCB5] rounded-lg px-2.5 py-1.5">
+                  <span className="text-[10px] text-[#6E655A] uppercase font-semibold">
                     BTC:
                   </span>
                   <input
@@ -576,12 +577,12 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                     placeholder="e.g. 0.0001"
                     value={customBtcAmount}
                     onChange={(e) => setCustomBtcAmount(e.target.value)}
-                    className="w-full text-xs bg-transparent text-white focus:outline-hidden"
+                    className="w-full text-xs bg-transparent text-[#1E1B18] focus:outline-hidden"
                   />
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-[#121215] border border-white/10 rounded-lg px-2.5 py-1">
-                  <span className="text-[10px] text-zinc-400 uppercase font-semibold">
+                <div className="flex items-center gap-1.5 bg-[#FAF4E8] border border-[#D7CCB5] rounded-lg px-2.5 py-1.5">
+                  <span className="text-[10px] text-[#6E655A] uppercase font-semibold">
                     Name:
                   </span>
                   <input
@@ -589,7 +590,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                     placeholder="Optional name"
                     value={supporterName}
                     onChange={(e) => setSupporterName(e.target.value)}
-                    className="w-full text-xs bg-transparent text-white focus:outline-hidden"
+                    className="w-full text-xs bg-transparent text-[#1E1B18] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -598,18 +599,18 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
             {/* ========================================================================= */}
             {/* FAST APPROVALS VERIFICATION SECTION                                       */}
             {/* ========================================================================= */}
-            <div className="bg-gradient-to-br from-[#121216] via-[#101014] to-[#0c0c0e] border border-emerald-500/40 rounded-xl p-3.5 space-y-2.5 shadow-lg">
+            <div className="bg-[#FAF4E8] border border-emerald-300 rounded-xl p-3.5 space-y-2.5 shadow-xs">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider">
-                  <Zap className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400 animate-pulse" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#1E1B18] uppercase tracking-wider">
+                  <Zap className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
                   <span>Payment Fast Approvals</span>
                 </div>
-                <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold uppercase">
+                <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold uppercase">
                   Zero-Conf Ready
                 </span>
               </div>
 
-              <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">
+              <p className="text-[11px] text-[#4A433A] font-sans leading-relaxed">
                 Already sent? Paste your Bitcoin TxID / transaction hash below or click <strong>Fast Approve</strong> for instant zero-confirmation verification without waiting for block miners!
               </p>
 
@@ -619,14 +620,14 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                   placeholder="Optional Bitcoin Tx Hash / ID..."
                   value={txHashInput}
                   onChange={(e) => setTxHashInput(e.target.value)}
-                  className="flex-1 px-3 py-1.5 text-xs bg-[#18181f] border border-white/10 rounded-lg text-white font-mono-code focus:outline-hidden focus:border-emerald-400 placeholder:text-zinc-600"
+                  className="flex-1 px-3 py-1.5 text-xs bg-[#FFFDF8] border border-[#D7CCB5] rounded-lg text-[#1E1B18] font-mono-code focus:outline-hidden focus:border-emerald-600 placeholder:text-[#6E655A]"
                 />
 
                 <button
                   type="button"
                   onClick={handleFastApprovalCheck}
                   disabled={isCheckingTx}
-                  className="cursor-pointer px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-bold font-mono-code uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-emerald-950/40 active:scale-95 disabled:opacity-50 transition-all shrink-0"
+                  className="cursor-pointer px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-bold font-mono-code uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 disabled:opacity-50 transition-all shrink-0"
                 >
                   {isCheckingTx ? (
                     <>
@@ -642,13 +643,13 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                 </button>
               </div>
 
-              <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-1 border-t border-white/5">
+              <div className="flex items-center justify-between text-[10px] text-[#6E655A] pt-1 border-t border-[#EAE0CD]">
                 <span>Check live explorer:</span>
                 <a
                   href={`https://mempool.space/address/${CREATOR_BITCOIN_ADDRESS}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-zinc-400 hover:text-white hover:underline flex items-center gap-1"
+                  className="text-[#4A433A] hover:text-[#1E1B18] hover:underline flex items-center gap-1"
                 >
                   <span>mempool.space/{CREATOR_BITCOIN_ADDRESS.substring(0, 8)}...</span>
                   <ExternalLink className="w-2.5 h-2.5" />
@@ -657,9 +658,9 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
             </div>
 
             {/* Note & Creator Badge */}
-            <div className="text-center pt-2 border-t border-white/10">
-              <p className="text-[10px] text-zinc-400 flex items-center justify-center gap-1 uppercase">
-                <Heart className="w-3 h-3 text-rose-400 fill-rose-400" />
+            <div className="text-center pt-2 border-t border-[#EAE0CD]">
+              <p className="text-[10px] text-[#6E655A] flex items-center justify-center gap-1 uppercase">
+                <Heart className="w-3 h-3 text-rose-600 fill-rose-600" />
                 <span>Made with love by PLENTY // FAST BITCOIN SETTLEMENT</span>
               </p>
             </div>
@@ -696,17 +697,17 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                   reader.readAsDataURL(file);
                 }
               }}
-              className={`bg-[#141418] border rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center transition-colors relative ${
-                isDragOver ? 'border-amber-400 bg-amber-950/20' : 'border-white/10'
+              className={`bg-[#FAF4E8] border rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center transition-colors relative ${
+                isDragOver ? 'border-[#9A4319] bg-[#F6EBE0]' : 'border-[#DDD2BC]'
               }`}
             >
-              <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-bold mb-2 uppercase tracking-wide">
-                <QrCode className="w-3.5 h-3.5 text-amber-400" />
+              <div className="flex items-center gap-1.5 text-[11px] text-[#9A4319] font-bold mb-2 uppercase tracking-wide">
+                <QrCode className="w-3.5 h-3.5 text-[#9A4319]" />
                 <span>PhonePe UPI QR Scanner (Scan Above)</span>
               </div>
 
               {/* The Scanner QR Image */}
-              <div className="bg-white p-3 rounded-2xl border border-zinc-200 shadow-2xl max-w-[250px] w-full text-slate-800 flex flex-col items-center">
+              <div className="bg-white p-3 rounded-2xl border border-[#DDD2BC] shadow-md max-w-[250px] w-full text-slate-800 flex flex-col items-center">
                 {customScannerImage ? (
                   <div className="relative group w-full flex flex-col items-center">
                     <img
@@ -747,7 +748,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
 
                       {/* Centered PhonePe Emblem */}
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-10 h-10 rounded-full bg-[#18181b] border-[3px] border-white flex items-center justify-center text-white font-extrabold text-lg shadow-lg select-none font-sans leading-none pt-0.5">
+                        <div className="w-10 h-10 rounded-full bg-[#24201C] border-[3px] border-white flex items-center justify-center text-white font-extrabold text-lg shadow-lg select-none font-sans leading-none pt-0.5">
                           पे
                         </div>
                       </div>
@@ -758,7 +759,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                       <span className="font-semibold text-slate-800 truncate">
                         Linked Account Verified
                       </span>
-                      <span className="text-emerald-600 font-bold text-[9px] flex items-center gap-0.5 shrink-0">
+                      <span className="text-emerald-700 font-bold text-[9px] flex items-center gap-0.5 shrink-0">
                         <ShieldCheck className="w-3 h-3" />
                         VERIFIED
                       </span>
@@ -777,7 +778,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                       `PhonePe_Scanner_${activeUpi.id.split('@')[0]}.png`
                     )
                   }
-                  className="cursor-pointer text-xs font-mono-code font-bold text-white hover:text-emerald-300 flex items-center gap-1.5 py-1.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-950/40 border border-emerald-400/30 transition-all active:scale-95"
+                  className="cursor-pointer text-xs font-mono-code font-bold text-white flex items-center gap-1.5 py-1.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 shadow-sm transition-all active:scale-95"
                   title="Save high-resolution PhonePe UPI QR code image"
                 >
                   <Download className="w-4 h-4 text-white" />
@@ -785,7 +786,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                 </button>
               </div>
 
-              <div className="mt-2 text-[10px] text-zinc-400 font-medium tracking-wide">
+              <div className="mt-2 text-[10px] text-[#6E655A] font-medium tracking-wide">
                 Scan with PhonePe · Google Pay · Paytm · BHIM · Cred · Mobile Banking
               </div>
             </div>
@@ -793,10 +794,10 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
             {/* UPI IDS LISTED BELOW SCANNER */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] text-zinc-400 uppercase tracking-widest block font-bold">
+                <label className="text-[10px] text-[#6E655A] uppercase tracking-widest block font-bold">
                   UPI IDs (Click To Copy):
                 </label>
-                <span className="text-[9px] text-amber-400">
+                <span className="text-[9px] text-[#9A4319] font-bold">
                   Beneficiary: Plenty
                 </span>
               </div>
@@ -812,26 +813,26 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                       onClick={() => setSelectedUpiIndex(index)}
                       className={`cursor-pointer rounded-xl p-2.5 flex items-center justify-between gap-2 border transition-all ${
                         isSelected
-                          ? 'bg-[#18181f] border-amber-400/60 shadow-sm ring-1 ring-amber-400/30'
-                          : 'bg-[#121215] border-white/10 hover:border-white/20'
+                          ? 'bg-[#F6EBE0] border-[#9A4319] shadow-xs ring-1 ring-[#9A4319]/25'
+                          : 'bg-[#FAF4E8] border-[#D7CCB5] hover:border-[#BFA98B]'
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <div
                           className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${
-                            isSelected ? 'bg-amber-400 text-black' : 'bg-white/10 text-zinc-400'
+                            isSelected ? 'bg-[#9A4319] text-[#FFFDF8]' : 'bg-[#EDE4D2] text-[#4A433A]'
                           }`}
                         >
                           {index + 1}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-mono-code text-xs text-white font-bold truncate flex items-center gap-1.5">
+                          <div className="font-mono-code text-xs text-[#1E1B18] font-bold truncate flex items-center gap-1.5">
                             <span>{upi.id}</span>
-                            <span className="text-[8px] bg-white/10 text-zinc-300 px-1 rounded uppercase font-semibold">
+                            <span className="text-[8px] bg-[#EDE4D2] text-[#4A433A] px-1 rounded uppercase font-semibold">
                               {upi.tag}
                             </span>
                           </div>
-                          <div className="text-[9px] text-zinc-400 truncate">
+                          <div className="text-[9px] text-[#6E655A] truncate">
                             {upi.bank}
                           </div>
                         </div>
@@ -845,8 +846,8 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                         }}
                         className={`cursor-pointer px-2.5 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 shrink-0 transition-all ${
                           isCopied
-                            ? 'bg-emerald-500 text-white shadow-xs'
-                            : 'bg-white/10 hover:bg-white/20 text-zinc-200 hover:text-white'
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : 'bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8]'
                         }`}
                         title={`Copy ${upi.id}`}
                       >
@@ -857,7 +858,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                           </>
                         ) : (
                           <>
-                            <Copy className="w-3 h-3 text-amber-400" />
+                            <Copy className="w-3 h-3" />
                             <span>COPY</span>
                           </>
                         )}
@@ -871,11 +872,11 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
             {/* COFFEE AMOUNT SELECTION */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[10px] text-zinc-400 uppercase tracking-widest block flex items-center gap-1 font-bold">
-                  <Coffee className="w-3 h-3 text-amber-400" />
+                <label className="text-[10px] text-[#6E655A] uppercase tracking-widest block flex items-center gap-1 font-bold">
+                  <Coffee className="w-3 h-3 text-[#9A4319]" />
                   <span>Choose Tip Amount:</span>
                 </label>
-                <span className="text-xs text-amber-400 font-bold font-mono-code">
+                <span className="text-xs text-[#9A4319] font-bold font-mono-code">
                   ₹{currentAmount}
                 </span>
               </div>
@@ -896,19 +897,19 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                     }}
                     className={`cursor-pointer py-1.5 px-1 rounded-lg text-center transition-all border ${
                       selectedAmount === item.amt && !customAmount
-                        ? 'bg-amber-500/20 border-amber-400 text-amber-300 ring-1 ring-amber-400 font-bold'
-                        : 'border-white/10 bg-[#141418] text-zinc-300 hover:border-white/20'
+                        ? 'bg-[#F6EBE0] border-[#9A4319] text-[#9A4319] ring-1 ring-[#9A4319] font-bold'
+                        : 'border-[#D7CCB5] bg-[#FAF4E8] text-[#4A433A] hover:border-[#BFA98B]'
                     }`}
                   >
                     <div className="text-xs font-bold">₹{item.amt}</div>
-                    <div className="text-[8px] text-zinc-400 truncate">{item.label}</div>
+                    <div className="text-[8px] text-[#6E655A] truncate">{item.label}</div>
                   </button>
                 ))}
               </div>
 
               {/* Custom amount */}
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-[10px] text-zinc-400 uppercase font-semibold">
+                <span className="text-[10px] text-[#6E655A] uppercase font-semibold">
                   Custom ₹:
                 </span>
                 <input
@@ -916,13 +917,13 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                   placeholder="e.g. 150"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
-                  className="flex-1 px-2.5 py-1 text-xs bg-[#121215] border border-white/10 rounded-lg text-white focus:outline-hidden focus:border-amber-400"
+                  className="flex-1 px-2.5 py-1.5 text-xs bg-[#FAF4E8] border border-[#D7CCB5] rounded-lg text-[#1E1B18] focus:outline-hidden focus:border-[#9A4319]"
                 />
               </div>
 
               {/* Supporter Name */}
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-[10px] text-zinc-400 uppercase font-semibold">
+                <span className="text-[10px] text-[#6E655A] uppercase font-semibold">
                   Your Name:
                 </span>
                 <input
@@ -930,7 +931,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                   placeholder="Optional supporter name"
                   value={supporterName}
                   onChange={(e) => setSupporterName(e.target.value)}
-                  className="flex-1 px-2.5 py-1 text-xs bg-[#121215] border border-white/10 rounded-lg text-white focus:outline-hidden focus:border-amber-400"
+                  className="flex-1 px-2.5 py-1.5 text-xs bg-[#FAF4E8] border border-[#D7CCB5] rounded-lg text-[#1E1B18] focus:outline-hidden focus:border-[#9A4319]"
                 />
               </div>
             </div>
@@ -942,7 +943,7 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
                 onClick={() => {
                   setTimeout(handleSimulatePayment, 1200);
                 }}
-                className="flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all uppercase tracking-wider shadow-md text-center"
+                className="flex-1 py-2.5 bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8] rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all uppercase tracking-wider shadow-sm text-center"
               >
                 <Coffee className="w-3.5 h-3.5" />
                 <span>Pay via UPI App</span>
@@ -951,18 +952,18 @@ export default function BuyCoffeeModal({ isOpen, onClose }: BuyCoffeeModalProps)
               <button
                 type="button"
                 onClick={handleSimulatePayment}
-                className="cursor-pointer px-4 py-2.5 bg-[#1f1f23] hover:bg-[#2a2a30] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all uppercase tracking-wider border border-white/10"
+                className="cursor-pointer px-4 py-2.5 bg-[#FAF4E8] hover:bg-[#EDE4D2] text-[#1E1B18] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all uppercase tracking-wider border border-[#D7CCB5]"
                 title="Confirm payment"
               >
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Paid</span>
               </button>
             </div>
 
             {/* Note */}
-            <div className="text-center pt-2 border-t border-white/10">
-              <p className="text-[10px] text-zinc-400 flex items-center justify-center gap-1 uppercase">
-                <Heart className="w-3 h-3 text-rose-400 fill-rose-400" />
+            <div className="text-center pt-2 border-t border-[#EAE0CD]">
+              <p className="text-[10px] text-[#6E655A] flex items-center justify-center gap-1 uppercase">
+                <Heart className="w-3 h-3 text-rose-600 fill-rose-600" />
                 <span>Made with love by PLENTY</span>
               </p>
             </div>

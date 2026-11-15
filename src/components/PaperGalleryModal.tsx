@@ -53,41 +53,45 @@ export default function PaperGalleryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1B18]/45 p-3 sm:p-4 overflow-y-auto select-none">
       <div
         className={`rounded-2xl shadow-2xl border max-w-4xl w-full flex flex-col my-4 max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150 transition-colors ${
           isLight
-            ? 'bg-white border-slate-300 text-slate-800'
-            : 'bg-[#0f0f13] border-white/10 text-white'
+            ? 'bg-[#FFFDF8] border-[#DDD2BC] text-[#1E1B18]'
+            : 'bg-[#0B1222] border-sky-300/20 text-white'
         }`}
       >
         {/* Header */}
         <div
           className={`px-5 sm:px-6 py-4 border-b flex items-center justify-between shrink-0 ${
             isLight
-              ? 'bg-slate-50 border-slate-200'
-              : 'bg-[#141418] border-white/10'
+              ? 'bg-[#FAF4E8] border-[#EAE0CD]'
+              : 'bg-[#080F1E] border-sky-300/15'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6366f1] to-indigo-800 border border-indigo-400/30 text-white flex items-center justify-center p-2 shrink-0 shadow-md">
-              <Layers className="w-5 h-5 text-white" />
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center p-2 shrink-0 shadow-xs ${
+                isLight ? 'bg-[#24201C] text-[#FFFDF8]' : 'bg-sky-500 text-slate-950'
+              }`}
+            >
+              <Layers className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2
                   className={`font-syne text-base sm:text-lg font-extrabold uppercase tracking-tight ${
-                    isLight ? 'text-slate-900' : 'text-white'
+                    isLight ? 'text-[#1E1B18]' : 'text-white'
                   }`}
                 >
                   Choose Notebook &amp; Book Page
                 </h2>
-                <span className="bg-[#6366f1]/20 text-[#6366f1] border border-[#6366f1]/30 text-[9px] font-mono-code px-2 py-0.5 rounded uppercase font-bold">
-                  20+ Types
+                <span className={`text-xs font-mono-code font-bold ${isLight ? 'text-[#9A4319]' : 'text-amber-300'}`}>
+                  · 23 Rulings
                 </span>
               </div>
-              <p className="font-mono-code text-[10px] sm:text-[11px] text-[#6366f1] tracking-wider">
-                Undetected classroom school notebooks, aesthetic study journals &amp; real scanned book pages
+              <p className={`font-mono-code text-[10px] sm:text-[11px] tracking-wider ${isLight ? 'text-[#6E655A]' : 'text-slate-400'}`}>
+                School notebooks, aesthetic study journals &amp; procedural book pages
               </p>
             </div>
           </div>
@@ -96,8 +100,8 @@ export default function PaperGalleryModal({
             onClick={onClose}
             className={`cursor-pointer p-1.5 rounded-lg transition-colors ${
               isLight
-                ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-200'
-                : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                ? 'text-[#6E655A] hover:text-[#1E1B18] hover:bg-[#EDE4D2]'
+                : 'text-slate-400 hover:text-white hover:bg-sky-500/15'
             }`}
           >
             <X className="w-5 h-5" />
@@ -107,7 +111,7 @@ export default function PaperGalleryModal({
         {/* Filter Bar & Search */}
         <div
           className={`px-5 sm:px-6 py-3 border-b flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${
-            isLight ? 'bg-slate-100/60 border-slate-200' : 'bg-[#121216] border-white/5'
+            isLight ? 'bg-[#F5EEE0] border-[#EAE0CD]' : 'bg-[#070D1A] border-sky-300/15'
           }`}
         >
           {/* Category Tabs */}
@@ -116,7 +120,7 @@ export default function PaperGalleryModal({
               { id: 'all', label: 'All Pages' },
               { id: 'school', label: 'School Notebooks' },
               { id: 'aesthetic', label: 'Aesthetic Journals' },
-              { id: 'realistic', label: 'Realistic & Scanned' },
+              { id: 'realistic', label: 'Classic & Parchment' },
               { id: 'math', label: 'Math & Dark' },
             ].map((tab) => (
               <button
@@ -125,10 +129,12 @@ export default function PaperGalleryModal({
                 onClick={() => setSelectedCategory(tab.id as any)}
                 className={`cursor-pointer px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
                   selectedCategory === tab.id
-                    ? 'bg-[#6366f1] text-white shadow-xs font-bold'
+                    ? isLight
+                      ? 'bg-[#24201C] text-[#FFFDF8] shadow-xs font-bold'
+                      : 'bg-sky-500 text-slate-950 shadow-xs font-bold'
                     : isLight
-                    ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    ? 'text-[#4A433A] hover:text-[#1E1B18] hover:bg-[#EDE4D2]'
+                    : 'text-slate-300 hover:text-white hover:bg-[#121D35]'
                 }`}
               >
                 {tab.label}
@@ -138,7 +144,7 @@ export default function PaperGalleryModal({
 
           {/* Quick Search */}
           <div className="relative w-full sm:w-60 shrink-0">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-[#6E655A]' : 'text-slate-400'}`} />
             <input
               type="text"
               placeholder="Search paper type..."
@@ -146,8 +152,8 @@ export default function PaperGalleryModal({
               onChange={(e) => setSearchQuery(e.target.value)}
               className={`w-full pl-8 pr-3 py-1.5 rounded-lg text-xs font-mono-code transition-colors border outline-none ${
                 isLight
-                  ? 'bg-white border-slate-300 text-slate-800 placeholder:text-slate-400 focus:border-[#6366f1]'
-                  : 'bg-[#1a1a20] border-zinc-700 text-white placeholder:text-zinc-500 focus:border-[#6366f1]'
+                  ? 'bg-[#FFFDF8] border-[#D7CCB5] text-[#1E1B18] placeholder:text-[#6E655A] focus:border-[#9A4319]'
+                  : 'bg-[#0E172B] border-sky-300/20 text-white placeholder:text-slate-400 focus:border-sky-400'
               }`}
             />
           </div>
@@ -172,15 +178,21 @@ export default function PaperGalleryModal({
                   }}
                   className={`cursor-pointer group rounded-xl p-3 border transition-all flex flex-col justify-between relative overflow-hidden active:scale-[0.98] ${
                     isSelected
-                      ? 'ring-2 ring-[#6366f1] border-[#6366f1] shadow-lg shadow-indigo-500/10'
+                      ? isLight
+                        ? 'ring-2 ring-[#9A4319] border-[#9A4319] bg-[#F6EBE0] shadow-md'
+                        : 'ring-2 ring-sky-400 border-sky-400 bg-sky-500/10 shadow-md'
                       : isLight
-                      ? 'bg-white hover:bg-slate-50/80 border-slate-200 hover:border-slate-400 shadow-2xs'
-                      : 'bg-[#15151a] hover:bg-[#1a1a22] border-white/10 hover:border-white/20'
+                      ? 'bg-[#FFFDF8] hover:bg-[#FAF4E8] border-[#DDD2BC] hover:border-[#9A4319]/40 shadow-2xs'
+                      : 'bg-[#0E172B] hover:bg-[#121D35] border-sky-300/15 hover:border-sky-400/40'
                   }`}
                 >
                   {/* Selected Indicator Badge */}
                   {isSelected && (
-                    <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-[#6366f1] text-white flex items-center justify-center shadow-xs">
+                    <div
+                      className={`absolute top-2 right-2 z-10 w-5 h-5 rounded-full flex items-center justify-center shadow-xs ${
+                        isLight ? 'bg-[#9A4319] text-[#FFFDF8]' : 'bg-sky-400 text-slate-950'
+                      }`}
+                    >
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   )}
@@ -312,8 +324,10 @@ export default function PaperGalleryModal({
                     {/* Paper Title & Badge */}
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <h3
-                        className={`font-syne text-xs font-bold leading-snug group-hover:text-[#6366f1] transition-colors ${
-                          isLight ? 'text-slate-900' : 'text-white'
+                        className={`font-syne text-xs font-bold leading-snug transition-colors ${
+                          isLight
+                            ? 'text-[#1E1B18] group-hover:text-[#9A4319]'
+                            : 'text-white group-hover:text-sky-300'
                         }`}
                       >
                         {paper.name}
@@ -321,10 +335,12 @@ export default function PaperGalleryModal({
                       <span
                         className={`text-[8px] font-mono-code px-1.5 py-0.5 rounded uppercase font-bold shrink-0 ${
                           isSelected
-                            ? 'bg-[#6366f1] text-white'
+                            ? isLight
+                              ? 'bg-[#9A4319] text-[#FFFDF8]'
+                              : 'bg-sky-500 text-slate-950'
                             : isLight
-                            ? 'bg-slate-100 text-slate-700'
-                            : 'bg-white/10 text-zinc-300'
+                            ? 'bg-[#EDE4D2] text-[#4A433A]'
+                            : 'bg-[#121D35] border border-sky-300/20 text-slate-200'
                         }`}
                       >
                         {paper.badge}
@@ -333,7 +349,7 @@ export default function PaperGalleryModal({
 
                     <p
                       className={`text-[10px] leading-relaxed line-clamp-2 ${
-                        isLight ? 'text-slate-500' : 'text-zinc-400'
+                        isLight ? 'text-[#6E655A]' : 'text-slate-400'
                       }`}
                     >
                       {paper.description}
@@ -342,13 +358,29 @@ export default function PaperGalleryModal({
 
                   <div
                     className={`mt-2.5 pt-2 border-t flex items-center justify-between text-[10px] font-mono-code ${
-                      isLight ? 'border-slate-100' : 'border-white/5'
+                      isLight ? 'border-[#EDE4D2]' : 'border-sky-300/10'
                     }`}
                   >
-                    <span className={isSelected ? 'text-[#6366f1] font-bold' : 'opacity-60'}>
+                    <span
+                      className={
+                        isSelected
+                          ? isLight
+                            ? 'text-[#9A4319] font-bold'
+                            : 'text-sky-300 font-bold'
+                          : isLight
+                          ? 'text-[#6E655A]'
+                          : 'text-slate-400'
+                      }
+                    >
                       {isSelected ? '✓ Currently Applied' : 'Click to Apply'}
                     </span>
-                    <span className="text-zinc-400 group-hover:translate-x-0.5 transition-transform">
+                    <span
+                      className={`group-hover:translate-x-0.5 transition-all ${
+                        isLight
+                          ? 'text-[#6E655A] group-hover:text-[#9A4319]'
+                          : 'text-slate-400 group-hover:text-sky-300'
+                      }`}
+                    >
                       →
                     </span>
                   </div>
@@ -362,18 +394,22 @@ export default function PaperGalleryModal({
         <div
           className={`px-5 sm:px-6 py-3 border-t flex items-center justify-between font-mono-code text-xs shrink-0 ${
             isLight
-              ? 'bg-slate-50 border-slate-200 text-slate-600'
-              : 'bg-[#141418] border-white/10 text-zinc-400'
+              ? 'bg-[#FAF4E8] border-[#DDD2BC] text-[#4A433A]'
+              : 'bg-[#080F1E] border-sky-300/15 text-slate-300'
           }`}
         >
           <div className="flex items-center gap-2 text-[11px]">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>High-DPI 300 DPI multi-page PDF export matches paper selection accurately</span>
+            <Sparkles className={`w-3.5 h-3.5 ${isLight ? 'text-[#9A4319]' : 'text-amber-300'}`} />
+            <span>High-DPI A4 PDF export matches your selected sheet ruling</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer px-4 py-1.5 bg-[#6366f1] hover:bg-[#4f46e5] text-white text-xs font-bold rounded-lg transition-colors uppercase"
+            className={`cursor-pointer px-4 py-1.5 text-xs font-bold rounded-lg transition-colors uppercase ${
+              isLight
+                ? 'bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8]'
+                : 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+            }`}
           >
             Done
           </button>

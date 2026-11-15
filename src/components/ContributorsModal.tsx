@@ -265,7 +265,7 @@ export default function ContributorsModal({ isOpen, onClose }: ContributorsModal
           </div>
 
           <div className="text-[10px] text-zinc-500 uppercase tracking-widest hidden sm:inline">
-            handwrite.ai.com // 100% Open Source
+            humanhandwritting.ai.studio // Open Source
           </div>
         </div>
 

@@ -197,8 +197,8 @@ export default function StudentTestimonials({
       aria-label="Student reviews and comments"
       className={`border-t transition-colors select-none ${
         isLight
-          ? 'bg-slate-50 border-slate-200 text-slate-800'
-          : 'bg-[#0d0d10] border-white/10 text-white'
+          ? 'bg-[#EDE4D2]/88 border-[#DDD2BC] text-[#1E1B18]'
+          : 'bg-[#080F1E]/86 border-sky-300/15 text-slate-100'
       } px-4 sm:px-8 py-8 sm:py-10`}
     >
       <div className="max-w-6xl mx-auto">
@@ -206,23 +206,33 @@ export default function StudentTestimonials({
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <span
+                className={`p-1.5 rounded-lg border ${
+                  isLight
+                    ? 'bg-[#FBF1EA] text-[#A84B1C] border-[#E7C9B4]'
+                    : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                }`}
+              >
                 <GraduationCap className="w-4 h-4" />
               </span>
-              <span className="text-[11px] font-mono-code font-bold uppercase tracking-wider text-amber-400">
+              <span
+                className={`text-[11px] font-mono-code font-bold uppercase tracking-wider ${
+                  isLight ? 'text-[#8F3D15]' : 'text-amber-400'
+                }`}
+              >
                 Student Community &amp; Hall of Fame
               </span>
             </div>
             <h2
               className={`font-syne text-xl sm:text-2xl font-extrabold tracking-tight ${
-                isLight ? 'text-slate-900' : 'text-white'
+                isLight ? 'text-[#1E2430]' : 'text-white'
               }`}
             >
               Real Students Who Used &amp; Loved The Site
             </h2>
             <p
               className={`font-sans text-xs sm:text-sm mt-1 ${
-                isLight ? 'text-slate-600' : 'text-zinc-400'
+                isLight ? 'text-[#4B5260]' : 'text-zinc-400'
               }`}
             >
               Hear directly from university students who escaped late-night hand cramps and saved their semester grades.
@@ -235,11 +245,11 @@ export default function StudentTestimonials({
               onClick={() => setIsFormOpen(!isFormOpen)}
               className={`cursor-pointer px-3.5 py-2 rounded-xl text-xs font-mono-code font-semibold flex items-center gap-2 transition-all active:scale-95 border ${
                 isLight
-                  ? 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300 shadow-xs'
+                  ? 'bg-[#FFFDF8] hover:bg-[#FAF4E8] text-[#1E2430] border-[#D7CCB5] shadow-xs'
                   : 'bg-white/10 hover:bg-white/15 text-white border-white/20'
               }`}
             >
-              <MessageSquarePlus className="w-4 h-4 text-emerald-400" />
+              <MessageSquarePlus className={`w-4 h-4 ${isLight ? 'text-[#9A4319]' : 'text-emerald-400'}`} />
               <span>{isFormOpen ? 'Close Feedback' : 'Add Your Review'}</span>
               {isFormOpen ? (
                 <ChevronUp className="w-3.5 h-3.5" />
@@ -252,10 +262,10 @@ export default function StudentTestimonials({
               <button
                 type="button"
                 onClick={onOpenCoffeeModal}
-                className="cursor-pointer px-3.5 py-2 rounded-xl text-xs font-mono-code font-semibold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center gap-1.5 transition-all shadow-md shadow-amber-950/30 active:scale-95"
+                className="cursor-pointer px-3.5 py-2 rounded-xl text-xs font-mono-code font-semibold bg-[#A84B1C] hover:bg-[#8F3D15] text-[#FFFDF8] flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
               >
                 <Heart className="w-3.5 h-3.5 fill-current" />
-                <span>Tip Plenty (₹ UPI)</span>
+                <span>Tip Plenty (UPI / BTC)</span>
               </button>
             )}
           </div>
@@ -266,19 +276,19 @@ export default function StudentTestimonials({
           <div
             className={`p-3 sm:p-4 rounded-xl border ${
               isLight
-                ? 'bg-white border-slate-200'
-                : 'bg-[#121217] border-white/5'
+                ? 'bg-[#FFFDF8] border-[#DDD2BC]'
+                : 'bg-[#0B1222]/90 border-sky-300/15'
             }`}
           >
-            <div className="flex items-center gap-1 text-amber-400 mb-1">
+            <div className={`flex items-center gap-1 mb-1 ${isLight ? 'text-[#A84B1C]' : 'text-amber-400'}`}>
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                <Star key={i} className={`w-3.5 h-3.5 ${isLight ? 'fill-[#A84B1C]' : 'fill-amber-400'}`} />
               ))}
             </div>
-            <div className={`font-syne text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            <div className={`font-syne text-lg font-bold ${isLight ? 'text-[#1E2430]' : 'text-white'}`}>
               4.96 / 5.0
             </div>
-            <div className={`text-[10px] font-mono-code ${isLight ? 'text-slate-500' : 'text-zinc-400'}`}>
+            <div className={`text-[10px] font-mono-code ${isLight ? 'text-[#6E675C]' : 'text-slate-400'}`}>
               Average Student Rating
             </div>
           </div>
@@ -286,18 +296,18 @@ export default function StudentTestimonials({
           <div
             className={`p-3 sm:p-4 rounded-xl border ${
               isLight
-                ? 'bg-white border-slate-200'
-                : 'bg-[#121217] border-white/5'
+                ? 'bg-[#FFFDF8] border-[#DDD2BC]'
+                : 'bg-[#0B1222]/90 border-sky-300/15'
             }`}
           >
-            <div className="text-emerald-400 font-bold text-sm mb-1 flex items-center gap-1">
+            <div className={`font-bold text-sm mb-1 flex items-center gap-1 ${isLight ? 'text-[#9A4319]' : 'text-emerald-400'}`}>
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>18,400+</span>
             </div>
-            <div className={`font-syne text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            <div className={`font-syne text-lg font-bold ${isLight ? 'text-[#1E1B18]' : 'text-white'}`}>
               Submissions Saved
             </div>
-            <div className={`text-[10px] font-mono-code ${isLight ? 'text-slate-500' : 'text-zinc-400'}`}>
+            <div className={`text-[10px] font-mono-code ${isLight ? 'text-[#6E655A]' : 'text-slate-400'}`}>
               Across 320+ Colleges
             </div>
           </div>
@@ -305,36 +315,36 @@ export default function StudentTestimonials({
           <div
             className={`p-3 sm:p-4 rounded-xl border ${
               isLight
-                ? 'bg-white border-slate-200'
-                : 'bg-[#121217] border-white/5'
+                ? 'bg-[#FFFDF8] border-[#DDD2BC]'
+                : 'bg-[#0B1222]/90 border-sky-300/15'
             }`}
           >
-            <div className="text-indigo-400 font-bold text-sm mb-1 flex items-center gap-1">
+            <div className={`font-bold text-sm mb-1 flex items-center gap-1 ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>
               <Sparkles className="w-3.5 h-3.5" />
               <span>100% Free</span>
             </div>
-            <div className={`font-syne text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              No Watermarks
+            <div className={`font-syne text-lg font-bold ${isLight ? 'text-[#1E2430]' : 'text-white'}`}>
+              Unlimited Pages
             </div>
-            <div className={`text-[10px] font-mono-code ${isLight ? 'text-slate-500' : 'text-zinc-400'}`}>
-              Clean 300 DPI Export
+            <div className={`text-[10px] font-mono-code ${isLight ? 'text-[#6E675C]' : 'text-slate-400'}`}>
+              Clean A4 PDF Export
             </div>
           </div>
 
           <div
             className={`p-3 sm:p-4 rounded-xl border ${
               isLight
-                ? 'bg-white border-slate-200'
-                : 'bg-[#121217] border-white/5'
+                ? 'bg-[#FFFDF8] border-[#DDD2BC]'
+                : 'bg-[#0B1222]/90 border-sky-300/15'
             }`}
           >
-            <div className="text-amber-400 font-bold text-sm mb-1 flex items-center gap-1">
+            <div className={`font-bold text-sm mb-1 flex items-center gap-1 ${isLight ? 'text-[#A84B1C]' : 'text-amber-300'}`}>
               <span>☕ Plenty</span>
             </div>
-            <div className={`font-syne text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            <div className={`font-syne text-lg font-bold ${isLight ? 'text-[#1E2430]' : 'text-white'}`}>
               By a Student
             </div>
-            <div className={`text-[10px] font-mono-code ${isLight ? 'text-slate-500' : 'text-zinc-400'}`}>
+            <div className={`text-[10px] font-mono-code ${isLight ? 'text-[#6E675C]' : 'text-slate-400'}`}>
               For All Students
             </div>
           </div>
@@ -346,19 +356,19 @@ export default function StudentTestimonials({
             onSubmit={handleAddReview}
             className={`mb-7 p-4 sm:p-6 rounded-2xl border transition-all ${
               isLight
-                ? 'bg-white border-indigo-200 shadow-md ring-1 ring-indigo-50'
-                : 'bg-[#14141a] border-indigo-500/30 shadow-xl ring-1 ring-indigo-500/20'
+                ? 'bg-[#FFFDF8] border-[#9A4319]/35 shadow-md ring-1 ring-[#9A4319]/10'
+                : 'bg-[#0B1222]/94 border-sky-400/35 shadow-xl ring-1 ring-sky-400/20'
             }`}
           >
             <div className="flex items-center gap-2 mb-3">
-              <MessageSquarePlus className="w-4 h-4 text-[#6366f1]" />
-              <h3 className={`font-syne font-bold text-sm ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <MessageSquarePlus className={`w-4 h-4 ${isLight ? 'text-[#9A4319]' : 'text-[#6366f1]'}`} />
+              <h3 className={`font-syne font-bold text-sm ${isLight ? 'text-[#1E1B18]' : 'text-white'}`}>
                 Share Your Assignment Experience
               </h3>
             </div>
 
             {submittedMessage ? (
-              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-mono-code flex items-center gap-2">
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-700 text-xs font-mono-code flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>Thank you! Your review has been added to the student wall.</span>
               </div>
@@ -366,7 +376,7 @@ export default function StudentTestimonials({
               <div className="space-y-3 font-mono-code text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className={`block mb-1 text-[11px] ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+                    <label className={`block mb-1 text-[11px] ${isLight ? 'text-[#4A433A]' : 'text-zinc-400'}`}>
                       Your Name / Nickname *
                     </label>
                     <input
@@ -377,14 +387,14 @@ export default function StudentTestimonials({
                       placeholder="e.g. Rhema / Alex"
                       className={`w-full px-3 py-2 rounded-lg border text-xs font-sans ${
                         isLight
-                          ? 'bg-slate-50 border-slate-300 text-slate-900 focus:bg-white'
+                          ? 'bg-[#FAF4E8] border-[#D7CCB5] text-[#1E1B18] focus:bg-[#FFFDF8] focus:border-[#9A4319]'
                           : 'bg-[#0a0a0d] border-zinc-700 text-white focus:border-indigo-500'
                       } outline-none`}
                     />
                   </div>
 
                   <div>
-                    <label className={`block mb-1 text-[11px] ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+                    <label className={`block mb-1 text-[11px] ${isLight ? 'text-[#4A433A]' : 'text-zinc-400'}`}>
                       College / Major
                     </label>
                     <input
@@ -394,14 +404,14 @@ export default function StudentTestimonials({
                       placeholder="e.g. Computer Science (AI/ML) or Information Tech, 3rd Year"
                       className={`w-full px-3 py-2 rounded-lg border text-xs font-sans ${
                         isLight
-                          ? 'bg-slate-50 border-slate-300 text-slate-900 focus:bg-white'
+                          ? 'bg-[#FAF4E8] border-[#D7CCB5] text-[#1E1B18] focus:bg-[#FFFDF8] focus:border-[#9A4319]'
                           : 'bg-[#0a0a0d] border-zinc-700 text-white focus:border-indigo-500'
                       } outline-none`}
                     />
                   </div>
 
                   <div>
-                    <label className={`block mb-1 text-[11px] ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+                    <label className={`block mb-1 text-[11px] ${isLight ? 'text-[#4A433A]' : 'text-zinc-400'}`}>
                       Rating
                     </label>
                     <div className="flex items-center gap-1.5 py-1.5">
@@ -415,15 +425,17 @@ export default function StudentTestimonials({
                           <Star
                             className={`w-4 h-4 ${
                               star <= newRating
-                                ? 'fill-amber-400 text-amber-400'
+                                ? isLight
+                                  ? 'fill-[#A84B1C] text-[#A84B1C]'
+                                  : 'fill-amber-400 text-amber-400'
                                 : isLight
-                                ? 'text-slate-300'
+                                ? 'text-[#D7CCB5]'
                                 : 'text-zinc-600'
                             }`}
                           />
                         </button>
                       ))}
-                      <span className="text-[11px] font-bold text-amber-400 ml-1">
+                      <span className={`text-[11px] font-bold ml-1 ${isLight ? 'text-[#A84B1C]' : 'text-amber-400'}`}>
                         {newRating} / 5
                       </span>
                     </div>
@@ -431,7 +443,7 @@ export default function StudentTestimonials({
                 </div>
 
                 <div>
-                  <label className={`block mb-1 text-[11px] ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+                  <label className={`block mb-1 text-[11px] ${isLight ? 'text-[#4A433A]' : 'text-zinc-400'}`}>
                     Your Review / How it helped your assignments *
                   </label>
                   <textarea
@@ -442,7 +454,7 @@ export default function StudentTestimonials({
                     placeholder="Tell other students how many pages you saved, if your professor noticed, or how authentic the handwriting looked..."
                     className={`w-full px-3 py-2 rounded-lg border text-xs font-sans ${
                       isLight
-                        ? 'bg-slate-50 border-slate-300 text-slate-900 focus:bg-white'
+                        ? 'bg-[#FAF4E8] border-[#D7CCB5] text-[#1E1B18] focus:bg-[#FFFDF8] focus:border-[#9A4319]'
                         : 'bg-[#0a0a0d] border-zinc-700 text-white focus:border-indigo-500'
                     } outline-none resize-none`}
                   />
@@ -454,7 +466,7 @@ export default function StudentTestimonials({
                     onClick={() => setIsFormOpen(false)}
                     className={`cursor-pointer px-3 py-1.5 rounded-lg border text-xs ${
                       isLight
-                        ? 'border-slate-300 hover:bg-slate-100 text-slate-700'
+                        ? 'border-[#D7CCB5] hover:bg-[#FAF4E8] text-[#4A433A]'
                         : 'border-zinc-700 hover:bg-white/5 text-zinc-300'
                     }`}
                   >
@@ -462,7 +474,11 @@ export default function StudentTestimonials({
                   </button>
                   <button
                     type="submit"
-                    className="cursor-pointer px-4 py-1.5 rounded-lg bg-[#6366f1] hover:bg-[#4f46e5] text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                    className={`cursor-pointer px-4 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm ${
+                      isLight
+                        ? 'bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8]'
+                        : 'bg-[#6366f1] hover:bg-[#4f46e5] text-white'
+                    }`}
                   >
                     <Send className="w-3 h-3" />
                     <span>Submit Review</span>
@@ -480,8 +496,8 @@ export default function StudentTestimonials({
               key={rev.id}
               className={`rounded-2xl p-4 sm:p-4.5 border transition-all flex flex-col justify-between ${
                 isLight
-                  ? 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-md'
-                  : 'bg-[#111116] border-white/5 hover:border-white/15 hover:bg-[#14141a]'
+                  ? 'bg-[#FFFDF8] border-[#DDD2BC] hover:border-[#9A4319]/40 hover:shadow-md'
+                  : 'bg-[#0B1222]/92 border-sky-300/15 hover:border-sky-400/35 hover:bg-[#0F1930]'
               }`}
             >
               <div>
@@ -497,16 +513,16 @@ export default function StudentTestimonials({
                       <div className="flex items-center gap-1.5">
                         <span
                           className={`font-syne font-bold text-xs sm:text-sm truncate ${
-                            isLight ? 'text-slate-900' : 'text-white'
+                            isLight ? 'text-[#1E1B18]' : 'text-white'
                           }`}
                         >
                           {rev.name}
                         </span>
-                        <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                        <CheckCircle2 className={`w-3 h-3 shrink-0 ${isLight ? 'text-[#9A4319]' : 'text-emerald-400'}`} />
                       </div>
                       <span
                         className={`text-[10px] font-mono-code block truncate ${
-                          isLight ? 'text-slate-500' : 'text-zinc-400'
+                          isLight ? 'text-[#6E655A]' : 'text-zinc-400'
                         }`}
                       >
                         {rev.major}
@@ -517,17 +533,22 @@ export default function StudentTestimonials({
                   {/* Stars */}
                   <div className="flex items-center gap-0.5 shrink-0">
                     {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${
+                          isLight ? 'fill-[#A84B1C] text-[#A84B1C]' : 'fill-amber-400 text-amber-400'
+                        }`}
+                      />
                     ))}
                   </div>
                 </div>
 
                 {/* Comment */}
-                <div className="relative pl-3 border-l-2 border-indigo-400/40 my-2.5">
-                  <Quote className="w-3 h-3 text-indigo-400/30 absolute -left-1.5 -top-1" />
+                <div className={`relative pl-3 border-l-2 my-2.5 ${isLight ? 'border-[#A84B1C]/40' : 'border-indigo-400/40'}`}>
+                  <Quote className={`w-3 h-3 absolute -left-1.5 -top-1 ${isLight ? 'text-[#A84B1C]/35' : 'text-indigo-400/30'}`} />
                   <p
                     className={`font-sans text-xs leading-relaxed italic ${
-                      isLight ? 'text-slate-700' : 'text-zinc-300'
+                      isLight ? 'text-[#4A433A]' : 'text-zinc-300'
                     }`}
                   >
                     "{rev.comment}"
@@ -539,11 +560,11 @@ export default function StudentTestimonials({
               <div
                 className={`pt-2 mt-2 border-t flex items-center justify-between text-[10px] font-mono-code ${
                   isLight
-                    ? 'border-slate-100 text-slate-500'
+                    ? 'border-[#EAE0CD] text-[#6E655A]'
                     : 'border-white/5 text-zinc-400'
                 }`}
               >
-                <span className="text-emerald-500 font-semibold">{rev.badge}</span>
+                <span className={`font-semibold ${isLight ? 'text-[#9A4319]' : 'text-emerald-500'}`}>{rev.badge}</span>
                 <span>{rev.date}</span>
               </div>
             </div>

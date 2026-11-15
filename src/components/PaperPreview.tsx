@@ -297,14 +297,14 @@ export default function PaperPreview({
   };
 
   // Precompute guide geometry for A4 (794 x 1123)
-  const guideStroke = isDarkPaper ? 'rgba(165, 180, 252, 0.5)' : 'rgba(79, 70, 229, 0.36)';
+  const guideStroke = isDarkPaper ? 'rgba(165, 180, 252, 0.5)' : 'rgba(154, 67, 25, 0.42)';
   const guideCenterStroke = isDarkPaper
     ? 'rgba(165, 180, 252, 0.24)'
-    : 'rgba(79, 70, 229, 0.16)';
-  const guideZoneTint = isDarkPaper ? 'rgba(129, 140, 248, 0.08)' : 'rgba(99, 102, 241, 0.04)';
+    : 'rgba(154, 67, 25, 0.2)';
+  const guideZoneTint = isDarkPaper ? 'rgba(129, 140, 248, 0.08)' : 'rgba(154, 67, 25, 0.045)';
   const guideTagBg = isDarkPaper
-    ? 'bg-slate-900/90 text-indigo-200 border-indigo-400/30'
-    : 'bg-white/90 text-indigo-700 border-indigo-200';
+    ? 'bg-slate-900/90 text-sky-200 border-sky-400/30'
+    : 'bg-[#FFFDF8]/95 text-[#9A4319] border-[#E2C2A8]';
   const safeRightX = 794 - settings.rightMargin;
   const safeBottomY = 1123 - settings.bottomMargin;
   const lineMarkers: number[] = [];
@@ -316,21 +316,21 @@ export default function PaperPreview({
     <div
       className={`flex flex-col h-full rounded-2xl border overflow-hidden shadow-xs transition-colors ${
         isLight
-          ? 'bg-white border-slate-200 text-slate-800'
-          : 'bg-[#141418] border-white/10 text-zinc-100'
+          ? 'bg-[#FFFDF8] border-[#DDD2BC] text-[#1E1B18]'
+          : 'bg-[#0B1222]/92 border-sky-300/15 text-slate-100'
       }`}
     >
       {/* Top Bar: Clean Pagination, Guides Toggle & Zoom Controls */}
       <div
         className={`px-3 sm:px-4 py-2 border-b flex items-center justify-between gap-2 flex-wrap select-none ${
-          isLight ? 'bg-slate-50/90 border-slate-200' : 'bg-[#101014] border-white/10'
+          isLight ? 'bg-[#FAF4E8] border-[#EAE0CD]' : 'bg-[#080F1E]/95 border-sky-300/15'
         }`}
       >
         {/* Left: Pagination & Add Page */}
         <div className="flex items-center gap-1.5">
           <div
             className={`flex items-center rounded-xl border p-0.5 ${
-              isLight ? 'bg-white border-slate-200' : 'bg-[#18181d] border-white/10'
+              isLight ? 'bg-[#FFFDF8] border-[#D7CCB5]' : 'bg-[#0E172B] border-sky-300/20'
             }`}
           >
             <button
@@ -338,7 +338,7 @@ export default function PaperPreview({
               onClick={() => onPageChange(Math.max(0, pageIndex - 1))}
               disabled={pageIndex === 0}
               className={`cursor-pointer min-h-[36px] min-w-[36px] rounded-lg flex items-center justify-center disabled:opacity-25 transition-colors ${
-                isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-zinc-300 hover:bg-white/10'
+                isLight ? 'text-[#4A433A] hover:bg-[#FAF4E8]' : 'text-slate-200 hover:bg-sky-500/15'
               }`}
               title="Previous Page"
               aria-label="Previous Page"
@@ -355,7 +355,7 @@ export default function PaperPreview({
               onClick={() => onPageChange(Math.min(totalPages - 1, pageIndex + 1))}
               disabled={pageIndex >= totalPages - 1}
               className={`cursor-pointer min-h-[36px] min-w-[36px] rounded-lg flex items-center justify-center disabled:opacity-25 transition-colors ${
-                isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-zinc-300 hover:bg-white/10'
+                isLight ? 'text-[#4A433A] hover:bg-[#FAF4E8]' : 'text-slate-200 hover:bg-sky-500/15'
               }`}
               title="Next Page"
               aria-label="Next Page"
@@ -368,7 +368,11 @@ export default function PaperPreview({
             <button
               type="button"
               onClick={onAddPage}
-              className="cursor-pointer min-h-[38px] px-3 rounded-xl bg-[#6366f1] hover:bg-indigo-600 text-white text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 active:scale-95"
+              className={`cursor-pointer min-h-[38px] px-3 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 active:scale-95 ${
+                isLight
+                  ? 'bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8]'
+                  : 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+              }`}
               title="Add a blank page"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -380,7 +384,7 @@ export default function PaperPreview({
             <button
               type="button"
               onClick={onAutoSplitPages}
-              className="cursor-pointer min-h-[38px] px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 active:scale-95"
+              className="cursor-pointer min-h-[38px] px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#1E1B18] text-xs font-bold flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 active:scale-95"
               title={`Split overflowing text across pages`}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -394,8 +398,8 @@ export default function PaperPreview({
               onClick={onDeletePage}
               className={`cursor-pointer min-h-[38px] min-w-[38px] rounded-xl flex items-center justify-center transition-colors border ${
                 isLight
-                  ? 'border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50'
-                  : 'border-white/10 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10'
+                  ? 'border-[#D7CCB5] text-[#6E655A] hover:text-rose-700 hover:bg-rose-50'
+                  : 'border-sky-300/20 text-slate-300 hover:text-rose-300 hover:bg-rose-500/15'
               }`}
               title={`Delete Page ${pageIndex + 1}`}
               aria-label={`Delete Page ${pageIndex + 1}`}
@@ -415,41 +419,43 @@ export default function PaperPreview({
               title="Toggle faint Margin Guides for aligning text and diagrams (not printed)"
               className={`cursor-pointer min-h-[38px] px-3 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-colors whitespace-nowrap shrink-0 active:scale-95 ${
                 settings.showMarginGuides
-                  ? 'bg-[#6366f1]/15 border-[#6366f1]/50 text-indigo-600 dark:text-indigo-300'
+                  ? isLight
+                    ? 'bg-[#F6EBE0] border-[#E2C2A8] text-[#9A4319]'
+                    : 'bg-sky-500/20 border-sky-400/60 text-sky-200'
                   : isLight
-                  ? 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  : 'bg-[#18181d] border-white/10 text-zinc-300 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#FFFDF8] border-[#D7CCB5] text-[#4A433A] hover:text-[#1E1B18] hover:bg-[#FAF4E8]'
+                  : 'bg-[#0E172B] border-sky-300/20 text-slate-300 hover:text-white hover:bg-[#121D35]'
               }`}
             >
-              <Ruler className="w-3.5 h-3.5 text-[#6366f1]" />
+              <Ruler className={`w-3.5 h-3.5 ${isLight ? 'text-[#9A4319]' : 'text-sky-400'}`} />
               <span>Guides</span>
             </button>
           )}
 
           <div
             className={`flex items-center gap-0.5 p-0.5 rounded-xl border ${
-              isLight ? 'bg-white border-slate-200' : 'bg-[#18181d] border-white/10'
+              isLight ? 'bg-[#FFFDF8] border-[#D7CCB5]' : 'bg-[#0E172B] border-sky-300/20'
             }`}
           >
             <button
               type="button"
               onClick={() => setZoomLevel((z) => Math.max(0.35, Number((z - 0.1).toFixed(2))))}
               className={`cursor-pointer min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center transition-colors ${
-                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-white/10 text-zinc-300'
+                isLight ? 'hover:bg-[#FAF4E8] text-[#4A433A]' : 'hover:bg-sky-500/15 text-slate-200'
               }`}
               title="Zoom Out"
               aria-label="Zoom Out"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
-            <span className="text-xs font-semibold tabular-nums text-[#6366f1] px-1.5 min-w-[44px] text-center">
+            <span className={`text-xs font-semibold tabular-nums px-1.5 min-w-[44px] text-center ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>
               {Math.round(zoomLevel * 100)}%
             </span>
             <button
               type="button"
               onClick={() => setZoomLevel((z) => Math.min(1.3, Number((z + 0.1).toFixed(2))))}
               className={`cursor-pointer min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center transition-colors ${
-                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-white/10 text-zinc-300'
+                isLight ? 'hover:bg-[#FAF4E8] text-[#4A433A]' : 'hover:bg-sky-500/15 text-slate-200'
               }`}
               title="Zoom In"
               aria-label="Zoom In"
@@ -460,7 +466,7 @@ export default function PaperPreview({
               type="button"
               onClick={() => setZoomLevel(calculateFitZoom())}
               className={`cursor-pointer min-h-[34px] min-w-[34px] rounded-lg flex items-center justify-center transition-colors ${
-                isLight ? 'hover:bg-slate-100 text-slate-700' : 'hover:bg-white/10 text-zinc-300'
+                isLight ? 'hover:bg-[#FAF4E8] text-[#4A433A]' : 'hover:bg-sky-500/15 text-slate-200'
               }`}
               title="Fit Paper to Screen"
               aria-label="Fit Paper to Screen"
@@ -475,7 +481,7 @@ export default function PaperPreview({
       <div
         ref={scrollportRef}
         className={`flex-1 overflow-auto p-3 sm:p-6 lg:p-8 flex items-start justify-center transition-colors relative ${
-          isLight ? 'bg-slate-100/90' : 'bg-[#0e0e12]'
+          isLight ? 'bg-[#EDE4D2]/85' : 'bg-[#050914]/65'
         }`}
         onPointerMove={handlePaperPointerMove}
         onPointerUp={handlePaperPointerUp}
@@ -988,21 +994,21 @@ export default function PaperPreview({
         {isPageOverflowing && onAutoSplitPages && (
           <div className="fixed sm:absolute bottom-20 lg:bottom-4 left-1/2 -translate-x-1/2 z-30 max-w-lg w-[92%] px-2">
             <div
-              className={`p-3 rounded-2xl border shadow-xl flex items-center justify-between gap-3 text-xs backdrop-blur-md transition-all ${
+              className={`p-3 rounded-2xl border shadow-xl flex items-center justify-between gap-3 text-xs transition-all ${
                 isLight
-                  ? 'bg-amber-50/95 border-amber-300 text-amber-950'
-                  : 'bg-[#181512]/95 border-amber-500/50 text-amber-200'
+                  ? 'bg-[#FFFDF8]/96 border-amber-300 text-[#1E1B18]'
+                  : 'bg-[#0B1222]/95 border-amber-400/45 text-amber-200'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 border border-amber-500/30">
-                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${isLight ? 'bg-amber-100 border-amber-300' : 'bg-amber-400/15 border-amber-400/35'}`}>
+                  <AlertTriangle className={`w-4 h-4 ${isLight ? 'text-amber-700' : 'text-amber-300'}`} />
                 </div>
                 <div className="min-w-0">
                   <div className="font-semibold">
                     Page {pageIndex + 1} has +{overflowLinesCount} extra lines (~{overflowWordsCount} words)
                   </div>
-                  <p className="text-[11px] opacity-80 truncate">
+                  <p className="text-[11px] opacity-85 truncate">
                     Split cleanly onto the next sheet so nothing gets cut off.
                   </p>
                 </div>
@@ -1011,7 +1017,7 @@ export default function PaperPreview({
               <button
                 type="button"
                 onClick={onAutoSplitPages}
-                className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shrink-0 transition-colors active:scale-95 whitespace-nowrap"
+                className="cursor-pointer bg-amber-500 hover:bg-amber-400 text-[#1E1B18] font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shrink-0 transition-colors active:scale-95 whitespace-nowrap"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Auto-Split</span>

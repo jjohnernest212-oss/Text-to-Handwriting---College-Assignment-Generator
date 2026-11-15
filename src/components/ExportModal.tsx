@@ -279,38 +279,44 @@ export default function ExportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1B18]/45 p-4 select-none">
       <div
         className={`rounded-2xl shadow-2xl border max-w-lg w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 transition-colors ${
           isLight
-            ? 'bg-white border-slate-300 text-slate-800'
-            : 'bg-[#0c0c0e] border-[#27272a] text-[#e4e4e7]'
+            ? 'bg-[#FFFDF8] border-[#DDD2BC] text-[#1E1B18]'
+            : 'bg-[#0B1222] border-sky-300/20 text-slate-100'
         }`}
       >
         {/* Header */}
         <div
           className={`px-6 py-4.5 border-b flex items-center justify-between ${
-            isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#121214] border-[#27272a]'
+            isLight ? 'bg-[#FAF4E8] border-[#EAE0CD]' : 'bg-[#080F1E] border-sky-300/15'
           }`}
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#6366f1]/15 border border-[#6366f1]/30 text-[#6366f1] flex items-center justify-center shadow-xs">
+            <div
+              className={`w-9 h-9 rounded-xl border flex items-center justify-center shadow-xs ${
+                isLight
+                  ? 'bg-[#F6EBE0] border-[#E2C2A8] text-[#9A4319]'
+                  : 'bg-sky-500/15 border-sky-400/35 text-sky-300'
+              }`}
+            >
               <FileDown className="w-4 h-4" />
             </div>
             <div>
               <h3
                 className={`font-syne text-base font-extrabold uppercase tracking-tight ${
-                  isLight ? 'text-slate-900' : 'text-white'
+                  isLight ? 'text-[#1E1B18]' : 'text-white'
                 }`}
               >
                 Download Handwritten PDF
               </h3>
               <p
                 className={`font-mono-code text-[10px] uppercase tracking-wider ${
-                  isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'
+                  isLight ? 'text-[#6E655A]' : 'text-slate-400'
                 }`}
               >
-                {totalPages} {totalPages === 1 ? 'PAGE' : 'PAGES'} READY FOR SUBMISSION
+                {totalPages} {totalPages === 1 ? 'PAGE' : 'PAGES'} READY TO EXPORT
               </p>
             </div>
           </div>
@@ -319,8 +325,8 @@ export default function ExportModal({
             disabled={isExporting}
             className={`cursor-pointer p-1.5 rounded-lg transition-colors ${
               isLight
-                ? 'text-slate-400 hover:text-slate-900 hover:bg-slate-200'
-                : 'text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b]'
+                ? 'text-[#6E655A] hover:text-[#1E1B18] hover:bg-[#EDE4D2]'
+                : 'text-slate-400 hover:text-white hover:bg-sky-500/15'
             }`}
           >
             <X className="w-5 h-5" />
@@ -331,11 +337,17 @@ export default function ExportModal({
         <div className="p-6 space-y-4 font-mono-code">
           {/* Error Banner */}
           {errorMessage && (
-            <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-500 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div
+              className={`p-3.5 border rounded-xl text-xs flex items-start gap-2.5 animate-in fade-in duration-150 ${
+                isLight
+                  ? 'bg-rose-50 border-rose-300 text-rose-800'
+                  : 'bg-rose-500/15 border-rose-400/35 text-rose-200'
+              }`}
+            >
+              <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${isLight ? 'text-rose-600' : 'text-rose-300'}`} />
               <div className="flex-1">
                 <p className="font-bold">{errorMessage}</p>
-                <p className="text-[11px] opacity-80 mt-0.5">
+                <p className="text-[11px] opacity-85 mt-0.5">
                   Try downloading as PNG or review your text lines.
                 </p>
               </div>
@@ -344,10 +356,10 @@ export default function ExportModal({
 
           {isExporting ? (
             <div className="py-8 text-center space-y-3.5">
-              <Loader2 className="w-10 h-10 text-[#6366f1] animate-spin mx-auto" />
+              <Loader2 className={`w-10 h-10 animate-spin mx-auto ${isLight ? 'text-[#9A4319]' : 'text-sky-400'}`} />
               <div
                 className={`text-xs font-bold uppercase tracking-wider ${
-                  isLight ? 'text-slate-900' : 'text-white'
+                  isLight ? 'text-[#1E1B18]' : 'text-white'
                 }`}
               >
                 {progress?.status || 'RENDERING RETINA CANVAS...'}
@@ -355,11 +367,11 @@ export default function ExportModal({
               {progress && (
                 <div
                   className={`w-full h-2 rounded-full overflow-hidden max-w-xs mx-auto border ${
-                    isLight ? 'bg-slate-200 border-slate-300' : 'bg-[#18181b] border-[#27272a]'
+                    isLight ? 'bg-[#EAE0CD] border-[#D7CCB5]' : 'bg-[#070D1A] border-sky-300/20'
                   }`}
                 >
                   <div
-                    className="bg-[#6366f1] h-full transition-all duration-300 rounded-full"
+                    className={`h-full transition-all duration-300 rounded-full ${isLight ? 'bg-[#9A4319]' : 'bg-sky-400'}`}
                     style={{
                       width: `${Math.max(5, (progress.currentPage / progress.totalPages) * 100)}%`,
                     }}
@@ -368,24 +380,24 @@ export default function ExportModal({
               )}
               <p
                 className={`text-[10px] ${
-                  isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'
+                  isLight ? 'text-[#6E655A]' : 'text-slate-400'
                 }`}
               >
-                Compiling crisp A4 pages with ink physics and diagrams...
+                Compiling crisp A4 pages with ink styling and sketches...
               </p>
             </div>
           ) : exportSuccess ? (
             <div className="py-8 text-center space-y-3">
-              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto animate-in zoom-in-75 duration-200" />
+              <CheckCircle2 className={`w-12 h-12 mx-auto animate-in zoom-in-75 duration-200 ${isLight ? 'text-emerald-600' : 'text-emerald-400'}`} />
               <h4
                 className={`font-syne text-base font-bold uppercase ${
-                  isLight ? 'text-slate-900' : 'text-white'
+                  isLight ? 'text-[#1E1B18]' : 'text-white'
                 }`}
               >
                 {exportSuccess}
               </h4>
-              <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-[#e4e4e7]/70'}`}>
-                Downloaded to your device. Ready for Google Classroom, Canvas, or Moodle!
+              <p className={`text-xs ${isLight ? 'text-[#4A433A]' : 'text-slate-300'}`}>
+                Saved directly to your device. Ready for printing or sharing!
               </p>
             </div>
           ) : (
@@ -396,32 +408,40 @@ export default function ExportModal({
                 onClick={handleDownloadPdf}
                 className={`cursor-pointer w-full p-4 rounded-xl border text-left transition-all flex items-start gap-3.5 group shadow-sm active:scale-[0.99] ${
                   isLight
-                    ? 'border-[#6366f1] bg-[#6366f1]/10 hover:bg-[#6366f1]/15 hover:shadow-md'
-                    : 'border-[#6366f1] bg-[#6366f1]/15 hover:bg-[#6366f1]/25 hover:shadow-indigo-950/40'
+                    ? 'border-[#E2C2A8] bg-[#F6EBE0] hover:bg-[#EFE0D0] hover:shadow-md'
+                    : 'border-sky-400/50 bg-sky-500/15 hover:bg-sky-500/25'
                 }`}
               >
-                <div className="w-10 h-10 rounded-xl bg-[#6366f1] text-white flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform ${
+                    isLight ? 'bg-[#24201C] text-[#FFFDF8]' : 'bg-sky-500 text-slate-950'
+                  }`}
+                >
                   <FileDown className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span
                       className={`text-xs font-bold uppercase tracking-wider ${
-                        isLight ? 'text-slate-900' : 'text-white'
+                        isLight ? 'text-[#1E1B18]' : 'text-white'
                       }`}
                     >
                       Download Multi-Page PDF ({totalPages} {totalPages === 1 ? 'Page' : 'Pages'})
                     </span>
-                    <span className="bg-[#6366f1] text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">
+                    <span
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
+                        isLight ? 'bg-[#9A4319] text-[#FFFDF8]' : 'bg-sky-500 text-slate-950'
+                      }`}
+                    >
                       RECOMMENDED
                     </span>
                   </div>
                   <p
                     className={`text-[11px] mt-1 leading-relaxed ${
-                      isLight ? 'text-slate-600' : 'text-[#e4e4e7]/70'
+                      isLight ? 'text-[#4A433A]' : 'text-slate-300'
                     }`}
                   >
-                    Smoothly compiles all {totalPages} assignment pages into a high-resolution, watermark-free A4 PDF document.
+                    Compiles all {totalPages} pages locally into a clean, print-ready A4 PDF document.
                   </p>
                 </div>
               </button>
@@ -432,15 +452,15 @@ export default function ExportModal({
                 onClick={handleDownloadSingleImage}
                 className={`cursor-pointer w-full p-3.5 rounded-xl border text-left transition-all flex items-start gap-3.5 group active:scale-[0.99] ${
                   isLight
-                    ? 'bg-slate-50 hover:bg-slate-100 border-slate-200'
-                    : 'bg-[#18181b] hover:bg-[#222226] border-[#27272a]'
+                    ? 'bg-[#FAF4E8] hover:bg-[#F3E9D6] border-[#D7CCB5]'
+                    : 'bg-[#0E172B] hover:bg-[#121D35] border-sky-300/20'
                 }`}
               >
                 <div
                   className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
                     isLight
-                      ? 'bg-slate-200 text-slate-700 group-hover:bg-slate-300'
-                      : 'bg-[#27272a] text-[#e4e4e7] group-hover:text-white'
+                      ? 'bg-[#EDE4D2] text-[#9A4319] group-hover:bg-[#E2D6BF]'
+                      : 'bg-[#121D35] border border-sky-300/20 text-amber-300 group-hover:text-amber-200'
                   }`}
                 >
                   <ImageIcon className="w-4 h-4" />
@@ -448,17 +468,17 @@ export default function ExportModal({
                 <div className="flex-1">
                   <span
                     className={`text-xs font-bold uppercase tracking-wider block ${
-                      isLight ? 'text-slate-900' : 'text-white'
+                      isLight ? 'text-[#1E1B18]' : 'text-white'
                     }`}
                   >
                     Download Current Page {currentPageIndex + 1} (PNG)
                   </span>
                   <p
                     className={`text-[10px] mt-0.5 ${
-                      isLight ? 'text-slate-500' : 'text-[#e4e4e7]/60'
+                      isLight ? 'text-[#6E655A]' : 'text-slate-400'
                     }`}
                   >
-                    Crisp 2.5x retina image raster of the active page sheet.
+                    Crisp 2.5x retina image export of the active page sheet.
                   </p>
                 </div>
               </button>
@@ -469,13 +489,13 @@ export default function ExportModal({
                 onClick={handlePrint}
                 className={`cursor-pointer w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 group active:scale-[0.99] ${
                   isLight
-                    ? 'bg-slate-50 hover:bg-slate-100 border-slate-200'
-                    : 'bg-[#18181b] hover:bg-[#222226] border-[#27272a]'
+                    ? 'bg-[#FAF4E8] hover:bg-[#F3E9D6] border-[#D7CCB5]'
+                    : 'bg-[#0E172B] hover:bg-[#121D35] border-sky-300/20'
                 }`}
               >
                 <div
                   className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    isLight ? 'bg-slate-200 text-slate-700' : 'bg-[#27272a] text-[#e4e4e7]'
+                    isLight ? 'bg-[#EDE4D2] text-[#1E1B18]' : 'bg-[#121D35] border border-sky-300/20 text-sky-300'
                   }`}
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -483,7 +503,7 @@ export default function ExportModal({
                 <div className="flex-1">
                   <span
                     className={`text-xs font-bold uppercase tracking-wider ${
-                      isLight ? 'text-slate-900' : 'text-white'
+                      isLight ? 'text-[#1E1B18]' : 'text-white'
                     }`}
                   >
                     Print / Browser System Print
@@ -498,12 +518,12 @@ export default function ExportModal({
         <div
           className={`px-6 py-3.5 border-t flex items-center justify-between font-mono-code text-[10px] ${
             isLight
-              ? 'bg-slate-50 border-slate-200 text-slate-500'
-              : 'bg-[#121214] border-[#27272a] text-[#e4e4e7]/50'
+              ? 'bg-[#FAF4E8] border-[#EAE0CD] text-[#6E655A]'
+              : 'bg-[#080F1E] border-sky-300/15 text-slate-400'
           }`}
         >
           <span className="flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-amber-500" />
+            <Sparkles className={`w-3 h-3 ${isLight ? 'text-[#9A4319]' : 'text-amber-300'}`} />
             <span>CALIBRATED FOR A4 (210 × 297 MM)</span>
           </span>
           <button
@@ -511,8 +531,8 @@ export default function ExportModal({
             disabled={isExporting}
             className={`cursor-pointer px-3 py-1 uppercase rounded-lg transition-colors ${
               isLight
-                ? 'hover:bg-slate-200 text-slate-700'
-                : 'hover:bg-white/10 text-[#e4e4e7]/80 hover:text-white'
+                ? 'hover:bg-[#EDE4D2] text-[#1E1B18]'
+                : 'hover:bg-sky-500/15 text-slate-200 hover:text-white'
             }`}
           >
             Cancel

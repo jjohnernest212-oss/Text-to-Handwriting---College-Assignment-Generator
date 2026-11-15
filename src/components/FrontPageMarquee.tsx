@@ -47,7 +47,7 @@ export const FAQS_LIST: FaqItem[] = [
     id: 'multi-page-free',
     question: 'Is multi-page PDF generation unlimited and free?',
     answer:
-      'Yes! You can write 1 page, 10 pages, or 50+ pages. Simply type "---page---" or click [+ Page Break] / [Auto-Split]. The export pipeline compiles high-resolution 300-DPI A4 sheets with zero watermarks.',
+      'Yes! You can write 1 page, 10 pages, or 50+ pages. Simply type "---page---" or click [+ Page Break] / [Auto-Split]. The export pipeline compiles crisp, print-ready A4 sheets locally in your browser.',
     category: 'export',
   },
   {

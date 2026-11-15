@@ -2,10 +2,11 @@ import React from 'react';
 import { Coffee } from 'lucide-react';
 import { AppPage } from '../types';
 import AppLogo from './AppLogo';
+import { PolicyTab } from './PolicyModal';
 
 interface FooterProps {
   onNavigate: (page: AppPage) => void;
-  onOpenPolicy: (type: 'privacy' | 'terms') => void;
+  onOpenPolicy: (type: PolicyTab) => void;
   onOpenBuyCoffee: () => void;
 }
 
@@ -15,10 +16,10 @@ export default function Footer({
   onOpenBuyCoffee,
 }: FooterProps) {
   const linkClass =
-    'cursor-pointer text-sm text-[#57534e] hover:text-[#18181b] transition-colors text-left';
+    'cursor-pointer text-sm text-[#4A433A] hover:text-[#9A4319] transition-colors text-left';
 
   return (
-    <footer className="border-t border-[#e5dfd2] bg-white text-[#44403c]">
+    <footer className="border-t border-[#DDD2BC] bg-[#FAF4E8]/94 text-[#4A433A]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
           {/* Brand Column */}
@@ -28,16 +29,16 @@ export default function Footer({
               onClick={() => onNavigate('home')}
               className="cursor-pointer flex items-center gap-2.5 text-left"
             >
-              <span className="w-9 h-9 rounded-xl bg-[#18181b] text-[#faf7f0] flex items-center justify-center shrink-0">
+              <span className="w-9 h-9 rounded-xl bg-[#FFFDF8] border border-[#DDD2BC] text-[#1E1B18] flex items-center justify-center shrink-0">
                 <AppLogo size={24} variant="brand" />
               </span>
-              <span className="text-base font-bold tracking-tight text-[#18181b]">
+              <span className="text-base font-bold tracking-tight text-[#1E1B18]">
                 Human Handwriting AI
               </span>
             </button>
 
-            <p className="text-sm leading-relaxed max-w-sm text-[#57534e]">
-              100% free browser-based handwriting generator with instant rendering, 19 scripts, 23 notebook papers, and watermark-free A4 PDF export. If you love the speed, you can tip Plenty anytime.
+            <p className="text-sm leading-relaxed max-w-sm text-[#4A433A]">
+              Free browser-private digital penmanship studio with 19 scripts, 23 custom notebook rulings, Margin Guides, and print-ready A4 PDF export. Voluntary coffee tips support Plenty.
             </p>
 
             <div className="flex items-center gap-3 pt-1 flex-wrap">
@@ -45,7 +46,7 @@ export default function Footer({
                 href="https://github.com/plenty"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold bg-[#18181b] hover:bg-[#27272a] text-white transition-colors"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold bg-[#FFFDF8] hover:bg-[#EFE5D3] border border-[#D7CCB5] text-[#1E1B18] transition-colors"
               >
                 <svg
                   width="14"
@@ -66,7 +67,7 @@ export default function Footer({
               <button
                 type="button"
                 onClick={onOpenBuyCoffee}
-                className="cursor-pointer px-4 py-2 rounded-xl text-xs font-semibold border border-[#e6d5a3] bg-[#fbf5e3] hover:bg-[#f6ebd0] text-[#6b4f0b] inline-flex items-center gap-1.5 transition-colors"
+                className="cursor-pointer px-4 py-2 rounded-xl text-xs font-semibold border border-[#E2C2A8] bg-[#F6EBE0] hover:bg-[#EDD9C5] text-[#8F3D15] inline-flex items-center gap-1.5 transition-colors"
               >
                 <Coffee className="w-3.5 h-3.5" />
                 <span>Buy Plenty a Coffee (UPI &amp; Bitcoin)</span>
@@ -76,8 +77,8 @@ export default function Footer({
 
           {/* Product Column */}
           <div className="md:col-span-2 space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#18181b]">
-              Product
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#1E1B18]">
+              Studio
             </h3>
             <ul className="space-y-2.5 flex flex-col items-start">
               <li>
@@ -105,7 +106,7 @@ export default function Footer({
 
           {/* Resources Column */}
           <div className="md:col-span-2 space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#18181b]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#1E1B18]">
               Resources
             </h3>
             <ul className="space-y-2.5 flex flex-col items-start">
@@ -127,19 +128,37 @@ export default function Footer({
             </ul>
           </div>
 
-          {/* Privacy & Support Column */}
+          {/* Legal & Support Column */}
           <div className="md:col-span-3 space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#18181b]">
-              Privacy &amp; Contact
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#1E1B18]">
+              Company &amp; Policies
             </h3>
             <ul className="space-y-2.5 flex flex-col items-start">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onOpenPolicy('about')}
+                  className={linkClass}
+                >
+                  About Us
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onOpenPolicy('contact')}
+                  className={linkClass}
+                >
+                  Contact &amp; Support
+                </button>
+              </li>
               <li>
                 <button
                   type="button"
                   onClick={() => onOpenPolicy('privacy')}
                   className={linkClass}
                 >
-                  Privacy Policy (100% Client-Side)
+                  Privacy Policy
                 </button>
               </li>
               <li>
@@ -152,22 +171,21 @@ export default function Footer({
                 </button>
               </li>
               <li>
-                <a
-                  href="https://github.com/plenty"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => onOpenPolicy('copyright')}
                   className={linkClass}
                 >
-                  GitHub Support — @plenty
-                </a>
+                  Copyright &amp; Font Credits
+                </button>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-[#e5dfd2] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#78716c]">
+        <div className="mt-10 pt-6 border-t border-[#DDD2BC] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6E655A]">
           <span>&copy; 2026 Human Handwriting AI · Created by Plenty.</span>
-          <span>100% Free &amp; Local in Browser · Zero Server Uploads</span>
+          <span>Browser-Private Rendering · SIL Open Font &amp; Procedural Paper Credits</span>
         </div>
       </div>
     </footer>

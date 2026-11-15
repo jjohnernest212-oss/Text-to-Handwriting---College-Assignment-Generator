@@ -292,37 +292,40 @@ export default function DiagramModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 select-none">
-      <div className="bg-[#0c0c0e] rounded-xl shadow-2xl border border-[#27272a] max-w-3xl w-full flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1B18]/45 p-4 select-none">
+      <div className="bg-[#FFFDF8] text-[#1E1B18] rounded-2xl shadow-2xl border border-[#DDD2BC] max-w-3xl w-full flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-[#27272a] flex items-center justify-between bg-[#121214]">
+        <div className="px-6 py-4 border-b border-[#EAE0CD] flex items-center justify-between bg-[#FAF4E8]">
           <div>
-            <h3 className="font-syne text-base font-extrabold uppercase text-white flex items-center gap-2">
-              <PenTool className="w-4 h-4 text-[#6366f1]" />
+            <h3 className="font-syne text-base font-extrabold text-[#1E1B18] flex items-center gap-2">
+              <PenTool className="w-4 h-4 text-[#9A4319]" />
               Diagram &amp; Schematic Studio
             </h3>
-            <p className="font-mono-code text-[10px] text-[#e4e4e7]/50 uppercase tracking-wider">
-              Draw circuits, biology diagrams, or insert schematics for Page {currentPageIndex + 1}
+            <p className="font-mono-code text-[10px] text-[#6E655A] uppercase tracking-wider">
+              Draw circuits, geometry figures, or insert schematics onto Page {currentPageIndex + 1}
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="cursor-pointer p-1.5 rounded text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b] transition-colors"
+            aria-label="Close diagram studio"
+            className="cursor-pointer p-1.5 rounded-lg text-[#6E655A] hover:text-[#1E1B18] hover:bg-[#EDE4D2] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Studio Toolbar */}
-        <div className="px-5 py-2.5 border-b border-[#27272a] bg-[#121214] flex flex-wrap items-center justify-between gap-3 font-mono-code">
+        <div className="px-5 py-2.5 border-b border-[#EAE0CD] bg-[#F5EEE0] flex flex-wrap items-center justify-between gap-3 font-mono-code">
           {/* Tools */}
-          <div className="flex items-center gap-1 bg-[#18181b] p-1 rounded border border-[#27272a]">
+          <div className="flex items-center gap-1 bg-[#FFFDF8] p-1 rounded-lg border border-[#D7CCB5]">
             <button
+              type="button"
               onClick={() => setActiveTool('pen')}
               className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold uppercase flex items-center gap-1 transition-all ${
                 activeTool === 'pen'
-                  ? 'bg-[#6366f1] text-white'
-                  : 'text-[#e4e4e7]/60 hover:text-white'
+                  ? 'bg-[#24201C] text-[#FFFDF8]'
+                  : 'text-[#4A433A] hover:text-[#1E1B18]'
               }`}
               title="Freehand Pen"
             >
@@ -331,11 +334,12 @@ export default function DiagramModal({
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTool('line')}
               className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold uppercase flex items-center gap-1 transition-all ${
                 activeTool === 'line'
-                  ? 'bg-[#6366f1] text-white'
-                  : 'text-[#e4e4e7]/60 hover:text-white'
+                  ? 'bg-[#24201C] text-[#FFFDF8]'
+                  : 'text-[#4A433A] hover:text-[#1E1B18]'
               }`}
               title="Straight Line"
             >
@@ -344,11 +348,12 @@ export default function DiagramModal({
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTool('arrow')}
               className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold uppercase flex items-center gap-1 transition-all ${
                 activeTool === 'arrow'
-                  ? 'bg-[#6366f1] text-white'
-                  : 'text-[#e4e4e7]/60 hover:text-white'
+                  ? 'bg-[#24201C] text-[#FFFDF8]'
+                  : 'text-[#4A433A] hover:text-[#1E1B18]'
               }`}
               title="Vector Arrow"
             >
@@ -357,11 +362,12 @@ export default function DiagramModal({
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTool('rectangle')}
               className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold uppercase flex items-center gap-1 transition-all ${
                 activeTool === 'rectangle'
-                  ? 'bg-[#6366f1] text-white'
-                  : 'text-[#e4e4e7]/60 hover:text-white'
+                  ? 'bg-[#24201C] text-[#FFFDF8]'
+                  : 'text-[#4A433A] hover:text-[#1E1B18]'
               }`}
               title="Box / Block"
             >
@@ -370,11 +376,12 @@ export default function DiagramModal({
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTool('circle')}
               className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold uppercase flex items-center gap-1 transition-all ${
                 activeTool === 'circle'
-                  ? 'bg-[#6366f1] text-white'
-                  : 'text-[#e4e4e7]/60 hover:text-white'
+                  ? 'bg-[#24201C] text-[#FFFDF8]'
+                  : 'text-[#4A433A] hover:text-[#1E1B18]'
               }`}
               title="Circle / Node"
             >
@@ -383,11 +390,12 @@ export default function DiagramModal({
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTool('eraser')}
               className={`cursor-pointer px-2.5 py-1 rounded text-[11px] font-bold uppercase flex items-center gap-1 transition-all ${
                 activeTool === 'eraser'
                   ? 'bg-rose-600 text-white'
-                  : 'text-[#e4e4e7]/60 hover:text-white'
+                  : 'text-[#4A433A] hover:text-[#1E1B18]'
               }`}
               title="Eraser"
             >
@@ -398,20 +406,21 @@ export default function DiagramModal({
 
           {/* Stroke Colors */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[#e4e4e7]/50 uppercase hidden md:inline">Ink:</span>
+            <span className="text-[10px] text-[#6E655A] uppercase hidden md:inline">Ink:</span>
             {colorOptions.map((c) => (
               <button
+                type="button"
                 key={c.hex}
                 onClick={() => setStrokeColor(c.hex)}
                 className={`cursor-pointer w-5 h-5 rounded transition-transform border-2 ${
-                  strokeColor === c.hex ? 'scale-115 border-[#6366f1] ring-1 ring-[#6366f1]' : 'border-transparent'
+                  strokeColor === c.hex ? 'scale-115 border-[#9A4319] ring-1 ring-[#9A4319]' : 'border-black/15'
                 }`}
                 style={{ backgroundColor: c.hex }}
                 title={c.label}
               />
             ))}
-            <label className="cursor-pointer relative flex items-center justify-center w-5 h-5 rounded border border-[#27272a] bg-[#18181b] hover:border-[#6366f1]" title="Custom Color">
-              <Palette className="w-3 h-3 text-[#e4e4e7]/70" />
+            <label className="cursor-pointer relative flex items-center justify-center w-5 h-5 rounded border border-[#D7CCB5] bg-[#FFFDF8] hover:border-[#9A4319]" title="Custom Color">
+              <Palette className="w-3 h-3 text-[#4A433A]" />
               <input
                 type="color"
                 value={strokeColor}
@@ -424,7 +433,7 @@ export default function DiagramModal({
           {/* Stroke Width Slider & Actions */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-[#e4e4e7]/50 uppercase">Nib:</span>
+              <span className="text-[10px] text-[#6E655A] uppercase">Nib:</span>
               <input
                 type="range"
                 min="1"
@@ -432,23 +441,25 @@ export default function DiagramModal({
                 step="1"
                 value={strokeWidth}
                 onChange={(e) => setStrokeWidth(Number(e.target.value))}
-                className="w-16 accent-[#6366f1] cursor-pointer"
+                className="w-16 accent-[#9A4319] cursor-pointer"
               />
-              <span className="text-[10px] text-[#6366f1] font-bold">{strokeWidth}px</span>
+              <span className="text-[10px] text-[#9A4319] font-bold">{strokeWidth}px</span>
             </div>
 
             <button
+              type="button"
               onClick={handleUndo}
               disabled={history.length <= 1}
-              className="cursor-pointer p-1 rounded text-[#e4e4e7]/60 hover:text-white hover:bg-[#18181b] disabled:opacity-30 disabled:hover:bg-transparent"
+              className="cursor-pointer p-1 rounded text-[#4A433A] hover:text-[#1E1B18] hover:bg-[#EDE4D2] disabled:opacity-30 disabled:hover:bg-transparent"
               title="Undo Stroke"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
 
             <button
+              type="button"
               onClick={handleClear}
-              className="cursor-pointer px-2 py-0.5 text-[10px] uppercase text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 rounded font-bold transition-colors"
+              className="cursor-pointer px-2 py-0.5 text-[10px] uppercase text-rose-700 hover:bg-rose-50 border border-rose-300 rounded font-bold transition-colors"
             >
               Clear
             </button>
@@ -456,8 +467,8 @@ export default function DiagramModal({
         </div>
 
         {/* Drawing Board Area */}
-        <div className="p-6 bg-[#0c0c0e] flex-1 flex flex-col items-center justify-center overflow-auto">
-          <div className="relative border-2 border-[#27272a] rounded-lg overflow-hidden bg-white shadow-2xl">
+        <div className="p-6 bg-[#EDE4D2] flex-1 flex flex-col items-center justify-center overflow-auto">
+          <div className="relative border-2 border-[#D7CCB5] rounded-lg overflow-hidden bg-white shadow-md">
             <canvas
               ref={canvasRef}
               width={650}
@@ -469,7 +480,7 @@ export default function DiagramModal({
               onTouchStart={startDraw}
               onTouchMove={draw}
               onTouchEnd={endDraw}
-              className="cursor-crosshair bg-white touch-none"
+              className="cursor-crosshair bg-white touch-none max-w-full h-auto"
               style={{
                 backgroundImage:
                   'radial-gradient(circle, #cbd5e1 1px, transparent 1px)',
@@ -478,9 +489,9 @@ export default function DiagramModal({
             />
           </div>
 
-          <div className="mt-3 flex items-center justify-between w-full max-w-[650px] font-mono-code text-[11px] text-[#e4e4e7]/50">
+          <div className="mt-3 flex items-center justify-between w-full max-w-[650px] font-mono-code text-[11px] text-[#6E655A]">
             <span>DRAW FREEHAND / SCHEMATIC ABOVE</span>
-            <label className="cursor-pointer inline-flex items-center gap-1.5 text-[#6366f1] hover:text-[#818cf8] font-bold uppercase transition-colors">
+            <label className="cursor-pointer inline-flex items-center gap-1.5 text-[#9A4319] hover:text-[#7D3411] font-bold uppercase transition-colors">
               <Upload className="w-3.5 h-3.5" />
               <span>Or Upload Diagram / Image</span>
               <input
@@ -494,27 +505,29 @@ export default function DiagramModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-[#27272a] bg-[#121214] flex items-center justify-between font-mono-code">
+        <div className="px-6 py-3.5 border-t border-[#EAE0CD] bg-[#FAF4E8] flex flex-wrap items-center justify-between gap-3 font-mono-code">
           <div className="flex items-center gap-2">
             <input
               type="text"
               placeholder="Caption (e.g. FIG 1.2 CIRCUIT)"
               value={diagramTitle}
               onChange={(e) => setDiagramTitle(e.target.value)}
-              className="px-3 py-1.5 text-xs bg-[#18181b] border border-[#27272a] rounded w-60 text-[#e4e4e7] uppercase focus:outline-hidden focus:border-[#6366f1]"
+              className="px-3 py-1.5 text-xs bg-[#FFFDF8] border border-[#D7CCB5] rounded-lg w-60 text-[#1E1B18] placeholder:text-[#6E655A] focus:outline-hidden focus:border-[#9A4319]"
             />
           </div>
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={onClose}
-              className="cursor-pointer px-3 py-1.5 text-xs text-[#e4e4e7]/60 hover:text-white rounded uppercase"
+              className="cursor-pointer px-3 py-1.5 text-xs text-[#4A433A] hover:text-[#1E1B18] rounded uppercase"
             >
               Cancel
             </button>
             <button
+              type="button"
               onClick={handleSaveToPage}
-              className="cursor-pointer px-4 py-1.5 text-xs bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded font-bold uppercase flex items-center gap-1.5 transition-all shadow-md shadow-indigo-950"
+              className="cursor-pointer px-4 py-1.5 text-xs bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8] rounded-lg font-bold uppercase flex items-center gap-1.5 transition-all shadow-xs"
             >
               <Check className="w-3.5 h-3.5" />
               <span>Place onto Page {currentPageIndex + 1}</span>

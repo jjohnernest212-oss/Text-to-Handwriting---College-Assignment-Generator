@@ -28,6 +28,7 @@ import {
 } from '../types';
 import { calculateAssignmentStats, autoSplitLongText } from '../utils/paginationUtils';
 import { PAPER_DEFINITIONS, PAPER_DEFINITIONS_MAP } from '../utils/paperStyles';
+import AdBannerSlot from './AdBannerSlot';
 
 interface UnifiedControlsPanelProps {
   theme?: 'dark' | 'light';
@@ -57,6 +58,7 @@ interface UnifiedControlsPanelProps {
   onGenerateHandwriting?: () => void;
   onOpenPaperGallery?: () => void;
   onOpenStylesGallery?: () => void;
+  onOpenBuyCoffee?: () => void;
 }
 
 export default function UnifiedControlsPanel({
@@ -85,6 +87,7 @@ export default function UnifiedControlsPanel({
   onGenerateHandwriting,
   onOpenPaperGallery,
   onOpenStylesGallery,
+  onOpenBuyCoffee,
 }: UnifiedControlsPanelProps) {
   const isLight = theme === 'light';
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -242,17 +245,17 @@ export default function UnifiedControlsPanel({
   const currentPaperDef = PAPER_DEFINITIONS_MAP[settings.paperType] || PAPER_DEFINITIONS[0];
 
   const inputSurfaceClass = isLight
-    ? 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#6366f1]'
-    : 'bg-[#1a1a20] border-white/10 text-zinc-100 focus:border-[#6366f1]';
+    ? 'bg-[#FAF4E8] border-[#D7CCB5] text-[#1E1B18] focus:border-[#9A4319]'
+    : 'bg-[#070D1A] border-sky-300/20 text-slate-100 focus:border-sky-400';
 
   const cardSurfaceClass = isLight
-    ? 'bg-white border-slate-200'
-    : 'bg-[#141418] border-white/10';
+    ? 'bg-[#FFFDF8] border-[#DDD2BC]'
+    : 'bg-[#0E172B] border-sky-300/15';
 
   return (
     <div
       className={`flex flex-col h-full overflow-y-auto scrollbar-thin transition-colors ${
-        isLight ? 'bg-slate-50/70 text-slate-900' : 'bg-[#0e0e12] text-zinc-100'
+        isLight ? 'bg-[#F5EEE0] text-[#1E1B18]' : 'bg-[#0B1222]/94 text-slate-100'
       }`}
     >
       <div className="p-4 space-y-4 flex-1">
@@ -262,11 +265,11 @@ export default function UnifiedControlsPanel({
         <section className={`rounded-2xl border overflow-hidden transition-colors ${cardSurfaceClass}`}>
           <div
             className={`px-4 py-3 border-b flex items-center justify-between gap-2 ${
-              isLight ? 'bg-slate-50/80 border-slate-200' : 'bg-[#18181f] border-white/5'
+              isLight ? 'bg-[#FAF4E8] border-[#EAE0CD]' : 'bg-[#080F1E] border-sky-300/15'
             }`}
           >
             <div>
-              <h2 className="text-sm font-bold tracking-tight">1. Write or Paste Text</h2>
+              <h2 className={`text-sm font-bold tracking-tight ${isLight ? 'text-[#1E1B18]' : 'text-white'}`}>1. Write or Paste Text</h2>
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
@@ -275,12 +278,12 @@ export default function UnifiedControlsPanel({
                 onClick={handlePasteClipboard}
                 className={`cursor-pointer min-h-[38px] text-xs font-semibold rounded-xl px-3 flex items-center gap-1.5 transition-colors border whitespace-nowrap active:scale-95 ${
                   isLight
-                    ? 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700'
-                    : 'bg-[#6366f1]/15 hover:bg-[#6366f1]/25 border-[#6366f1]/35 text-indigo-300'
+                    ? 'bg-[#F6EBE0] hover:bg-[#EFE0D0] border-[#E2C2A8] text-[#8F3D15]'
+                    : 'bg-sky-500/15 hover:bg-sky-500/25 border-sky-400/35 text-sky-200'
                 }`}
                 title="Paste text from clipboard"
               >
-                <ClipboardPaste className="w-3.5 h-3.5 text-[#6366f1]" />
+                <ClipboardPaste className={`w-3.5 h-3.5 ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`} />
                 <span>Paste</span>
               </button>
 
@@ -289,12 +292,12 @@ export default function UnifiedControlsPanel({
                 onClick={() => textFileInputRef.current?.click()}
                 className={`cursor-pointer min-h-[38px] text-xs font-medium rounded-xl px-2.5 flex items-center gap-1 transition-colors border whitespace-nowrap active:scale-95 ${
                   isLight
-                    ? 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'
-                    : 'bg-[#1f1f26] hover:bg-[#282832] border-white/10 text-zinc-300'
+                    ? 'bg-[#FFFDF8] hover:bg-[#FAF4E8] border-[#D7CCB5] text-[#4A433A]'
+                    : 'bg-[#121D35] hover:bg-[#192847] border-sky-300/20 text-slate-200'
                 }`}
                 title="Upload .txt, .md, or document"
               >
-                <FolderOpen className="w-3.5 h-3.5 text-[#6366f1]" />
+                <FolderOpen className={`w-3.5 h-3.5 ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`} />
                 <span className="hidden sm:inline">File</span>
               </button>
               <input
@@ -327,7 +330,11 @@ export default function UnifiedControlsPanel({
                   <button
                     type="button"
                     onClick={() => setShowClearConfirm(false)}
-                    className="cursor-pointer min-h-[38px] text-xs bg-slate-200 text-slate-800 px-2.5 rounded-xl"
+                    className={`cursor-pointer min-h-[38px] text-xs border px-2.5 rounded-xl ${
+                      isLight
+                        ? 'bg-[#FFFDF8] border-[#D7CCB5] text-[#4A433A]'
+                        : 'bg-[#121D35] border-sky-300/20 text-slate-200'
+                    }`}
                   >
                     No
                   </button>
@@ -339,8 +346,8 @@ export default function UnifiedControlsPanel({
                   disabled={!rawText.trim()}
                   className={`cursor-pointer min-h-[38px] text-xs font-medium rounded-xl px-2.5 flex items-center gap-1 transition-colors border disabled:opacity-30 active:scale-95 ${
                     isLight
-                      ? 'bg-white hover:bg-rose-50 border-slate-200 text-slate-600 hover:text-rose-600'
-                      : 'bg-[#1f1f26] hover:bg-rose-950/40 border-white/10 text-zinc-400 hover:text-rose-300'
+                      ? 'bg-[#FFFDF8] hover:bg-rose-50 border-[#D7CCB5] text-[#4A433A] hover:text-rose-700'
+                      : 'bg-[#121D35] hover:bg-rose-950/50 border-sky-300/20 text-slate-300 hover:text-rose-300'
                   }`}
                   title="Clear text"
                 >
@@ -359,10 +366,10 @@ export default function UnifiedControlsPanel({
               onPaste={handleTextareaPaste}
               placeholder="Type or paste your notes or assignment here...&#10;&#10;Updates the notebook sheet live. Use '---page---' for a manual page break."
               rows={7}
-              className={`w-full p-3 text-sm rounded-xl resize-y focus:outline-hidden focus:ring-2 focus:ring-[#6366f1]/40 border transition-colors leading-relaxed ${
+              className={`w-full p-3 text-sm rounded-xl resize-y focus:outline-hidden focus:ring-2 border transition-colors leading-relaxed ${
                 isLight
-                  ? 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'
-                  : 'bg-[#0c0c10] border-white/10 text-zinc-100 placeholder:text-zinc-500'
+                  ? 'bg-[#FAF4E8] border-[#D7CCB5] text-[#1E1B18] placeholder:text-[#6E655A]/75 focus:ring-[#9A4319]/25 focus:border-[#9A4319]'
+                  : 'bg-[#070D1A] border-sky-300/20 text-slate-100 placeholder:text-slate-500 focus:ring-sky-400/40'
               }`}
               spellCheck={false}
             />
@@ -371,7 +378,7 @@ export default function UnifiedControlsPanel({
           {/* Unboxed clean metadata + page helper */}
           <div
             className={`px-4 py-2.5 border-t flex items-center justify-between gap-2 text-xs flex-wrap ${
-              isLight ? 'bg-slate-50/70 text-slate-600 border-slate-200' : 'bg-[#18181f]/60 text-zinc-400 border-white/5'
+              isLight ? 'bg-[#FAF4E8] text-[#4A433A] border-[#EAE0CD]' : 'bg-[#080F1E] text-slate-300 border-sky-300/15'
             }`}
           >
             <div className="flex items-center gap-2 tabular-nums">
@@ -379,7 +386,7 @@ export default function UnifiedControlsPanel({
               <span aria-hidden="true">·</span>
               <span>{charCount} chars</span>
               <span aria-hidden="true">·</span>
-              <span className="font-semibold text-[#6366f1]">
+              <span className={`font-semibold ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>
                 {totalPages} {totalPages === 1 ? 'page' : 'pages'}
               </span>
             </div>
@@ -388,7 +395,7 @@ export default function UnifiedControlsPanel({
               <button
                 type="button"
                 onClick={onAutoSplitPages}
-                className="cursor-pointer px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors active:scale-95 whitespace-nowrap"
+                className="cursor-pointer px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#1E1B18] font-bold text-xs flex items-center gap-1.5 transition-colors active:scale-95 whitespace-nowrap"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Auto-Split ({stats.recommendedPages}p)</span>
@@ -398,7 +405,7 @@ export default function UnifiedControlsPanel({
                 type="button"
                 onClick={onInsertPageBreak}
                 className={`cursor-pointer px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
-                  isLight ? 'text-indigo-600 hover:bg-indigo-50' : 'text-indigo-400 hover:bg-white/5'
+                  isLight ? 'text-[#9A4319] hover:bg-[#F6EBE0]' : 'text-sky-300 hover:bg-sky-500/15'
                 }`}
               >
                 + New Page
@@ -411,9 +418,9 @@ export default function UnifiedControlsPanel({
         {/* STEP 2: FONT, INK & PAPER SETTINGS                                        */}
         {/* ========================================================================= */}
         <section className={`rounded-2xl border p-4 space-y-4 transition-colors ${cardSurfaceClass}`}>
-          <div className="flex items-center justify-between border-b pb-3 border-inherit">
-            <h2 className="text-sm font-bold tracking-tight flex items-center gap-2">
-              <Type className="w-4 h-4 text-[#6366f1]" />
+          <div className={`flex items-center justify-between border-b pb-3 ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
+            <h2 className={`text-sm font-bold tracking-tight flex items-center gap-2 ${isLight ? 'text-[#1E1B18]' : 'text-white'}`}>
+              <Type className={`w-4 h-4 ${isLight ? 'text-[#9A4319]' : 'text-sky-400'}`} />
               <span>2. Pen &amp; Paper Settings</span>
             </h2>
           </div>
@@ -421,13 +428,13 @@ export default function UnifiedControlsPanel({
           {/* Font Selector */}
           <div>
             <div className="flex items-center justify-between gap-2 mb-1.5">
-              <label className="text-xs font-semibold opacity-85">Handwriting Style</label>
+              <label className={`text-xs font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Handwriting Style</label>
               <div className="flex items-center gap-3">
                 {onOpenStylesGallery && (
                   <button
                     type="button"
                     onClick={onOpenStylesGallery}
-                    className="cursor-pointer text-xs text-[#6366f1] hover:underline font-semibold"
+                    className={`cursor-pointer text-xs hover:underline font-semibold ${isLight ? 'text-[#9A4319] hover:text-[#7D3411]' : 'text-sky-300 hover:text-amber-300'}`}
                   >
                     Browse Styles ↗
                   </button>
@@ -435,7 +442,7 @@ export default function UnifiedControlsPanel({
                 <button
                   type="button"
                   onClick={() => fontFileInputRef.current?.click()}
-                  className="cursor-pointer text-xs text-[#6366f1] hover:underline font-semibold flex items-center gap-1"
+                  className={`cursor-pointer text-xs hover:underline font-semibold flex items-center gap-1 ${isLight ? 'text-[#9A4319] hover:text-[#7D3411]' : 'text-sky-300 hover:text-amber-300'}`}
                 >
                   <Upload className="w-3 h-3" />
                   <span>Upload Font</span>
@@ -515,14 +522,16 @@ export default function UnifiedControlsPanel({
                     }
                     className={`cursor-pointer min-h-[38px] px-3 py-1.5 rounded-xl border text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
                       isSelected
-                        ? 'ring-2 ring-[#6366f1] border-[#6366f1] bg-[#6366f1]/10 font-semibold'
+                        ? isLight
+                          ? 'ring-2 ring-[#9A4319] border-[#9A4319] bg-[#F6EBE0] text-[#8F3D15] font-semibold'
+                          : 'ring-2 ring-sky-400 border-sky-400 bg-sky-500/20 text-white font-semibold'
                         : isLight
-                        ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                        : 'bg-[#1a1a20] hover:bg-[#23232b] border-white/10 text-zinc-300'
+                        ? 'bg-[#FAF4E8] hover:bg-[#F3E9D6] border-[#D7CCB5] text-[#4A433A]'
+                        : 'bg-[#070D1A] hover:bg-[#121D35] border-sky-300/20 text-slate-300'
                     }`}
                   >
                     <span
-                      className="w-3 h-3 rounded-full shrink-0 border border-black/20"
+                      className="w-3 h-3 rounded-full shrink-0 border border-black/15"
                       style={{ backgroundColor: ink.color }}
                     />
                     <span>{ink.name}</span>
@@ -533,8 +542,8 @@ export default function UnifiedControlsPanel({
               <label
                 className={`cursor-pointer min-h-[38px] px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 transition-colors text-xs ${
                   isLight
-                    ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                    : 'bg-[#1a1a20] hover:bg-[#23232b] border-white/10 text-zinc-300'
+                    ? 'bg-[#FAF4E8] hover:bg-[#F3E9D6] border-[#D7CCB5] text-[#4A433A]'
+                    : 'bg-[#070D1A] hover:bg-[#121D35] border-sky-300/20 text-slate-300'
                 }`}
                 title="Pick custom ink color"
               >
@@ -552,12 +561,12 @@ export default function UnifiedControlsPanel({
           {/* Notebook Paper Type */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold opacity-85">Notebook Paper</label>
+              <label className={`text-xs font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Notebook Paper</label>
               {onOpenPaperGallery && (
                 <button
                   type="button"
                   onClick={onOpenPaperGallery}
-                  className="cursor-pointer text-xs text-[#6366f1] hover:underline font-semibold flex items-center gap-1"
+                  className={`cursor-pointer text-xs hover:underline font-semibold flex items-center gap-1 ${isLight ? 'text-[#9A4319] hover:text-[#7D3411]' : 'text-sky-300 hover:text-amber-300'}`}
                 >
                   <span>Browse 20+ Papers ↗</span>
                 </button>
@@ -617,7 +626,9 @@ export default function UnifiedControlsPanel({
                 <button
                   type="button"
                   onClick={onOpenPaperGallery}
-                  className="w-11 h-11 rounded-xl border shrink-0 relative overflow-hidden cursor-pointer hover:scale-105 transition-transform"
+                  className={`w-11 h-11 rounded-xl border shrink-0 relative overflow-hidden cursor-pointer hover:scale-105 transition-transform ${
+                    isLight ? 'border-[#D7CCB5]' : 'border-sky-300/25'
+                  }`}
                   style={{ backgroundColor: currentPaperDef.bgColor }}
                   title="Open Visual Paper Gallery"
                   aria-label="Open Visual Paper Gallery"
@@ -636,11 +647,11 @@ export default function UnifiedControlsPanel({
           </div>
 
           {/* Font Size & Line Spacing Sliders */}
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-inherit">
+          <div className={`grid grid-cols-2 gap-4 pt-2 border-t ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
             <div>
               <div className="flex justify-between text-xs mb-1.5">
-                <span className="font-semibold opacity-80">Font Size</span>
-                <span className="font-semibold text-[#6366f1] tabular-nums">{settings.fontSize}px</span>
+                <span className={`font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Font Size</span>
+                <span className={`font-semibold tabular-nums ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>{settings.fontSize}px</span>
               </div>
               <input
                 type="range"
@@ -649,14 +660,14 @@ export default function UnifiedControlsPanel({
                 step="1"
                 value={settings.fontSize}
                 onChange={(e) => onUpdateSettings({ fontSize: Number(e.target.value) })}
-                className="w-full accent-[#6366f1] cursor-pointer h-2 rounded-lg"
+                className={`w-full cursor-pointer h-2 rounded-lg ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
               />
             </div>
 
             <div>
               <div className="flex justify-between text-xs mb-1.5">
-                <span className="font-semibold opacity-80">Line Spacing</span>
-                <span className="font-semibold text-[#6366f1] tabular-nums">{settings.lineHeight}px</span>
+                <span className={`font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Line Spacing</span>
+                <span className={`font-semibold tabular-nums ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>{settings.lineHeight}px</span>
               </div>
               <input
                 type="range"
@@ -665,13 +676,13 @@ export default function UnifiedControlsPanel({
                 step="1"
                 value={settings.lineHeight}
                 onChange={(e) => onUpdateSettings({ lineHeight: Number(e.target.value) })}
-                className="w-full accent-[#6366f1] cursor-pointer h-2 rounded-lg"
+                className={`w-full cursor-pointer h-2 rounded-lg ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
               />
             </div>
           </div>
 
           {/* OPTIONAL 'SHOW MARGIN GUIDES' TOGGLE RIGHT IN PAPER SETTINGS */}
-          <div className="pt-3 border-t border-inherit">
+          <div className={`pt-3 border-t ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
             <button
               type="button"
               role="switch"
@@ -682,20 +693,20 @@ export default function UnifiedControlsPanel({
               className={`w-full min-h-[48px] px-3.5 py-2.5 rounded-xl border flex items-center justify-between gap-3 text-left transition-colors cursor-pointer ${
                 settings.showMarginGuides
                   ? isLight
-                    ? 'bg-indigo-50/80 border-indigo-300'
-                    : 'bg-[#6366f1]/15 border-[#6366f1]/45'
+                    ? 'bg-[#F6EBE0] border-[#E2C2A8]'
+                    : 'bg-sky-500/20 border-sky-400/50'
                   : isLight
-                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200'
-                  : 'bg-[#1a1a20] hover:bg-[#22222a] border-white/10'
+                  ? 'bg-[#FAF4E8] hover:bg-[#F3E9D6] border-[#D7CCB5]'
+                  : 'bg-[#070D1A] hover:bg-[#121D35] border-sky-300/20'
               }`}
             >
               <div className="flex items-start gap-2.5 min-w-0">
-                <Ruler className="w-4 h-4 text-[#6366f1] shrink-0 mt-0.5" />
+                <Ruler className={`w-4 h-4 shrink-0 mt-0.5 ${isLight ? 'text-[#9A4319]' : 'text-sky-400'}`} />
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold">Show Margin Guides</div>
+                  <div className={`text-xs font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-white'}`}>Show Margin Guides</div>
                   <div
                     className={`text-[11px] leading-snug ${
-                      isLight ? 'text-slate-500' : 'text-zinc-400'
+                      isLight ? 'text-[#6E655A]' : 'text-slate-400'
                     }`}
                   >
                     Faint alignment markers on preview for text &amp; diagrams (not printed)
@@ -706,10 +717,12 @@ export default function UnifiedControlsPanel({
               <span
                 className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
                   settings.showMarginGuides
-                    ? 'bg-[#6366f1]'
+                    ? isLight
+                      ? 'bg-[#9A4319]'
+                      : 'bg-sky-400'
                     : isLight
-                    ? 'bg-slate-300'
-                    : 'bg-zinc-700'
+                    ? 'bg-[#D7CCB5]'
+                    : 'bg-slate-700'
                 }`}
               >
                 <span
@@ -730,32 +743,32 @@ export default function UnifiedControlsPanel({
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
             className={`w-full min-h-[48px] px-4 py-3 flex items-center justify-between text-left cursor-pointer transition-colors ${
-              isLight ? 'hover:bg-slate-50' : 'hover:bg-white/5'
+              isLight ? 'hover:bg-[#FAF4E8]' : 'hover:bg-sky-500/10'
             }`}
           >
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-[#6366f1]" />
-              <span className="text-xs font-semibold">
+              <SlidersHorizontal className={`w-4 h-4 ${isLight ? 'text-[#9A4319]' : 'text-sky-400'}`} />
+              <span className={`text-xs font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-white'}`}>
                 Advanced settings
               </span>
             </div>
             {showAdvanced ? (
-              <ChevronUp className="w-4 h-4 opacity-60" />
+              <ChevronUp className="w-4 h-4 opacity-70" />
             ) : (
-              <ChevronDown className="w-4 h-4 opacity-60" />
+              <ChevronDown className="w-4 h-4 opacity-70" />
             )}
           </button>
 
           {showAdvanced && (
-            <div className="px-4 pb-4 pt-3 border-t space-y-4 text-xs border-inherit">
+            <div className={`px-4 pb-4 pt-3 border-t space-y-4 text-xs ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
               {/* Custom Margin Sliders */}
               <div className="space-y-2.5">
-                <div className="text-xs font-semibold opacity-80">Page Margins</div>
+                <div className={`text-xs font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Page Margins</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
-                      <span className="opacity-75">Top</span>
-                      <span className="font-semibold text-[#6366f1] tabular-nums">{settings.topMargin}px</span>
+                      <span className={isLight ? 'text-[#4A433A]' : 'text-slate-300'}>Top</span>
+                      <span className={`font-semibold tabular-nums ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>{settings.topMargin}px</span>
                     </div>
                     <input
                       type="range"
@@ -764,13 +777,13 @@ export default function UnifiedControlsPanel({
                       step="2"
                       value={settings.topMargin}
                       onChange={(e) => onUpdateSettings({ topMargin: Number(e.target.value) })}
-                      className="w-full accent-[#6366f1] cursor-pointer h-1.5 rounded-lg"
+                      className={`w-full cursor-pointer h-1.5 rounded-lg ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                     />
                   </div>
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
-                      <span className="opacity-75">Bottom</span>
-                      <span className="font-semibold text-[#6366f1] tabular-nums">{settings.bottomMargin}px</span>
+                      <span className={isLight ? 'text-[#4A433A]' : 'text-slate-300'}>Bottom</span>
+                      <span className={`font-semibold tabular-nums ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>{settings.bottomMargin}px</span>
                     </div>
                     <input
                       type="range"
@@ -779,13 +792,13 @@ export default function UnifiedControlsPanel({
                       step="2"
                       value={settings.bottomMargin}
                       onChange={(e) => onUpdateSettings({ bottomMargin: Number(e.target.value) })}
-                      className="w-full accent-[#6366f1] cursor-pointer h-1.5 rounded-lg"
+                      className={`w-full cursor-pointer h-1.5 rounded-lg ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                     />
                   </div>
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
-                      <span className="opacity-75">Left Text</span>
-                      <span className="font-semibold text-[#6366f1] tabular-nums">{settings.leftMargin}px</span>
+                      <span className={isLight ? 'text-[#4A433A]' : 'text-slate-300'}>Left Text</span>
+                      <span className={`font-semibold tabular-nums ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>{settings.leftMargin}px</span>
                     </div>
                     <input
                       type="range"
@@ -794,13 +807,13 @@ export default function UnifiedControlsPanel({
                       step="2"
                       value={settings.leftMargin}
                       onChange={(e) => onUpdateSettings({ leftMargin: Number(e.target.value) })}
-                      className="w-full accent-[#6366f1] cursor-pointer h-1.5 rounded-lg"
+                      className={`w-full cursor-pointer h-1.5 rounded-lg ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                     />
                   </div>
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
-                      <span className="opacity-75">Right Text</span>
-                      <span className="font-semibold text-[#6366f1] tabular-nums">{settings.rightMargin}px</span>
+                      <span className={isLight ? 'text-[#4A433A]' : 'text-slate-300'}>Right Text</span>
+                      <span className={`font-semibold tabular-nums ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`}>{settings.rightMargin}px</span>
                     </div>
                     <input
                       type="range"
@@ -809,23 +822,27 @@ export default function UnifiedControlsPanel({
                       step="2"
                       value={settings.rightMargin}
                       onChange={(e) => onUpdateSettings({ rightMargin: Number(e.target.value) })}
-                      className="w-full accent-[#6366f1] cursor-pointer h-1.5 rounded-lg"
+                      className={`w-full cursor-pointer h-1.5 rounded-lg ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                     />
                   </div>
                 </div>
               </div>
 
               {/* Text Alignment */}
-              <div className="flex items-center justify-between pt-3 border-t border-inherit">
-                <span className="font-semibold opacity-80">Text Alignment</span>
-                <div className="flex items-center p-0.5 rounded-xl border border-inherit">
+              <div className={`flex items-center justify-between pt-3 border-t ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
+                <span className={`font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Text Alignment</span>
+                <div className={`flex items-center p-0.5 rounded-xl border ${isLight ? 'border-[#D7CCB5] bg-[#FAF4E8]' : 'border-sky-300/20 bg-[#070D1A]'}`}>
                   <button
                     type="button"
                     onClick={() => onUpdateSettings({ justification: 'left' })}
                     className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                       settings.justification === 'left'
-                        ? 'bg-[#6366f1] text-white'
-                        : 'opacity-65 hover:opacity-100'
+                        ? isLight
+                          ? 'bg-[#24201C] text-[#FFFDF8] font-bold'
+                          : 'bg-sky-500 text-slate-950 font-bold'
+                        : isLight
+                        ? 'text-[#4A433A] hover:text-[#1E1B18]'
+                        : 'text-slate-300 hover:text-white'
                     }`}
                   >
                     <AlignLeft className="w-3.5 h-3.5" />
@@ -836,8 +853,12 @@ export default function UnifiedControlsPanel({
                     onClick={() => onUpdateSettings({ justification: 'full' })}
                     className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                       settings.justification === 'full'
-                        ? 'bg-[#6366f1] text-white'
-                        : 'opacity-65 hover:opacity-100'
+                        ? isLight
+                          ? 'bg-[#24201C] text-[#FFFDF8] font-bold'
+                          : 'bg-sky-500 text-slate-950 font-bold'
+                        : isLight
+                        ? 'text-[#4A433A] hover:text-[#1E1B18]'
+                        : 'text-slate-300 hover:text-white'
                     }`}
                   >
                     <AlignJustify className="w-3.5 h-3.5" />
@@ -847,13 +868,13 @@ export default function UnifiedControlsPanel({
               </div>
 
               {/* Printed Red Margin Line */}
-              <div className="flex items-center justify-between pt-3 border-t border-inherit">
-                <label className="flex items-center gap-2 cursor-pointer select-none min-h-[36px]">
+              <div className={`flex items-center justify-between pt-3 border-t ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
+                <label className={`flex items-center gap-2 cursor-pointer select-none min-h-[36px] ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>
                   <input
                     type="checkbox"
                     checked={settings.showMarginLine}
                     onChange={(e) => onUpdateSettings({ showMarginLine: e.target.checked })}
-                    className="accent-[#6366f1] w-4 h-4 rounded cursor-pointer"
+                    className={`w-4 h-4 rounded cursor-pointer ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                   />
                   <span className="font-semibold">Printed Red Notebook Margin</span>
                 </label>
@@ -865,38 +886,38 @@ export default function UnifiedControlsPanel({
                     step="2"
                     value={settings.marginLinePosition}
                     onChange={(e) => onUpdateSettings({ marginLinePosition: Number(e.target.value) })}
-                    className="w-20 accent-[#6366f1] cursor-pointer h-1.5 rounded-lg"
+                    className={`w-20 cursor-pointer h-1.5 rounded-lg ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                     title="Red margin line position"
                   />
                 )}
               </div>
 
               {/* Human Jitter & Ink Blots */}
-              <div className="grid grid-cols-2 gap-2 pt-3 border-t border-inherit">
-                <label className="flex items-center gap-2 cursor-pointer select-none min-h-[36px]">
+              <div className={`grid grid-cols-2 gap-2 pt-3 border-t ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
+                <label className={`flex items-center gap-2 cursor-pointer select-none min-h-[36px] ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>
                   <input
                     type="checkbox"
                     checked={settings.humanJitter}
                     onChange={(e) => onUpdateSettings({ humanJitter: e.target.checked })}
-                    className="accent-[#6366f1] w-4 h-4 rounded cursor-pointer"
+                    className={`w-4 h-4 rounded cursor-pointer ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                   />
                   <span className="truncate">Natural Pen Jitter</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer select-none min-h-[36px]">
+                <label className={`flex items-center gap-2 cursor-pointer select-none min-h-[36px] ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>
                   <input
                     type="checkbox"
                     checked={settings.inkBlots}
                     onChange={(e) => onUpdateSettings({ inkBlots: e.target.checked })}
-                    className="accent-[#6366f1] w-4 h-4 rounded cursor-pointer"
+                    className={`w-4 h-4 rounded cursor-pointer ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                   />
                   <span className="truncate">Ink Smudges</span>
                 </label>
               </div>
 
               {/* Lighting Effect */}
-              <div className="flex items-center justify-between pt-3 border-t border-inherit">
-                <span className="font-semibold opacity-80">Lighting / Scan Look</span>
+              <div className={`flex items-center justify-between pt-3 border-t ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
+                <span className={`font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Lighting / Scan Look</span>
                 <select
                   value={settings.paperEffect}
                   onChange={(e) => onUpdateSettings({ paperEffect: e.target.value as PaperEffect })}
@@ -910,13 +931,13 @@ export default function UnifiedControlsPanel({
               </div>
 
               {/* Student Header */}
-              <div className="pt-3 border-t border-inherit space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer select-none min-h-[36px]">
+              <div className={`pt-3 border-t space-y-2 ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
+                <label className={`flex items-center gap-2 cursor-pointer select-none min-h-[36px] ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>
                   <input
                     type="checkbox"
                     checked={headerInfo.enabled}
                     onChange={(e) => onUpdateHeader({ enabled: e.target.checked })}
-                    className="accent-[#6366f1] w-4 h-4 rounded cursor-pointer"
+                    className={`w-4 h-4 rounded cursor-pointer ${isLight ? 'accent-[#9A4319]' : 'accent-sky-400'}`}
                   />
                   <span className="font-semibold">Student Header (Name, Roll No, Date)</span>
                 </label>
@@ -956,18 +977,18 @@ export default function UnifiedControlsPanel({
               </div>
 
               {/* Add Diagram / Sketch */}
-              <div className="pt-3 border-t border-inherit flex items-center justify-between">
-                <span className="font-semibold opacity-80">Sketches &amp; Diagrams</span>
+              <div className={`pt-3 border-t flex items-center justify-between ${isLight ? 'border-[#EAE0CD]' : 'border-sky-300/15'}`}>
+                <span className={`font-semibold ${isLight ? 'text-[#1E1B18]' : 'text-slate-200'}`}>Sketches &amp; Diagrams</span>
                 <button
                   type="button"
                   onClick={onOpenDiagramModal}
                   className={`cursor-pointer px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 ${
                     isLight
-                      ? 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700'
-                      : 'bg-[#6366f1]/15 hover:bg-[#6366f1]/25 border-[#6366f1]/35 text-indigo-300'
+                      ? 'bg-[#F6EBE0] hover:bg-[#EFE0D0] border-[#E2C2A8] text-[#8F3D15]'
+                      : 'bg-sky-500/15 hover:bg-sky-500/25 border-sky-400/35 text-sky-200'
                   }`}
                 >
-                  <PenTool className="w-3.5 h-3.5 text-[#6366f1]" />
+                  <PenTool className={`w-3.5 h-3.5 ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`} />
                   <span>Add Sketch ({pageDiagrams.length})</span>
                 </button>
               </div>
@@ -985,30 +1006,47 @@ export default function UnifiedControlsPanel({
               onSwitchToPreviewMobile?.();
             }
           }}
-          className="cursor-pointer w-full min-h-[48px] bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-xs active:scale-[0.99] text-sm"
+          className={`cursor-pointer w-full min-h-[48px] font-bold px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-[0.99] text-sm ${
+            isLight
+              ? 'bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8]'
+              : 'bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-lg shadow-sky-500/20'
+          }`}
         >
           <Sparkles className="w-4 h-4" />
           <span>Generate Handwriting</span>
         </button>
+
+        {/* Sidebar Ad Slot (Sits cleanly in flow above the sticky export footer) */}
+        <AdBannerSlot
+          variant="sidebar"
+          slotId="monetag-sidebar-slot"
+          onOpenBuyCoffee={onOpenBuyCoffee}
+        />
       </div>
 
       {/* Desktop Sticky Export Bar (Mobile uses unified thumb bar at bottom of screen) */}
       <div
-        className={`hidden lg:block p-4 border-t sticky bottom-0 z-20 backdrop-blur-md transition-colors ${
-          isLight ? 'bg-white/95 border-slate-200' : 'bg-[#121216]/95 border-white/10'
+        className={`hidden lg:block p-4 border-t sticky bottom-0 z-20 transition-colors ${
+          isLight ? 'bg-[#FFFDF8]/96 border-[#DDD2BC]' : 'bg-[#080F1E]/95 border-sky-300/15'
         }`}
       >
         {isExporting && exportProgress && (
-          <div className="mb-3 p-2.5 rounded-xl bg-[#6366f1]/10 border border-[#6366f1]/25 text-xs">
+          <div
+            className={`mb-3 p-2.5 rounded-xl border text-xs ${
+              isLight
+                ? 'bg-[#F6EBE0] border-[#E2C2A8] text-[#8F3D15]'
+                : 'bg-sky-500/15 border-sky-400/35 text-sky-200'
+            }`}
+          >
             <div className="flex items-center justify-between mb-1.5 font-semibold">
               <span>Generating PDF...</span>
               <span className="tabular-nums">
                 Page {exportProgress.currentPage} of {exportProgress.totalPages}
               </span>
             </div>
-            <div className="w-full bg-slate-200 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+            <div className={`w-full h-1.5 rounded-full overflow-hidden ${isLight ? 'bg-[#E5D7C4]' : 'bg-[#070D1A]'}`}>
               <div
-                className="bg-[#6366f1] h-full transition-all duration-200"
+                className={`h-full transition-all duration-200 ${isLight ? 'bg-[#9A4319]' : 'bg-sky-400'}`}
                 style={{
                   width: `${(exportProgress.currentPage / exportProgress.totalPages) * 100}%`,
                 }}
@@ -1022,7 +1060,11 @@ export default function UnifiedControlsPanel({
             type="button"
             onClick={onDownloadPdf}
             disabled={isExporting}
-            className="cursor-pointer min-h-[44px] bg-[#6366f1] hover:bg-indigo-600 disabled:opacity-50 text-white font-semibold px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-xs active:scale-98 text-xs whitespace-nowrap"
+            className={`cursor-pointer min-h-[44px] disabled:opacity-50 font-bold px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-xs active:scale-98 text-xs whitespace-nowrap ${
+              isLight
+                ? 'bg-[#24201C] hover:bg-[#38322C] text-[#FFFDF8]'
+                : 'bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-md shadow-sky-500/20'
+            }`}
           >
             <Download className="w-4 h-4" />
             <span>Download PDF ({totalPages}p)</span>
@@ -1034,11 +1076,11 @@ export default function UnifiedControlsPanel({
             disabled={isExporting}
             className={`cursor-pointer min-h-[44px] font-semibold px-4 rounded-xl flex items-center justify-center gap-2 transition-colors border text-xs whitespace-nowrap active:scale-98 ${
               isLight
-                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-800'
-                : 'bg-[#1d1d24] hover:bg-[#262630] border-white/10 text-white'
+                ? 'bg-[#FAF4E8] hover:bg-[#F3E9D6] border-[#D7CCB5] text-[#1E1B18]'
+                : 'bg-[#121D35] hover:bg-[#192847] border-sky-300/25 text-white'
             }`}
           >
-            <FileText className="w-4 h-4 text-[#6366f1]" />
+            <FileText className={`w-4 h-4 ${isLight ? 'text-[#9A4319]' : 'text-amber-300'}`} />
             <span>Save Page {currentPageIndex + 1} PNG</span>
           </button>
         </div>

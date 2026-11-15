@@ -1,0 +1,18 @@
+{
+  "name": "Human Handwriting AI",
+  "short_name": "Handwriting AI",
+  "description": "Browser-private digital penmanship studio. Format typed notes into handwritten sheets across 19 scripts and 23 notebook rulings with A4 PDF export.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5EEE0",
+  "theme_color": "#F5EEE0",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

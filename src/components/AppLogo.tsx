@@ -3,12 +3,12 @@ import React from 'react';
 interface AppLogoProps {
   className?: string;
   size?: number;
-  variant?: 'monochrome' | 'brand' | 'gold';
+  variant?: 'monochrome' | 'brand' | 'sienna';
 }
 
 /**
- * Clean, high-contrast Fountain Pen Nib + Ruled Paper & Handwritten Flourish emblem.
- * Engineered to stay crisp at 16px favicon sizes up to 64px hero marks.
+ * Clean Fountain Pen Nib + Ruled Paper & Handwritten Flourish emblem.
+ * Colors harmonize with Oxford Fountain Ink (#1B4965) and Warm Sienna (#E07A48).
  */
 export default function AppLogo({
   className = '',
@@ -16,10 +16,10 @@ export default function AppLogo({
   variant = 'brand',
 }: AppLogoProps) {
   const accentColor =
-    variant === 'gold'
-      ? '#C59B27'
+    variant === 'sienna'
+      ? '#9A4319'
       : variant === 'brand'
-      ? '#F5C451'
+      ? '#B45309'
       : 'currentColor';
 
   return (
@@ -42,7 +42,7 @@ export default function AppLogo({
         stroke="currentColor"
         strokeWidth="2.2"
       />
-      {/* Red Margin Line hint */}
+      {/* Margin Line */}
       <line
         x1="11.5"
         y1="6.5"
@@ -50,7 +50,7 @@ export default function AppLogo({
         y2="33.5"
         stroke={accentColor}
         strokeWidth="1.6"
-        strokeOpacity="0.85"
+        strokeOpacity="0.9"
       />
       {/* Horizontal Ruled Lines */}
       <line
@@ -60,7 +60,7 @@ export default function AppLogo({
         y2="14"
         stroke="currentColor"
         strokeWidth="1.4"
-        strokeOpacity="0.32"
+        strokeOpacity="0.34"
         strokeLinecap="round"
       />
       <line
@@ -70,7 +70,7 @@ export default function AppLogo({
         y2="20.5"
         stroke="currentColor"
         strokeWidth="1.4"
-        strokeOpacity="0.32"
+        strokeOpacity="0.34"
         strokeLinecap="round"
       />
       {/* Flowing Handwritten Signature Ink Stroke */}
@@ -81,7 +81,7 @@ export default function AppLogo({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* Precision Fountain Pen Nib angled onto page */}
+      {/* Precision Fountain Pen Nib */}
       <path
         d="M34.2 6.8L36.2 8.8C37 9.6 37 10.9 36.2 11.7L27.2 22.8L23.5 24.6L25.2 20.8L31.3 6.8C32.1 6 33.4 6 34.2 6.8Z"
         fill={accentColor}
@@ -95,7 +95,7 @@ export default function AppLogo({
         y1="22.4"
         x2="29.4"
         y2="17.8"
-        stroke="#18181B"
+        stroke="#1E1B18"
         strokeWidth="1.2"
         strokeLinecap="round"
       />
