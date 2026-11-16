@@ -15,6 +15,8 @@ import {
   FolderOpen,
   RotateCcw,
   Ruler,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { BUILT_IN_FONTS } from '../constants';
 import {
@@ -97,6 +99,7 @@ export default function UnifiedControlsPanel({
   // Single optional disclosure for margins, jitter, blots, and student header
   const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
   const [showClearConfirm, setShowClearConfirm] = useState<boolean>(false);
+  const [justCopied, setJustCopied] = useState<boolean>(false);
 
   // History snapshot tracking
   const [history, setHistory] = useState<string[]>([rawText]);
@@ -173,6 +176,47 @@ export default function UnifiedControlsPanel({
     }
     textareaRef.current?.focus();
     onNotify?.('Tap inside the text box and paste (Ctrl+V / Cmd+V).', 'info');
+  };
+
+  const handleCopyClipboard = async () => {
+    if (!rawText) {
+      onNotify?.('Nothing to copy yet — type or paste some text first.', 'info');
+      return;
+    }
+
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(rawText);
+        copied = true;
+      }
+    } catch {
+      // Fall back to execCommand below when iframe blocks async clipboard API
+    }
+
+    if (!copied) {
+      try {
+        const helper = document.createElement('textarea');
+        helper.value = rawText;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'fixed';
+        helper.style.left = '-9999px';
+        document.body.appendChild(helper);
+        helper.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(helper);
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (copied) {
+      setJustCopied(true);
+      setTimeout(() => setJustCopied(false), 2000);
+      onNotify?.('Copied drafted text to clipboard!', 'success');
+    } else {
+      onNotify?.('Unable to access clipboard automatically.', 'error');
+    }
   };
 
   const handleTextareaPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -264,7 +308,7 @@ export default function UnifiedControlsPanel({
         {/* ========================================================================= */}
         <section className={`rounded-2xl border overflow-hidden transition-colors ${cardSurfaceClass}`}>
           <div
-            className={`px-4 py-3 border-b flex items-center justify-between gap-2 ${
+            className={`px-4 py-3 border-b flex items-center justify-between gap-2 flex-wrap ${
               isLight ? 'bg-[#FAF4E8] border-[#EAE0CD]' : 'bg-[#080F1E] border-sky-300/15'
             }`}
           >
@@ -272,11 +316,11 @@ export default function UnifiedControlsPanel({
               <h2 className={`text-sm font-bold tracking-tight ${isLight ? 'text-[#1E1B18]' : 'text-white'}`}>1. Write or Paste Text</h2>
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1.5 flex-wrap shrink-0">
               <button
                 type="button"
                 onClick={handlePasteClipboard}
-                className={`cursor-pointer min-h-[38px] text-xs font-semibold rounded-xl px-3 flex items-center gap-1.5 transition-colors border whitespace-nowrap active:scale-95 ${
+                className={`cursor-pointer min-h-[38px] text-xs font-semibold rounded-xl px-2.5 flex items-center gap-1.5 transition-colors border whitespace-nowrap active:scale-95 ${
                   isLight
                     ? 'bg-[#F6EBE0] hover:bg-[#EFE0D0] border-[#E2C2A8] text-[#8F3D15]'
                     : 'bg-sky-500/15 hover:bg-sky-500/25 border-sky-400/35 text-sky-200'
@@ -285,6 +329,33 @@ export default function UnifiedControlsPanel({
               >
                 <ClipboardPaste className={`w-3.5 h-3.5 ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`} />
                 <span>Paste</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyClipboard}
+                disabled={!rawText}
+                aria-label="Copy to Clipboard"
+                title="Copy to Clipboard"
+                className={`cursor-pointer min-h-[38px] text-xs font-semibold rounded-xl px-2.5 flex items-center gap-1.5 transition-colors border whitespace-nowrap disabled:opacity-40 active:scale-95 ${
+                  justCopied
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                    : isLight
+                    ? 'bg-[#FFFDF8] hover:bg-[#FAF4E8] border-[#D7CCB5] text-[#1E1B18]'
+                    : 'bg-[#121D35] hover:bg-[#192847] border-sky-300/20 text-slate-200'
+                }`}
+              >
+                {justCopied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className={`w-3.5 h-3.5 ${isLight ? 'text-[#9A4319]' : 'text-sky-300'}`} />
+                    <span>Copy Text</span>
+                  </>
+                )}
               </button>
 
               <button
