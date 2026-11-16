@@ -8,12 +8,14 @@ interface FooterProps {
   onNavigate: (page: AppPage) => void;
   onOpenPolicy: (type: PolicyTab) => void;
   onOpenBuyCoffee: () => void;
+  onOpenShare: () => void;
 }
 
 export default function Footer({
   onNavigate,
   onOpenPolicy,
   onOpenBuyCoffee,
+  onOpenShare,
 }: FooterProps) {
   const linkClass =
     'cursor-pointer text-sm text-[#4A433A] hover:text-[#9A4319] transition-colors text-left';
@@ -118,6 +120,11 @@ export default function Footer({
               <li>
                 <button type="button" onClick={onOpenBuyCoffee} className={linkClass}>
                   Tip / Buy Coffee
+                </button>
+              </li>
+              <li>
+                <button type="button" onClick={onOpenShare} className={linkClass}>
+                  Share With Friends
                 </button>
               </li>
               <li>

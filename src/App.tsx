@@ -23,6 +23,7 @@ import PolicyModal, { PolicyTab } from './components/PolicyModal';
 import PaperGalleryModal from './components/PaperGalleryModal';
 import FloatingActions from './components/FloatingActions';
 import AdBannerSlot from './components/AdBannerSlot';
+import ShareModal from './components/ShareModal';
 import {
   downloadAssignmentAsPdf,
   downloadAssignmentSinglePage,
@@ -241,9 +242,68 @@ export default function App() {
   const [isDiagramModalOpen, setIsDiagramModalOpen] = useState<boolean>(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isPaperGalleryOpen, setIsPaperGalleryOpen] = useState<boolean>(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [policyModalType, setPolicyModalType] = useState<PolicyTab | null>(
     initialRoute.policyTab
   );
+
+  // Sync SEO title & meta description dynamically per active page/tool
+  useEffect(() => {
+    const ROUTE_SEO: Record<AppPage, { title: string; description: string }> = {
+      home: {
+        title: 'Human Handwriting AI — Text to Realistic Handwriting PDF',
+        description:
+          'Convert typed text into realistic handwriting on lined, Cornell, or grid notebook paper. Free online tool with 19 scripts, margin guides, and A4 PDF export.',
+      },
+      editor: {
+        title: 'Handwriting Studio Editor — Convert Text to Handwritten PDF',
+        description:
+          'Write or upload text, customize ink, font size, margin guides, and diagrams, and download print-ready multi-page handwritten PDFs in your browser.',
+      },
+      features: {
+        title: 'Features — 19 Scripts, 23 Papers & Local PDF Export | Human Handwriting AI',
+        description:
+          'Explore penmanship styles, procedural A4 rulings, margin alignment guides, diagram drawing, and browser-private PDF/PNG export.',
+      },
+      styles: {
+        title: '19 Handwriting Styles Gallery — Preview Cursive & Print Scripts',
+        description:
+          'Compare 19 open handwriting fonts live with your own sample sentence or upload custom .ttf/.otf/.woff handwriting fonts.',
+      },
+      papers: {
+        title: '23 Notebook Paper Templates — Ruled, Cornell, Grid & Cream Sheets',
+        description:
+          'Preview college-ruled, French Seyes, Cornell notes, quad grid, and cream archival paper sheets calibrated for clean A4 export.',
+      },
+      tools: {
+        title: 'Handwriting Tools & Workflows — Notes, Letters & Study Sheets',
+        description:
+          'Launch specialized workflows for typed notes to handwriting, cursive scripts, study sheets, and formatted handwritten assignments.',
+      },
+      faq: {
+        title: 'FAQ & Privacy Guide — Human Handwriting AI',
+        description:
+          'Answers on browser-local privacy, open font licensing, custom font uploads, margin guides, and multi-page A4 PDF downloads.',
+      },
+    };
+
+    let nextSeo = ROUTE_SEO[currentPage] || ROUTE_SEO.home;
+    if (currentPage === 'tools' && selectedToolSlug) {
+      const matchedTool = TOOLS_CATALOG.find((t) => t.slug === selectedToolSlug);
+      if (matchedTool) {
+        nextSeo = {
+          title: `${matchedTool.title} — Human Handwriting AI`,
+          description: matchedTool.description,
+        };
+      }
+    }
+
+    document.title = nextSeo.title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', nextSeo.description);
+    }
+  }, [currentPage, selectedToolSlug]);
 
   const openPolicy = useCallback((type: PolicyTab) => {
     setPolicyModalType(type);
@@ -570,6 +630,7 @@ export default function App() {
         setIsBuyCoffeeOpen(false);
         setIsExportModalOpen(false);
         setIsPaperGalleryOpen(false);
+        setIsShareModalOpen(false);
         setPolicyModalType(null);
         return;
       }
@@ -654,6 +715,7 @@ export default function App() {
             onNavigate={(page) => navigateTo(page, null)}
             onStartWithSetup={handleStartWithSetup}
             onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
+            onOpenShare={() => setIsShareModalOpen(true)}
           />
         )}
 
@@ -1010,6 +1072,7 @@ export default function App() {
         onNavigate={(page) => navigateTo(page, null)}
         onOpenPolicy={openPolicy}
         onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
+        onOpenShare={() => setIsShareModalOpen(true)}
       />
       </div>
 
@@ -1024,6 +1087,7 @@ export default function App() {
         onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
         onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
         onOpenPolicy={openPolicy}
+        onOpenShare={() => setIsShareModalOpen(true)}
         onAddPage={handleAddPage}
         onUpdateFontSize={(newFontSize) =>
           setSettings((prev) => ({ ...prev, fontSize: newFontSize }))
@@ -1047,6 +1111,12 @@ export default function App() {
       <BuyCoffeeModal
         isOpen={isBuyCoffeeOpen}
         onClose={() => setIsBuyCoffeeOpen(false)}
+      />
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onNotify={showToast}
       />
 
       <ExportModal

@@ -10,6 +10,7 @@ import {
   Coffee,
   Heart,
   ShieldCheck,
+  Share2,
 } from 'lucide-react';
 import { AppPage, PaperType } from '../../types';
 import { getPaperBackgroundStyle } from '../../utils/paperStyles';
@@ -20,6 +21,7 @@ interface HomeViewProps {
   onNavigate: (page: AppPage) => void;
   onStartWithSetup: (text: string, fontId: string, paperType: PaperType, inkColor: string) => void;
   onOpenBuyCoffee: () => void;
+  onOpenShare?: () => void;
 }
 
 const STUDIO_SAMPLES = [
@@ -58,6 +60,7 @@ export default function HomeView({
   onNavigate,
   onStartWithSetup,
   onOpenBuyCoffee,
+  onOpenShare,
 }: HomeViewProps) {
   const [activeSampleId, setActiveSampleId] = useState('physics');
   const [heroText, setHeroText] = useState(STUDIO_SAMPLES[0].text);
@@ -148,6 +151,19 @@ export default function HomeView({
                   <Coffee className="w-3.5 h-3.5" />
                   <span>Tip Plenty a Coffee</span>
                 </button>
+                {onOpenShare && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <button
+                      type="button"
+                      onClick={onOpenShare}
+                      className="cursor-pointer font-semibold text-[#1E1B18] hover:text-[#9A4319] hover:underline inline-flex items-center gap-1"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#9A4319]" />
+                      <span>Share Studio</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 

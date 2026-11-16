@@ -13,6 +13,7 @@ import {
   FileText,
   Layers,
   ShieldCheck,
+  Share2,
 } from 'lucide-react';
 import { AppPage } from '../types';
 import { PolicyTab } from './PolicyModal';
@@ -27,6 +28,7 @@ interface FloatingActionsProps {
   onOpenBuyCoffee: () => void;
   onOpenHowItWorks: () => void;
   onOpenPolicy: (type: PolicyTab) => void;
+  onOpenShare: () => void;
   onAddPage: () => void;
   onUpdateFontSize: (size: number) => void;
   onToggleMarginGuides: () => void;
@@ -42,6 +44,7 @@ export default function FloatingActions({
   onOpenBuyCoffee,
   onOpenHowItWorks,
   onOpenPolicy,
+  onOpenShare,
   onAddPage,
   onUpdateFontSize,
   onToggleMarginGuides,
@@ -169,6 +172,16 @@ export default function FloatingActions({
 
           {/* Universal Helpful Floating Tools */}
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            <button
+              type="button"
+              onClick={onOpenShare}
+              className={secondaryBtnClass}
+              title="Share Human Handwriting AI with friends"
+            >
+              <Share2 className="w-3.5 h-3.5 text-[#9A4319]" />
+              <span>Share</span>
+            </button>
+
             <button
               type="button"
               onClick={onOpenHowItWorks}
