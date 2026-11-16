@@ -15,7 +15,6 @@ import { AppPage, PaperType } from '../../types';
 import { getPaperBackgroundStyle } from '../../utils/paperStyles';
 import MiniPaperSample from '../MiniPaperSample';
 import StudentTestimonials from '../StudentTestimonials';
-import AdBannerSlot from '../AdBannerSlot';
 
 interface HomeViewProps {
   onNavigate: (page: AppPage) => void;
@@ -666,15 +665,6 @@ Topic: Binary Search Tree Traversal
       {/* 5. STUDENT REVIEWS                                                    */}
       {/* ===================================================================== */}
       <StudentTestimonials theme="light" onOpenCoffeeModal={onOpenBuyCoffee} />
-
-      {/* Clean Sponsored Horizontal Strip */}
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-10">
-        <AdBannerSlot
-          variant="horizontal"
-          slotId="adsterra-home-horizontal-slot"
-          onOpenBuyCoffee={onOpenBuyCoffee}
-        />
-      </div>
 
       {/* ===================================================================== */}
       {/* 6. 100% FREE + OPTIONAL COFFEE TIP                                    */}

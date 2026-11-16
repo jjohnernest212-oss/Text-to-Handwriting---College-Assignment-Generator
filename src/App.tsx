@@ -640,6 +640,15 @@ export default function App() {
 
       {/* Page Router Outlet */}
       <main id="main-content" className="flex-1 flex flex-col">
+        {/* Clean Non-Blocking Top Banner */}
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-3 pb-1">
+          <AdBannerSlot
+            variant="top"
+            slotId="banner-top-slot"
+            onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
+          />
+        </div>
+
         {currentPage === 'home' && (
           <HomeView
             onNavigate={(page) => navigateTo(page, null)}
@@ -908,12 +917,6 @@ export default function App() {
                     </div>
                   </div>
                 )}
-                {/* Horizontal Ad Banner below printable paper preview */}
-                <AdBannerSlot
-                  variant="horizontal"
-                  slotId="monetag-preview-bottom-slot"
-                  onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
-                />
               </section>
             </div>
 
@@ -987,20 +990,20 @@ export default function App() {
                     </p>
                   </div>
                 </div>
-
-                {/* Compact 468x60 Adsterra Banner below studio guide */}
-                <div className="pt-2 max-w-2xl mx-auto">
-                  <AdBannerSlot
-                    variant="compact"
-                    slotId="adsterra-468-guide-slot"
-                    onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
-                  />
-                </div>
               </div>
             </section>
           </div>
         )}
       </main>
+
+      {/* Single Clean Above-Footer Banner Slot */}
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4">
+        <AdBannerSlot
+          variant="horizontal"
+          slotId="banner-above-footer-slot"
+          onOpenBuyCoffee={() => setIsBuyCoffeeOpen(true)}
+        />
+      </div>
 
       {/* Quiet Unified Footer */}
       <Footer
